@@ -69,9 +69,14 @@ app.post('/', async (req,res)=> {
 
 app.get('/dashboard', (req,res)=>{
   if (req.session.user)
-      res.render('pages/dashboard')
+  {
+    var results = {'name': req.session.user.f_uname}
+    res.render('pages/dashboard', results)
+  }
   else
-      res.redirect('/')
+  {
+    res.redirect('/')
+  }
 })
 
 
