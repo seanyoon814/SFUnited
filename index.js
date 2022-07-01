@@ -8,7 +8,7 @@ const { query } = require('express')
 var pool;
 pool = new Pool(
   {
-    connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+    // connectionString: 'postgres://postgres:elchapo0814@localhost/users'
   })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 async function scrape(firstName, lastName, subject)
