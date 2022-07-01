@@ -4,14 +4,25 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href = "public/dashboard.css">
     <title>Dashboard</title>
 </head>
 <body>
     <span>
-        <h1>User successfully logged in as </h1>
-        <ul>
-            <li><%= name%></li>
-        </ul>
+        <h1>Dashboard </h1>
+        <div class="flex">
+                <form class="page" action="/scheduler" method="post">
+                    <input type="submit" name="sub" value="Visit" class="submit1">
+                </form>
+            
+                <form class="page" action="/navigation" method="post">
+                    <input type="submit" name="sub" value="Visit2" class="submit2">
+                </form>
+            
+                <form class="page" action="/socials" method="post">
+                    <input type="submit" name="sub" value="Visit3" class="submit3">
+                </form>
+        </div>
     </span>
 </body>
 </html>
