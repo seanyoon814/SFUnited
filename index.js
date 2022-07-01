@@ -5,11 +5,15 @@ const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
 const { query } = require('express')
+const { resolve } = require('path')
 var pool;
-pool = new Pool(
-  {
-    
-  })
+pool = new Pool({
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
+})
+
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 async function scrape(firstName, lastName, subject)
 {
@@ -63,24 +67,31 @@ app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 app.get('/login', (req, res)=>{
   res.render('pages/login')
 })
-async function checkUsers(name, password)
+
+function checkUsers(name, password)
 {
-  var getUsersQuery = `SELECT * FROM usr`;
-  pool.query(getUsersQuery, (error, result)=>{
-    if(error)
-      res.send(error);
-    var results = {'rows':result.rows}
-    for(var i = 0; i<results.rows.length; i++)
-    {
-      var r1 = results['rows'][i]['fname'].toString()
-      var r2 = results['rows'][i]['fpassword'].toString()
-      if(r1.trim() == name.trim())
-      {
-        console.log("Ran")
-        return 1;
-      }
-    }
-    return 0;
+  return new Promise((resolve, reject)=>
+  {
+    var getUsersQuery = `SELECT * FROM usr`;
+    setTimeout(() => {
+      pool.query(getUsersQuery, (error, result)=>{
+        if(error)
+          res.send(error);
+        var results = {'rows':result.rows}
+        for(var i = 0; i<results.rows.length; i++)
+        {
+          var r1 = results['rows'][i]['fname'].toString()
+          var r2 = results['rows'][i]['fpassword'].toString()
+          if(r1.trim() == name.trim() && r2.trim() == password.trim())
+          {
+            console.log("Ran")
+            resolve(1);
+            return 1;
+          }
+        }
+        resolve(0);
+        return 0;
+    }, 100)})
   })
 }
 app.post('/', async (req,res)=> {
@@ -90,11 +101,9 @@ app.post('/', async (req,res)=> {
   // INSERT INTO usr (fname, fpassword)
   // VALUES ('${un}', '${pwd}')
   // `;
-  var bool = await checkUsers(un, pwd)
-  console.log(bool)
+  const bool = await checkUsers(un, pwd)
   if(Number(bool) == 1)
   {
-    console.log("Ran here")
     req.session.user = req.body
     res.redirect('/dashboard')
   }
