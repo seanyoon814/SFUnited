@@ -62,6 +62,7 @@ app.post('/createaccount', (req, res)=>{
   var pwd = req.body.f_pwd
   var fname = req.body.f_fname
   var lname = req.body.f_lname
+  // test
   var queryString = `
   INSERT INTO usr (fname, lname, uname, fpassword)
   VALUES ('${fname}', '${lname}', '${un}', '${pwd}')
