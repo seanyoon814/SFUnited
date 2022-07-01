@@ -4,8 +4,12 @@ const session = require('express-session')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
+const { query } = require('express')
 var pool;
-
+pool = new Pool(
+  {
+    connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 async function scrape(firstName, lastName, subject)
 {
@@ -59,15 +63,40 @@ app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 app.get('/login', (req, res)=>{
   res.render('pages/login')
 })
+async function checkUsers(name, password)
+{
+  var getUsersQuery = `SELECT * FROM usr`;
+  pool.query(getUsersQuery, (error, result)=>{
+    if(error)
+      res.send(error);
+    var results = {'rows':result.rows}
+    for(var i = 0; i<results.rows.length; i++)
+    {
+      var r1 = results['rows'][i]['fname'].toString()
+      var r2 = results['rows'][i]['fpassword'].toString()
+      if(r1.trim() == name.trim())
+      {
+        console.log("Ran")
+        return 1;
+      }
+    }
+    return 0;
+  })
+}
 app.post('/', async (req,res)=> {
   var un = req.body.f_uname
   var pwd = req.body.f_pwd
-  console.log(un)
-  console.log(pwd)
-  if ((un==='bobby'&&pwd==='1234') || (un==='jane'&&pwd==='2345')){
-      // valid
-      req.session.user = req.body
-      res.redirect('/dashboard')
+  // var queryString = `
+  // INSERT INTO usr (fname, fpassword)
+  // VALUES ('${un}', '${pwd}')
+  // `;
+  var bool = await checkUsers(un, pwd)
+  console.log(bool)
+  if(Number(bool) == 1)
+  {
+    console.log("Ran here")
+    req.session.user = req.body
+    res.redirect('/dashboard')
   }
   else{
       res.redirect('/')
