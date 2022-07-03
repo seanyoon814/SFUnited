@@ -57,6 +57,10 @@ app.post('/', async (req,res)=> {
 app.get('/createaccount', (req, res)=>{
   res.render('pages/createaccount')
 })
+app.get('/logout', (req, res)=>{
+  req.session.destroy();
+  res.redirect('/')
+})
 app.post('/createaccount', (req, res)=>{
   var un = req.body.f_uname
   var pwd = req.body.f_pwd
