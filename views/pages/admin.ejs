@@ -13,10 +13,12 @@
 
 <ul>
     <% rows.forEach(function(r) { %>
-        <li><%= r.fname %>, <%= r.lname %>, <%= r.uname %>, <%= r.fpassword %></li>
+        <li>Name: <b><%= r.fname %></b>, Last Name: <b><%= r.lname %></b>, Username: <b><%= r.uname %></b>, Password: <b><%= r.fpassword %></b></li>
     <% }); %>
 </ul>
-
+<form class ="page" action ="/logout" method = "get">
+    <input type="submit" name = "logout" value = "Log out">
+</form>
 </div>
 
 </body>

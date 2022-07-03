@@ -8,10 +8,11 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  // connectionString: process.env.DATABASE_URL, 
+  // ssl: {
+  //     rejectUnauthorized: false
+  //   }
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -51,7 +52,7 @@ app.post('/', async (req,res)=> {
     req.session.user = req.body
     res.redirect('/admin')
   }
-  if(Number(bool) == 1)
+  else if(Number(bool) == 1)
   {
     req.session.user = req.body
     res.redirect('/dashboard')
@@ -65,6 +66,7 @@ app.get('/createaccount', (req, res)=>{
 })
 app.get('/logout', (req, res)=>{
   req.session.destroy();
+  isAdmin = 0;
   res.redirect('/')
 })
 app.post('/createaccount', (req, res)=>{
@@ -141,7 +143,7 @@ function checkUsers(name, password)
     if(name.trim() == 'admin' && password.trim() == 'admin')
     {
       isAdmin = 1;
-      return 2;
+      resolve(2);
     }
     var getUsersQuery = `SELECT * FROM usr`;
     setTimeout(() => {
@@ -155,7 +157,6 @@ function checkUsers(name, password)
           var r2 = results['rows'][i]['fpassword'].toString()
           if(r1.trim() == name.trim() && r2.trim() == password.trim())
           {
-            console.log("Ran")
             resolve(1);
             return 1;
           }
@@ -169,7 +170,6 @@ function checkUsers(name, password)
 //webscrape api
 async function scrape(firstName, lastName, subject)
 {
-  console.log("Ran")
   for(let i = 0; i<letters.length; i++)
   {
     const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + firstName + '&last=' + lastName + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
