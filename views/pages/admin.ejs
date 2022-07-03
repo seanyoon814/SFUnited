@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include ("../partials/header.ejs") %>
+</head>
+
+<body>
+
+<%- include ("../partials/nav.ejs") %>
+
+<div class="container">
+<h2>All registered users in database</h2>
+
+<ul>
+    <% rows.forEach(function(r) { %>
+        <li><%= r.fname %>, <%= r.lname %>, <%= r.uname %>, <%= r.fpassword %></li>
+    <% }); %>
+</ul>
+
+</div>
+
+</body>
+</html>

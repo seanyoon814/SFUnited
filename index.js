@@ -16,6 +16,7 @@ pool = new Pool({
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 var app = express()
+var isAdmin = 0;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -45,6 +46,11 @@ app.post('/', async (req,res)=> {
   var un = req.body.f_uname
   var pwd = req.body.f_pwd
   const bool = await checkUsers(un, pwd)
+  if(Number(bool) == 2 && isAdmin == 1)
+  {
+    req.session.user = req.body
+    res.redirect('/admin')
+  }
   if(Number(bool) == 1)
   {
     req.session.user = req.body
@@ -82,6 +88,27 @@ app.post('/createaccount', (req, res)=>{
     }
   })
 })
+app.get('/admin', (req, res)=>{
+  //user is an admin
+  if(req.session.user && isAdmin == 1)
+  {
+    var getUsersQuery = `SELECT * FROM usr`;
+    pool.query(getUsersQuery, (error, result)=>{
+      var results = {'rows':result.rows}
+      res.render('pages/admin', results)
+    })
+  }
+  //user is logged in, but not an admin
+  else if(req.session.user)
+  {
+    res.redirect('/dashboard')
+  }
+  //user is not logged in
+  else
+  {
+    res.redirect('/')
+  }
+})
 app.get('/dashboard', (req,res)=>{
   if (req.session.user)
   {
@@ -103,12 +130,19 @@ app.get('/schedule', (req, res)=>{
 })
 
 //Function to check if logged in users are registered in "usr" table.
-//Returns 1 if there is, 0 otherwise
+//Returns 1 if there is
+//returns 2 if the logged in user is an admin
+//0 otherwise (err)
 function checkUsers(name, password)
 {
   //create a promise 
   return new Promise((resolve, reject)=>
   {
+    if(name.trim() == 'admin' && password.trim() == 'admin')
+    {
+      isAdmin = 1;
+      return 2;
+    }
     var getUsersQuery = `SELECT * FROM usr`;
     setTimeout(() => {
       pool.query(getUsersQuery, (error, result)=>{
