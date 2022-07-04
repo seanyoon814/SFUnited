@@ -49,17 +49,33 @@
                 border-radius:2%;
                 color:white;
                 text-align: center;">
-                <div>
+                
+                <div style="color: white; 
+                text-align: left; 
+                margin-top: 1%; 
+                margin-left: 1%; 
+                font-family: Arial, Helvetica, sans-serif;
+                font-weight:550;">
+                    <form action ='/' method = 'GET'>
+                        <input type="submit" value ='X' 
+                        style= "background-color: black;
+                        color: white;">
+                    </form>
+                </div>
+
+                <div style="margin-top:-2%;">
                     <img 
                     src="logo.png"
                     alt="logo" 
                     width="200px"
                     >
                 </div>
+
                 <div style="margin-top:-2%; font-size: 32px; font-weight:700;">
                     Sign up for SFUnited
                 </div>
-                <form action = '/createaccount' method = 'POST' style="margin-top:6%;">
+
+                <form action = '/createaccount' method = 'POST' style="margin-top:5%;">
                     <input type="text" id="uname" name="f_fname" placeholder="First Name" 
                     style="width: 70%;
                     padding: 12px;
@@ -71,7 +87,7 @@
                     background-color: white;
                     color: black;
                     font-weight:600;
-                    font-family: Arial, Helvetica, sans-serif;"> 
+                    font-family: Arial, Helvetica, sans-serif;" required> 
                     <input type="text" id="password" name="f_lname" placeholder="Last Name" 
                     style="width: 70%;
                     padding: 12px;
@@ -84,7 +100,7 @@
                     background-color: white;
                     color: black;
                     font-weight:600;
-                    font-family: Arial, Helvetica, sans-serif;">
+                    font-family: Arial, Helvetica, sans-serif;" required>
                     <input type="text" id="uname" name="f_uname" placeholder="Username" 
                     style="width: 70%;
                     padding: 12px;
@@ -96,7 +112,8 @@
                     background-color: white;
                     color: black;
                     font-weight:600;
-                    font-family: Arial, Helvetica, sans-serif;"> 
+                    margin-top:2%;
+                    font-family: Arial, Helvetica, sans-serif;" required> 
                     <input type="password" id="password" name="f_pwd" placeholder="Password" 
                     style="width: 70%;
                     padding: 12px;
@@ -108,7 +125,8 @@
                     background-color: white;
                     color: black;
                     font-weight:600;
-                    font-family: Arial, Helvetica, sans-serif;"> 
+                    margin-top:2%;
+                    font-family: Arial, Helvetica, sans-serif;" required> 
                     <input type="submit" value="Sign up"
                     style="color:black; 
                     font-weight:700; 
@@ -123,7 +141,13 @@
                 <div style="margin-top:20px; font-weight:600; font-family: Arial, Helvetica, sans-serif;">
                     Already have an account?
                     <form action ='/' method = 'GET'>
-                        <input type="submit" value ='Log in' style="margin-top:20px; font-weight:600; font-family: Arial, Helvetica, sans-serif;">
+                        <input type="submit" value ='Log in' style="margin-top:20px; 
+                        border:1px solid gray; 
+                        border-radius: 40px; 
+                        background-color: white;
+                        font-weight:600;
+                        width:30%; 
+                        font-family: Arial, Helvetica, sans-serif;">
                     </form>
                 </div>
             </div>
