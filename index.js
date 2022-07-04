@@ -8,10 +8,11 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  // connectionString: 'process.env.DATABASE_URL, '
+  // ssl: {
+  //     rejectUnauthorized: false
+  //   }
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -68,7 +69,7 @@ app.get('/logout', (req, res)=>{
   isAdmin = 0;
   res.redirect('/')
 })
-app.post('/createaccount', (req, res)=>{
+app.post('/createaccount', async (req, res)=>{
   var un = req.body.f_uname
   var pwd = req.body.f_pwd
   var fname = req.body.f_fname
@@ -78,16 +79,25 @@ app.post('/createaccount', (req, res)=>{
   INSERT INTO usr (fname, lname, uname, fpassword)
   VALUES ('${fname}', '${lname}', '${un}', '${pwd}')
   `;
-  pool.query(queryString, (error, response)=>{
-    if(error)
-    {
-      res.send(error)
-    }
-    else
-    {
-      res.redirect('/')
-    }
-  })
+  const bool = await checkExistingUser(un)
+  if(bool == 0)
+  {
+    pool.query(queryString, (error, response)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.redirect('/')
+      }
+    })
+  }
+  else
+  {
+    var str = 'An account with this username already exists.'
+    res.redirect('/createaccount')
+  }
 })
 app.get('/admin', (req, res)=>{
   //user is an admin
@@ -165,7 +175,32 @@ function checkUsers(name, password)
     }, 100)})
   })
 }
-
+//function to check duplicate users
+function checkExistingUser(name)
+{
+  //create a promise 
+  return new Promise((resolve, reject)=>
+  {
+    var getUsersQuery = `SELECT * FROM usr`;
+    setTimeout(() => {
+      pool.query(getUsersQuery, (error, result)=>{
+        if(error)
+          resolve(0);
+        var results = {'rows':result.rows}
+        for(var i = 0; i<results.rows.length; i++)
+        {
+          var r1 = results['rows'][i]['uname'].toString()
+          if(r1.trim() == name.trim())
+          {
+            resolve(1);
+            return 1;
+          }
+        }
+        resolve(0);
+        return 0;
+    }, 100)})
+  })
+}
 //webscrape api
 async function scrape(firstName, lastName, subject)
 {
