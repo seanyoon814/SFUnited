@@ -1,10 +1,302 @@
-.flex > *{
-    display:inline-block;
-    justify-content: center;
-    align-items: center;
+:root{
+    --primary-color: #0a1118;
+    --primary-color-highlight: #233D54;
+
+    /* bootstrap background colour and font*/
+    --bs-body-bg: #FBF0F6;
+    --bs-body-font-family: 'Montserrat', sans-serif;
 }
 
-.flex > form + form {
-    margin-top:20px;
+/* change colour of the links */
+a{color: var(--primary-color);}
+/* change colour of the links when hovering over */
+a:hover{color: rgb(214, 49, 37);}
+
+/* 
+    media queries that will break and shift from desktop to mobile
+    changes the text of hero to fit the screen
+
+    @media (min-width: 570px)  {}
+    @media (min-width: 768px)  {}
+    @media (min-width: 992px)  {}
+    @media (min-width: 1200px) {}
+    @media (min-width: 1400px) {}
+    @media (min-width: 1600px) {} 
+
+    these numbers represent the moment bootrstrap grids switch 
+*/
+@media (min-width: 1200px) {
+    .container__hero{
+        width: 1140px;
+    }
 }
+
+@media (min-width: 1400px) {
+    .container__hero{
+        width: 1340px;
+    }
+    /* adjust the heading of hero box when large enough*/
+    .hero__heading{
+        font-size:3.2rem;
+    }
+}
+
+
+@media (min-width: 1600px) {
+    .container__hero{
+        width: 1520px;
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/*
+    Main Header
+*/
+.header{
+    /* need z index becasue main header is positioned absolute*/
+    /* sets the order of things rendered out first (greater the Z, more recent the render*/
+    z-index: 2;
+}
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* 
+    Navigation Bar (Menu Button)
+*/
+#navbar{
+    /* Menu always stays on top even if you scroll */
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    /* background colour when the navbar is on */
+    /* background-color: rgb(255, 247, 231); */
+    background-color: var(--bs-body-bg);
+
+    /* ensures that the navbar is rendered above the screen */
+    z-index: 4;
+}
+
+/* 
+    Exit Button for Nav Bar
+*/
+.dropdown-nav__closeNavButton{
+    position: absolute;
+    top: 20px;
+    right: 16px;
+    /* set colour and opacity */
+    /* background-color: rgba(255, 255, 255, 0.6); */
+    /* background-color: rgb(4, 201, 245,0.6); */
+    background-color: var(--bs-body-bg);
+}
+
+/*
+    Animation for Menu container after you press the menu
+    Fixes the animation stutter
+*/
+dropdown-nav__container{
+    /* sets the height of the container to be 100% of the viewport/visable area on screen */
+    /*1vh is 1% of the visable area, 100vh is 100%*/
+    height: 100vh;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+}
+
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* 
+    Hero Section (large Picture on the front)
+*/
+.hero{
+    /* positioned relative to its normal position, so "left:20px" adds 20 pixels to the element's LEFT position */
+    position: relative;
+    /*1vh is 1% of the visable area, 100vh is 100%*/
+    height: 100vh;
+    background-color: var(--primary-color);
+    /* if any video goes past container/too big for formatting, cut it off */
+    overflow: hidden;
+}
+
+
+
+/*
+    cotainer for the text in the hero
+*/
+.container__hero{
+    width: 100%;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+
+/* text ontop of the hero */
+/* text is the first layer drawn */
+.hero__text{
+    z-index: 1;
+}
+
+/*
+    style for the video in the dashboard
+    ensure that it will stay in it's correct spot
+*/
+.hero__video{
+    position: absolute;
+    top: 50%;
+    left:50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    /* shifts the video up and to the left so it fits properly/
+    /* transform: translateX(-50%) translateY(-56%); */
+    transform: translateX(-50%) translateY(-50%);
+}
+
+/*
+    places a gradiant which darkens the screen over the hero
+*/
+.hero__overlay{
+    position: absolute;
+    top: 0;
+    left:0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--primary-color);
+    opacity: 0.5;
+    z-index: 1;
+}
+
+
+.hero__text{
+    z-index: 1;
+}
+
+/* set max width  */
+.hero__text_width{
+    max-width: 600px;
+}
+
+/*
+    Style for the button that scrolls to the bottom of the page when hit
+*/
+.hero_scroll_button{
+    /*set the positions of the button*/
+    position: absolute;
+    /* set center */
+    left: 50%;
+    /* shift up 25px */
+    bottom: 25px;
+    transform: translateX(-50%);
+    z-index: 1;
+    color: white;
+    flex-direction: column;
+    align-items: center;
+    /* no underline */
+    text-decoration: none;
+}
+
+/*
+    Keeps the button the same colour when hovering over it
+*/
+.hero_scroll_button:hover{
+    color: white;
+    opacity: 0.8;
+}
+
+.hero_scroll_button.bi{
+    transition-delay: 1s;
+    animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+    from{
+        transform: translateY(0px);
+    }
+    to{
+        tranform: translateY(-10px);
+    }
+}
+
+
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* 
+    Body Sections (main info)
+*/
+/* container for the main body section of the home page */
+/* really don't need this but idk if I should delete this or not */
+.body{
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+/* style for the body picture */
+.body__text_picture{
+    height: auto;
+    margin: 0 auto;
+}
+
+/* adjust if mobile */
+@media(min-width: 544px){
+    .steps{
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+}
+
+/* container for the body */
+.container_body{
+    width: 100%;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+
+/* max width for the main text body */
+/* shifts it to the center */
+.body__text_width{
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+/*
+    background colour for 
+*/
+.body__background_colour{
+    /* background-color:#cd2626; */
+    background-color: #CC0633;
+}
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* 
+    Footer Section
+*/
+
+/*
+    Footer box
+*/
+.footer{
+    border-top: 1px solid var(--primary-color-highlight);
+}
+
+.border_highlight{
+    border-top: 1px solid var(--primary-color-highlight);
+}
+
+/* container for the footery */
+/* adds padding so footer is slightly moved towards the center */
+.container_footer{
+    width: 100%;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+
+
 
