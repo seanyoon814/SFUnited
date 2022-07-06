@@ -74,9 +74,9 @@
                 <div style="margin-top:-2%; font-size: 32px; font-weight:700;">
                     Sign up for SFUnited
                 </div>
-
-                <form action = '/createaccount' method = 'POST' style="margin-top:5%;">
-                    <input type="text" id="uname" name="f_fname" placeholder="First Name" 
+                <div class="form-popup" id="myForm">
+                <form class="form-container" action = '/createaccount' id ="the_form" method = 'POST' style="margin-top:5%;">
+                    <input type="text" id="uname" name="f_fname" placeholder="First Name"
                     style="width: 70%;
                     padding: 12px;
                     border: 1px solid grey;
@@ -137,6 +137,7 @@
                     class="btn btn-light
                     font-family: Arial, Helvetica, sans-serif;">
                 </form>
+                </div>
                 <!-- <p></p> -->
                 <div style="margin-top:20px; font-weight:600; font-family: Arial, Helvetica, sans-serif;">
                     Already have an account?
@@ -153,5 +154,16 @@
             </div>
         
         </div>
+        <script>
+            // When the user clicks on <div>, open the popup
+                function openForm() {
+                    document.getElementById("myForm").style.display = "block";
+                }
+
+                function closeForm() {
+                    document.getElementById("myForm").style.display = "none";
+                }
+        </script>
     </body>
+    
 </html>
