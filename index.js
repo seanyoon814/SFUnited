@@ -8,7 +8,10 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users',
+  ssl: {
+    rejectUnauthorized: false
+  }
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
