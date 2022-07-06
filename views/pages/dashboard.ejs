@@ -127,23 +127,25 @@
                 <!-- logout button  -->
                 <div class="col-12 col-sm-3 mt-3">
                     <!-- redirect to page a logout page which will log the user out -->
-                    <a href="#" class="row text-decoration-none">
+                    <form class = "logout" action ="/logout" method = "get">
+                        <input type = "submit" href="#" class="row text-decoration-none" value ="Sign Out">
 
-                        <!-- create a smaller column for mobile, slightly bigger for larger screns -->
-                        <!-- also has bottom margin -->
-                        <div class="col-2 col-sm-12 mb-4">
-                            <!-- add an image, alternative text, and size of image, and if image is important to render-->
-                            <img src="img/logout.jpg" alt="Scheduler Image" class="img-fluid pb-4 pt-4 body__text_picture" width="3997" height="2665" loading="lazy">
-                        </div>
+                            <!-- create a smaller column for mobile, slightly bigger for larger screns -->
+                            <!-- also has bottom margin -->
+                            <div class="col-2 col-sm-12 mb-4">
+                                <!-- add an image, alternative text, and size of image, and if image is important to render-->
+                                <img src="img/logout.jpg" alt="Scheduler Image" class="img-fluid pb-4 pt-4 body__text_picture" width="3997" height="2665" loading="lazy">
+                            </div>
 
-                        <!-- write text below the image-->
-                        <div class="col-10">
-                            <h3>Logout</h3>
-                            <p>Sign out of your account. Return to login page</p>
-                            <!-- uses bootstrap icon to draw out an arrow -->
-                            <p>Sign Out! <i class="bi bi-arrow-right"></i></p>
-                        </div>
-                    </a>
+                            <!-- write text below the image-->
+                            <div class="col-10">
+                                <h3>Logout</h3>
+                                <p>Sign out of your account. Return to login page</p>
+                                <!-- uses bootstrap icon to draw out an arrow -->
+                                <p>Sign Out! <i class="bi bi-arrow-right"></i></p>
+                            </div>
+                        </a>
+                    </form>
                 </div>
             </div>
 
