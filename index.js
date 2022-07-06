@@ -8,7 +8,10 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -132,7 +135,6 @@ app.get('/schedule', (req, res)=>{
   var firstName = req.body.f_fname
   var lastName = req.body.f_lname
   var subj = req.body.f_subject
-  console.log("Hello")
   scrape(firstName, lastName, subj);
   res.render('pages/schedule')
 })
