@@ -7,12 +7,24 @@
     <title>My Schedule</title>
 </head>
 <body>
-    <p>Schedule Creator Page</p>
-    <form class = "prof">
-        <input class = "prof" type="text" placeholder="First Name" name="fname">
-        <input class = "prof" type="text" placeholder="Last Name" name="lname">
-        <input class = "prof" type="text" placeholder="Subject" name="subj">
-        <button onclick = "scrape()"></button>
-    </form>
+    <h2>Find your class!</h2>
+    <div>
+        <form action = '/schedule' method= 'POST'>
+            <input class = "prof" type="text" placeholder="Course (e.g., CMPT120)" name="fcourse">
+            <input type ="submit" id = 'btn' value = "Submit">
+        </form>
+
+    </div>
+    <h2>Find your professor!</h2>
+    <div>
+        <form action = '/schedule' method = 'POST'>
+            <input class = "prof" type="text" placeholder="First Name" name="fname">
+            <input class = "prof" type="text" placeholder="Last Name" name="lname">
+            <input class = "prof" type="text" placeholder="Subject" name="subj">
+            <input type ="submit" id = 'btn' value = "Submit">
+        </form>
+    </div>
+    <script></script>
 </body>
+
 </html>

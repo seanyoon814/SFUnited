@@ -8,10 +8,7 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -140,12 +137,29 @@ app.get('/dashboard', (req,res)=>{
 })
 
 app.get('/schedule', (req, res)=>{
-  var firstName = req.body.f_fname
-  var lastName = req.body.f_lname
-  var subj = req.body.f_subject
-  scrape(firstName, lastName, subj);
+  // var firstName = req.body.f_fname
+  // var lastName = req.body.f_lname
+  // var subj = req.body.f_subject
+  // scrape(firstName, lastName, subj);
   res.render('pages/schedule')
 })
+
+app.post('/schedule', (req, res)=>{
+  var course = req.body.fcourse
+  var firstName = req.body.fname
+  var lastName = req.body.lname
+  var subj = req.body.subj
+  if(firstName && lastName && subj)
+  {
+    scrape(firstName, lastName, subj)
+  }
+  if(course)
+  {
+    getCourseInformation(course)
+  }
+  res.redirect('/schedule')
+})
+
 
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -208,35 +222,52 @@ function checkExistingUser(name)
     }, 100)})
   })
 }
+
+//returns sections from courses
+//input: course (e.g., CMPT 120)
+//output: array with all course sections (d100, d200, etc.)
+async function getCourseInformation(course)
+{
+  var formattedStr = course.trim()
+  var sections = []
+  const courseLetters = formattedStr.slice(0, 4).toLowerCase();
+  const courseNumbers = formattedStr.slice(5, 8);
+  var url = 'https://www.sfu.ca/bin/wcm/course-outlines?2022/fall/' + courseLetters + '/' + courseNumbers + '/'
+  const { data } = await axios.get(url);
+  for (let i = 0; i < data.length; i++)
+  {
+    const sectionurl = url + data[i]['value']
+    console.log(sectionurl)
+    const {sectionData} = await axios.get(sectionurl)
+    console.log("asd")
+    console.log(sectionData)
+  }
+}
 //webscrape api
 async function scrape(firstName, lastName, subject)
 {
   for(let i = 0; i<letters.length; i++)
   {
-    const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + firstName + '&last=' + lastName + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
-    console.log(url)
+    const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + firstName.toLowerCase() + '&last=' + lastName.toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
     const { data } = await axios.get(url);
     try
     {
       if(data['ratings'][i]['class'].includes(subject))
       {
-        console.log(data['firstName'])
-        console.log(data['lastName'])
-        console.log(data['avgRating'])
+        console.log(data['firstName'] + " " + data['lastName'] + " " + data['avgRating'])
+        console.log("Rating 1 for " + data['ratings'][0]['class'] + ": " + data['ratings'][0]['clarityRating'])
+        console.log("Comment: " + data['ratings'][0]['comment'])
+        console.log("Rating 2 for " + data['ratings'][1]['class'] + ": " + data['ratings'][0]['clarityRating'])
+        console.log("Comment: " + data['ratings'][1]['comment'])
+        console.log("Rating 3 for " + data['ratings'][2]['class'] + ": " + data['ratings'][0]['clarityRating'])
+        console.log("Comment: " + data['ratings'][2]['comment'])
         {break;}
       }
     }
     catch(err){
-
     }
   }
 }
-
-function checkChars(str)
-{
-  return /^[a-zA-Z]+$/.test(str)
-}
-
 function hasNumber(string)
 {
   return /\d/.test(string)
