@@ -8,10 +8,11 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgress://postgres:admin@localhost/users'
+  // process.env.DATABASE_URL, 
+  // ssl: {
+  //     rejectUnauthorized: false
+  //   }
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -61,7 +62,7 @@ app.post('/', async (req,res)=> {
   }
 })
 app.get('/createaccount', (req, res)=>{
-  res.render('pages/createaccount')
+  res.render('pages/createaccount', {bool: false})
 })
 app.get('/logout', (req, res)=>{
   req.session.destroy();
@@ -73,29 +74,41 @@ app.post('/createaccount', async (req, res)=>{
   var pwd = req.body.f_pwd
   var fname = req.body.f_fname
   var lname = req.body.f_lname
+ 
   // test
-  var queryString = `
-  INSERT INTO usr (fname, lname, uname, fpassword)
-  VALUES ('${fname}', '${lname}', '${un}', '${pwd}')
-  `;
-  const bool = await checkExistingUser(un)
-  if(bool == 0)
+  if(hasNumber(fname) == true || hasNumber(lname) == true)
   {
-    pool.query(queryString, (error, response)=>{
-      if(error)
-      {
-        res.send(error)
-      }
-      else
-      {
-        res.redirect('/')
-      }
-    })
+    var str = "Try again. Don't include numbers in first name or last name."
+    // res.redirect('createaccount');
+
+    //var incorrect = {'state': true};
+    res.render('pages/createaccount', {bool: true});
   }
   else
-  {
-    var str = 'An account with this username already exists.'
-    res.redirect('/createaccount')
+    {
+    var queryString = `
+    INSERT INTO usr (fname, lname, uname, fpassword)
+    VALUES ('${fname}', '${lname}', '${un}', '${pwd}')
+    `;
+    const bool = await checkExistingUser(un)
+    if(bool == 0)
+    {
+      pool.query(queryString, (error, response)=>{
+        if(error)
+        {
+          res.send(error)
+        }
+        else
+        {
+          res.redirect('/')
+        }
+      })
+    }
+    else
+    {
+      var str = 'An account with this username already exists.'
+      res.redirect('/createaccount')
+    }
   }
 })
 app.get('/admin', (req, res)=>{
@@ -230,3 +243,7 @@ function checkChars(str)
   return /^[a-zA-Z]+$/.test(str)
 }
 
+function hasNumber(string)
+{
+  return /\d/.test(string)
+}
