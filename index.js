@@ -8,10 +8,7 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -74,28 +71,36 @@ app.post('/createaccount', async (req, res)=>{
   var fname = req.body.f_fname
   var lname = req.body.f_lname
   // test
-  var queryString = `
-  INSERT INTO usr (fname, lname, uname, fpassword)
-  VALUES ('${fname}', '${lname}', '${un}', '${pwd}')
-  `;
-  const bool = await checkExistingUser(un)
-  if(bool == 0)
+  if(hasNumber(fname) == true || hasNumber(lname) == true)
   {
-    pool.query(queryString, (error, response)=>{
-      if(error)
-      {
-        res.send(error)
-      }
-      else
-      {
-        res.redirect('/')
-      }
-    })
+    var str = "Try again. Don't include numbers in first name or last name."
+    res.redirect('/createaccount')
   }
   else
-  {
-    var str = 'An account with this username already exists.'
-    res.redirect('/createaccount')
+    {
+    var queryString = `
+    INSERT INTO usr (fname, lname, uname, fpassword)
+    VALUES ('${fname}', '${lname}', '${un}', '${pwd}')
+    `;
+    const bool = await checkExistingUser(un)
+    if(bool == 0)
+    {
+      pool.query(queryString, (error, response)=>{
+        if(error)
+        {
+          res.send(error)
+        }
+        else
+        {
+          res.redirect('/')
+        }
+      })
+    }
+    else
+    {
+      var str = 'An account with this username already exists.'
+      res.redirect('/createaccount')
+    }
   }
 })
 app.get('/admin', (req, res)=>{
@@ -227,5 +232,10 @@ async function scrape(firstName, lastName, subject)
 function checkChars(str)
 {
   return /^[a-zA-Z]+$/.test(str)
+}
+
+function hasNumber(string)
+{
+  return /\d/.test(string)
 }
 
