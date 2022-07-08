@@ -196,7 +196,7 @@ function checkUsers(name, password)
     }, 100)})
   })
 }
-//function to check duplicate users
+//function to check duplicate users when registering
 function checkExistingUser(name)
 {
   //create a promise 
@@ -225,25 +225,47 @@ function checkExistingUser(name)
 
 //returns sections from courses
 //input: course (e.g., CMPT 120)
-//output: array with all course sections (d100, d200, etc.)
+//output:
 async function getCourseInformation(course)
 {
   var formattedStr = course.trim()
-  var sections = []
   const courseLetters = formattedStr.slice(0, 4).toLowerCase();
   const courseNumbers = formattedStr.slice(5, 8);
   var url = 'https://www.sfu.ca/bin/wcm/course-outlines?2022/fall/' + courseLetters + '/' + courseNumbers + '/'
-  const { data } = await axios.get(url);
-  for (let i = 0; i < data.length; i++)
+  const {data} = await axios.get(url);
+  let i = 0;
+  var courseInfo = [];
+  //variable to print the information of the course only once
+  let hasRan = 0;
+  while(i<data.length)
   {
     const sectionurl = url + data[i]['value']
     console.log(sectionurl)
-    const {sectionData} = await axios.get(sectionurl)
-    console.log("asd")
-    console.log(sectionData)
+    try{
+      const sectionData = await axios.get(sectionurl)
+      if(hasRan == 0)
+      {
+        // courseInfo.push(sectionData['data']['info']['description'])
+        // courseInfo.push(sectionData['data']['info']['prerequisites'])
+        // courseInfo.push(sectionData['data']['info']['notes'])
+        console.log(sectionData['data']['info']['description'])
+        console.log(sectionData['data']['info']['prerequisites'])
+        console.log(sectionData['data']['info']['notes'])
+        hasRan = 1
+      }
+      // courseInfo.push(sectionData['data']['info']['name'] )
+      // courseInfo.push(sectionData['data']['info']['term'])
+      console.log(sectionData['data']['info']['name'] + " " + sectionData['data']['info']['term']
+      + " ")
+      i++;
+    }
+    catch(err){
+      i++;
+    }
   }
 }
 //webscrape api
+//input: Professer First name, last name, and a subject they teach (e.g., CMPT)
 async function scrape(firstName, lastName, subject)
 {
   for(let i = 0; i<letters.length; i++)
