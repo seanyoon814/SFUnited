@@ -32,10 +32,11 @@
             integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
             crossorigin="anonymous"
         />
+        <link rel="stylesheet" href="stylesheets/login.css">
     </head>
 
     <body>
-        <div 
+        <div
             style="height:100vh;
             background: #50090b;
             display: flex;
@@ -74,7 +75,7 @@
                 <div style="margin-top:-2%; font-size: 32px; font-weight:700;">
                     Sign up for SFUnited
                 </div>
-                <div class="form-popup" id="myForm">
+                <!-- <div class="form-popup" id="myForm"> -->
                 <form class="form-container" action = '/createaccount' id ="the_form" method = 'POST' style="margin-top:5%;">
                     <input type="text" id="uname" name="f_fname" placeholder="First Name"
                     style="width: 70%;
@@ -127,6 +128,7 @@
                     font-weight:600;
                     margin-top:2%;
                     font-family: Arial, Helvetica, sans-serif;" required> 
+    
                     <input type="submit" value="Sign up"
                     style="color:black; 
                     font-weight:700; 
@@ -135,9 +137,31 @@
                     border:1px solid gray; 
                     border-radius: 40px; background-color: white;" 
                     class="btn btn-light
-                    font-family: Arial, Helvetica, sans-serif;">
+                    font-family: Arial, Helvetica, sans-serif;"  
+                    name="f_submitbtn">
+                
+                    <div class="popUpContainer">
+                        <div class="popUp" id="popup" name="f_popup">
+                            <h2>
+                                Sorry!
+                            </h2>
+                            <p>
+                                    Try again. Don't include numbers in first name or last name.
+                            </p>
+                            <button type="button" style="color:black; 
+                            font-weight:700; 
+                            width:70%; 
+                            margin-top:4%; 
+                            border:1px solid gray; 
+                            border-radius: 40px; background-color: white;" 
+                            class="btn btn-light
+                            font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                            OK
+                            <button>
+                        </div>
+                    </div>
                 </form>
-                </div>
+                
                 <!-- <p></p> -->
                 <div style="margin-top:20px; font-weight:600; font-family: Arial, Helvetica, sans-serif;">
                     Already have an account?
@@ -150,17 +174,22 @@
                         font-family: Arial, Helvetica, sans-serif;">
                 </div>
             </div>
-        
         </div>
         <script>
             // When the user clicks on <div>, open the popup
-                function openForm() {
-                    document.getElementById("myForm").style.display = "block";
+                let popup = document.getElementById("popup");
+                function openPopup(){
+                    popup.classList.add("openPopup");
+                }
+                var boolPopup = <%=bool%>;
+                if(boolPopup == true)
+                {
+                    openPopup();
+                }
+                function closePopup(){
+                    popup.classList.remove("openPopup");
                 }
 
-                function closeForm() {
-                    document.getElementById("myForm").style.display = "none";
-                }
         </script>
     </body>
     

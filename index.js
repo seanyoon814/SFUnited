@@ -61,7 +61,7 @@ app.post('/', async (req,res)=> {
   }
 })
 app.get('/createaccount', (req, res)=>{
-  res.render('pages/createaccount')
+  res.render('pages/createaccount', {bool: false})
 })
 app.get('/logout', (req, res)=>{
   req.session.destroy();
@@ -73,11 +73,15 @@ app.post('/createaccount', async (req, res)=>{
   var pwd = req.body.f_pwd
   var fname = req.body.f_fname
   var lname = req.body.f_lname
+ 
   // test
   if(hasNumber(fname) == true || hasNumber(lname) == true)
   {
     var str = "Try again. Don't include numbers in first name or last name."
-    res.redirect('/createaccount')
+    // res.redirect('createaccount');
+
+    //var incorrect = {'state': true};
+    res.render('pages/createaccount', {bool: true});
   }
   else
     {
@@ -298,3 +302,7 @@ function hasNumber(string)
   return /\d/.test(string)
 }
 
+function hasNumber(string)
+{
+  return /\d/.test(string)
+}
