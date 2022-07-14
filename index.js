@@ -11,9 +11,11 @@ pool = new Pool({
   connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
-var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 var app = express()
 var isAdmin = 0;
+var user;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -41,6 +43,7 @@ app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 app.post('/', async (req,res)=> {
   var un = req.body.f_uname
+  user = un
   var pwd = req.body.f_pwd
   const bool = await checkUsers(un, pwd)
   if(Number(bool) == 2 && isAdmin == 1)
@@ -154,12 +157,15 @@ app.post('/schedule', async (req, res)=>{
   var subj = req.body.subj
   if(firstName && subj)
   {
-    scrape(firstName, subj)
+    var arr = [];
+    await scrape(firstName, subj, arr)
+    console.log(arr)
   }
   if(course)
   {
     var arr = [];
     await getCourseInformation(course, arr)
+    // var poolQuery = `INSERT into students values('${user}', '${})`
     console.log(arr)
   }
   res.redirect('/schedule')
@@ -269,25 +275,31 @@ async function getCourseInformation(course, courseInfo)
 }
 //webscrape api
 //input: Professer First name, last name, and a subject they teach (e.g., CMPT)
-async function scrape(name, subject)
+//output: [firstname, lastname, averageRating, [class, rating, comment] x 3]]
+async function scrape(name, subject, arr)
 {
   const nm = name.trim().split(/\s+/)
   for(let i = 0; i<letters.length; i++)
   {
     const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
-    console.log(url)
+    // console.log(url)
     const { data } = await axios.get(url);
     try
     {
       if(data['ratings'][i]['class'].includes(subject))
       {
-        console.log(data['firstName'] + " " + data['lastName'] + " " + data['avgRating'])
-        console.log("Rating 1 for " + data['ratings'][0]['class'] + ": " + data['ratings'][0]['clarityRating'])
-        console.log("Comment: " + data['ratings'][0]['comment'])
-        console.log("Rating 2 for " + data['ratings'][1]['class'] + ": " + data['ratings'][0]['clarityRating'])
-        console.log("Comment: " + data['ratings'][1]['comment'])
-        console.log("Rating 3 for " + data['ratings'][2]['class'] + ": " + data['ratings'][0]['clarityRating'])
-        console.log("Comment: " + data['ratings'][2]['comment'])
+        arr.push(data['firstName'], data['lastName'], data['avgRating'])
+        var review1 = [data['ratings'][0]['class'], data['ratings'][0]['clarityRating'], data['ratings'][0]['comment']]
+        var review2 = [data['ratings'][1]['class'], data['ratings'][0]['clarityRating'], data['ratings'][1]['comment']]
+        var review3 = [data['ratings'][2]['class'], data['ratings'][0]['clarityRating'], data['ratings'][2]['comment']]
+        arr.push(review1, review2, review3)
+        // console.log(data['firstName'] + " " + data['lastName'] + " " + data['avgRating'])
+        // console.log("Rating 1 for " + data['ratings'][0]['class'] + ": " + data['ratings'][0]['clarityRating'])
+        // console.log("Comment: " + data['ratings'][0]['comment'])
+        // console.log("Rating 2 for " + data['ratings'][1]['class'] + ": " + data['ratings'][0]['clarityRating'])
+        // console.log("Comment: " + data['ratings'][1]['comment'])
+        // console.log("Rating 3 for " + data['ratings'][2]['class'] + ": " + data['ratings'][0]['clarityRating'])
+        // console.log("Comment: " + data['ratings'][2]['comment'])
         {break;}
       }
     }
