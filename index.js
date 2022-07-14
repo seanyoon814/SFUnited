@@ -8,10 +8,7 @@ const { query } = require('express')
 const { resolve } = require('path')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
@@ -151,18 +148,19 @@ app.get('/schedule', (req, res)=>{
   res.render('pages/schedule')
 })
 
-app.post('/schedule', (req, res)=>{
+app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
-  var lastName = req.body.lname
   var subj = req.body.subj
-  if(firstName && lastName && subj)
+  if(firstName && subj)
   {
-    scrape(firstName, lastName, subj)
+    scrape(firstName, subj)
   }
   if(course)
   {
-    getCourseInformation(course)
+    var arr = [];
+    await getCourseInformation(course, arr)
+    console.log(arr)
   }
   res.redirect('/schedule')
 })
@@ -233,37 +231,35 @@ function checkExistingUser(name)
 //returns sections from courses
 //input: course (e.g., CMPT 120)
 //output:
-async function getCourseInformation(course)
+async function getCourseInformation(course, courseInfo)
 {
+  //split the input (course) into the course code and course numbers, e.g. input = CMPT 120 => courseLetters = 'cmpt' courseNumbers = '120'
   var formattedStr = course.trim()
-  const courseLetters = formattedStr.slice(0, 4).toLowerCase();
-  const courseNumbers = formattedStr.slice(5, 8);
+  var index = formattedStr.search(/[0-9]/);
+  const courseLetters = formattedStr.slice(0, index-1).toLowerCase();
+  const courseNumbers = formattedStr.slice(index, 8);
   var url = 'https://www.sfu.ca/bin/wcm/course-outlines?2022/fall/' + courseLetters + '/' + courseNumbers + '/'
   const {data} = await axios.get(url);
   let i = 0;
-  var courseInfo = [];
   //variable to print the information of the course only once
   let hasRan = 0;
   while(i<data.length)
   {
     const sectionurl = url + data[i]['value']
-    console.log(sectionurl)
     try{
       const sectionData = await axios.get(sectionurl)
       if(hasRan == 0)
       {
-        // courseInfo.push(sectionData['data']['info']['description'])
-        // courseInfo.push(sectionData['data']['info']['prerequisites'])
-        // courseInfo.push(sectionData['data']['info']['notes'])
-        console.log(sectionData['data']['info']['description'])
-        console.log(sectionData['data']['info']['prerequisites'])
-        console.log(sectionData['data']['info']['notes'])
+        courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
         hasRan = 1
       }
-      // courseInfo.push(sectionData['data']['info']['name'] )
-      // courseInfo.push(sectionData['data']['info']['term'])
-      console.log(sectionData['data']['info']['name'] + " " + sectionData['data']['info']['term']
-      + " ")
+      if(sectionData['data']['courseSchedule'][0]["sectionCode"]=="LEC")
+      {
+        var arr = []
+        arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
+        sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
+        courseInfo.push(arr)
+      }
       i++;
     }
     catch(err){
@@ -273,11 +269,13 @@ async function getCourseInformation(course)
 }
 //webscrape api
 //input: Professer First name, last name, and a subject they teach (e.g., CMPT)
-async function scrape(firstName, lastName, subject)
+async function scrape(name, subject)
 {
+  const nm = name.trim().split(/\s+/)
   for(let i = 0; i<letters.length; i++)
   {
-    const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + firstName.toLowerCase() + '&last=' + lastName.toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
+    const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
+    console.log(url)
     const { data } = await axios.get(url);
     try
     {
@@ -297,11 +295,6 @@ async function scrape(firstName, lastName, subject)
     }
   }
 }
-function hasNumber(string)
-{
-  return /\d/.test(string)
-}
-
 function hasNumber(string)
 {
   return /\d/.test(string)
