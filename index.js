@@ -4,8 +4,6 @@ const session = require('express-session')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
-const { query } = require('express')
-const { resolve } = require('path')
 var pool;
 pool = new Pool({
   connectionString: 'postgres://postgres:elchapo0814@localhost/users'
@@ -143,32 +141,35 @@ app.get('/dashboard', (req,res)=>{
   }
 })
 
-app.get('/schedule', (req, res)=>{
-  // var firstName = req.body.f_fname
-  // var lastName = req.body.f_lname
-  // var subj = req.body.f_subject
-  // scrape(firstName, lastName, subj);
-  res.render('pages/schedule')
+app.get('/schedule', async(req, res)=>{
+
+  var results = []
+  res.render('pages/schedule', {results:results})
 })
 
 app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
   var subj = req.body.subj
-  if(firstName && subj)
+  if(firstName!=null && subj!=null)
   {
-    var arr = [];
-    await scrape(firstName, subj, arr)
-    console.log(arr)
+    var results = []
+    await scrape(firstName, subj, results)
+    res.render('pages/schedule', {results:results})
+    return 0;
   }
-  if(course)
+  else if(course)
   {
-    var arr = [];
+    var arr = []
     await getCourseInformation(course, arr)
-    // var poolQuery = `INSERT into students values('${user}', '${})`
     console.log(arr)
+    return 0;
   }
-  res.redirect('/schedule')
+  else
+  {
+    var results = []
+    res.render('pages/schedule', {results:results})
+  }
 })
 
 
@@ -282,24 +283,43 @@ async function scrape(name, subject, arr)
   for(let i = 0; i<letters.length; i++)
   {
     const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
-    // console.log(url)
     const { data } = await axios.get(url);
     try
     {
       if(data['ratings'][i]['class'].includes(subject))
       {
-        arr.push(data['firstName'], data['lastName'], data['avgRating'])
-        var review1 = [data['ratings'][0]['class'], data['ratings'][0]['clarityRating'], data['ratings'][0]['comment']]
-        var review2 = [data['ratings'][1]['class'], data['ratings'][0]['clarityRating'], data['ratings'][1]['comment']]
-        var review3 = [data['ratings'][2]['class'], data['ratings'][0]['clarityRating'], data['ratings'][2]['comment']]
-        arr.push(review1, review2, review3)
-        // console.log(data['firstName'] + " " + data['lastName'] + " " + data['avgRating'])
-        // console.log("Rating 1 for " + data['ratings'][0]['class'] + ": " + data['ratings'][0]['clarityRating'])
-        // console.log("Comment: " + data['ratings'][0]['comment'])
-        // console.log("Rating 2 for " + data['ratings'][1]['class'] + ": " + data['ratings'][0]['clarityRating'])
-        // console.log("Comment: " + data['ratings'][1]['comment'])
-        // console.log("Rating 3 for " + data['ratings'][2]['class'] + ": " + data['ratings'][0]['clarityRating'])
-        // console.log("Comment: " + data['ratings'][2]['comment'])
+        arr.push({
+          fname: data['firstName'],
+          lname: data['lastName'],
+          r: data['avgRating']
+        })
+        arr.push({
+          class: data['ratings'][0]['class'],
+          rating: data['ratings'][0]['clarityRating'],
+          comment: data['ratings'][0]['comment'],
+          grade: data['ratings'][0]['grade']
+        })
+        arr.push({
+          class: data['ratings'][1]['class'],
+          rating: data['ratings'][1]['clarityRating'],
+          comment: data['ratings'][1]['comment'],
+          grade: data['ratings'][1]['grade']
+        })
+        arr.push({
+          class: data['ratings'][2]['class'],
+          rating: data['ratings'][2]['clarityRating'],
+          comment: data['ratings'][2]['comment'],
+          grade: data['ratings'][2]['grade']
+        })
+        // arr['fname'] = data['firstName']
+        // arr['avgRating'] = data['avgRating']
+        // arr['lname'] = data['lastName']
+
+        // arr.push(data['firstName'], data['lastName'], data['avgRating'])
+        // var review1 = [data['ratings'][0]['class'], data['ratings'][0]['clarityRating'], data['ratings'][0]['comment']]
+        // var review2 = [data['ratings'][1]['class'], data['ratings'][0]['clarityRating'], data['ratings'][1]['comment']]
+        // var review3 = [data['ratings'][2]['class'], data['ratings'][0]['clarityRating'], data['ratings'][2]['comment']]
+        // arr.push(review1, review2, review3)
         {break;}
       }
     }

@@ -11,21 +11,31 @@
     <div>
         <form action = '/schedule' method= 'POST'>
             <input class = "prof" type="text" placeholder="Course (e.g., CMPT120)" name="fcourse">
-            <input type ="submit" id = 'btn' value = "Submit">
+            <input type ="submit" value = "Submit">
         </form>
-
     </div>
     <h2>Find your professor!</h2>
-    <div>
+    <div id="yo">
         <form action = '/schedule' method = 'POST'>
-            <input class = "prof" type="text" placeholder="Name" name="fname">
-            <input class = "prof" type="text" placeholder="Subject" name="subj">
-            <input type ="submit" id = 'btn' value = "Submit">
+            <input class = "prof" type="text" placeholder="Name (e.g., Bobby Chan)" name="fname">
+            <input class = "prof" type="text" placeholder="Subject Code (e.g., CMPT)" name="subj">
+            <input type ="submit" value = "Submit">
         </form>
     </div>
-    <ul>
-    </ul>
-    <script></script>
+    <% if (results.length > 0) { %>
+        <% results.forEach(function(r){%>
+            <% if(r.fname !=null){%>
+                <h1><%= r.fname %> <%= r.lname %> has an average rating of <%= r.r %>/5</h1>
+            <%}else{%>
+                <% if(r.grade != ''){ %>
+                    <h2><%= r.class %> <%= r.rating %>/5 (<%= r.grade%>)</h2>
+                    <p><%= r.comment %></p>
+                <% }else{ %>
+                    <h2><%= r.class %> <%= r.rating %>/5 (N/A)</h2>
+                    <p><%= r.comment %></p>
+                <% } %>
+            <%}%>
+        <%}) %>
+    <% } %>
 </body>
-
 </html>
