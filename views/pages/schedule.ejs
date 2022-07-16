@@ -7,6 +7,14 @@
     <title>My Schedule</title>
 </head>
 <body>
+    <h1>Currently enrolled courses</h1>
+    <% enrolled.forEach(function(e){%>
+        <form action = '/delete' method = 'POST'>
+            <p><b><%=e.course%></b>, <%=e.location%>, <%=e.days%>, <%=e.startt%>-<%=e.endt%></p>
+            <input type="submit" value ="Drop Course">
+            <input type="hidden" name="fcourse" value="<%=e.course%>"></input>
+        </form>
+    <%})%>
     <h2>Find your class!</h2>
     <div>
         <form action = '/schedule' method= 'POST'>
@@ -25,10 +33,16 @@
                     <p><b>Notes:</b> <%= c.notes%></p>
                 <%}%>
             <%}else{%>
-                <form action = '/schedule' method = 'POST'>
-                    <p><b><%=c.name%>, <%=c.days%>, <%=c.start%>-<%=c.end%></b></p>
+                <form action = '/enroll' method = 'POST'>
+                    <p><b><%=c.name.trim()%>, <%=c.days%>, <%=c.start%>-<%=c.end%></b></p>
                     <p><%=c.campus%>, <%=c.room%> <%=c.roomNum%></p>
                     <p><%=c.prof%></p>
+                    <input type="hidden" name="fname" value="<%=c.name.trim()%>"></input>
+                    <input type="hidden" name="fcampus" value=<%=c.campus%>></input>
+                    <input type="hidden" name="fprofessor" value="<%=c.prof%>"></input>
+                    <input type="hidden" name="fdays" value="<%=c.days%>"></input>
+                    <input type="hidden" name="fstart" value=<%=c.start%>></input>
+                    <input type="hidden" name="fend" value=<%=c.end%>></input>
                     <input type ="submit" value = "Enroll">
                 </form>
             <%}%>
@@ -57,5 +71,8 @@
             <%}%>
         <%}) %>
     <% } %>
+    <a href="https://sfunited.herokuapp.com/dashboard">
+        <button>Dashboard</button>
+    </a>
 </body>
 </html>

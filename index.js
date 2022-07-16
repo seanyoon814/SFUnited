@@ -4,6 +4,7 @@ const session = require('express-session')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
+const { query } = require('express')
 var pool;
 pool = new Pool({
   connectionString: 'postgres://postgres:elchapo0814@localhost/users'
@@ -16,6 +17,7 @@ var isAdmin = 0;
 var user;
 var recentProf = []
 var recentClass = []
+var enrolled = []
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -144,9 +146,25 @@ app.get('/dashboard', (req,res)=>{
 })
 
 app.get('/schedule', async(req, res)=>{
-  var results = recentProf
-  var classes = recentClass
-  res.render('pages/schedule', {results:results, classes:classes})
+  if (req.session.user)
+  {
+    var queryString = `SELECT * FROM classes where username='${user}'`;
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      var enroll = {'rows':result.rows}
+      enrolled = enroll
+      var results = recentProf
+      var classes = recentClass
+      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows})
+    })
+  }
+  else
+  {
+    res.redirect('/')
+  }
 })
 
 app.post('/schedule', async (req, res)=>{
@@ -156,33 +174,63 @@ app.post('/schedule', async (req, res)=>{
   if(firstName!=null && subj!=null)
   {
     var results = []
-    var classes = []
-    classes = recentClass
     await scrape(firstName, subj, results)
     recentProf = results
-    res.render('pages/schedule', {results:results, classes:classes})
+    res.redirect('/schedule')
     return 0;
   }
   else if(course)
   {
     var classes = []
-    var results = []
-    results = recentProf
     await getCourseInformation(course, classes)
     recentClass = classes
-    console.log(classes)
-    res.render('pages/schedule', {results:results, classes:classes})
+    res.redirect('/schedule')
     return 0;
   }
   else
   {
-    var results = recentProf
-    var classes = recentClass
-    res.render('pages/schedule', {classes:classes})
+    res.redirect('/schedule')
   }
 })
 
+app.post('/enroll', (req, res)=>{
+  var username = user
+  var course = req.body.fname.trim()
+  var location = req.body.fcampus
+  var prof = req.body.fprofessor
+  var days = req.body.fdays
+  var start = req.body.fstart
+  var end = req.body.fend
+  var queryString = `
+  INSERT INTO classes (username, course, section, location, professor, days, startt, endt)
+  VALUES ('${username}', '${course}', '${course}', '${location}', '${prof}', '${days}', '${start}', '${end}')
+  `;
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send("Error inserting into DB")
+      return 0;
+    }
+    recentClass = []
+    res.redirect("/schedule")
+  })
+})
 
+app.post('/delete', (req, res)=>{
+  var course = req.body.fcourse
+  course.trim()
+  var queryString = `
+  DELETE FROM classes
+  WHERE course='${course}'`;
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send(error)
+      return 0;
+    }
+    res.redirect("/schedule")
+  })
+})
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
