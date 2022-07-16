@@ -14,8 +14,28 @@
             <input type ="submit" value = "Submit">
         </form>
     </div>
+    <% if (classes.length > 0) { %>
+        <% classes.forEach(function(c){%>
+            <% if(c.desc !=null){%>
+                <p><%= c.desc%></p>
+                <%if(c.prereq !=''){%>
+                    <p><b>Prerequisite:</b> <%= c.prereq%></p>
+                <%}%>
+                <%if(c.notes!=''){%>
+                    <p><b>Notes:</b> <%= c.notes%></p>
+                <%}%>
+            <%}else{%>
+                <form action = '/schedule' method = 'POST'>
+                    <p><b><%=c.name%>, <%=c.days%>, <%=c.start%>-<%=c.end%></b></p>
+                    <p><%=c.campus%>, <%=c.room%> <%=c.roomNum%></p>
+                    <p><%=c.prof%></p>
+                    <input type ="submit" value = "Enroll">
+                </form>
+            <%}%>
+        <%})%>
+    <%}%>
     <h2>Find your professor!</h2>
-    <div id="yo">
+    <div>
         <form action = '/schedule' method = 'POST'>
             <input class = "prof" type="text" placeholder="Name (e.g., Bobby Chan)" name="fname">
             <input class = "prof" type="text" placeholder="Subject Code (e.g., CMPT)" name="subj">

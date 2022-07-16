@@ -14,6 +14,8 @@ var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 
 var app = express()
 var isAdmin = 0;
 var user;
+var recentProf = []
+var recentClass = []
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -142,9 +144,9 @@ app.get('/dashboard', (req,res)=>{
 })
 
 app.get('/schedule', async(req, res)=>{
-
-  var results = []
-  res.render('pages/schedule', {results:results})
+  var results = recentProf
+  var classes = recentClass
+  res.render('pages/schedule', {results:results, classes:classes})
 })
 
 app.post('/schedule', async (req, res)=>{
@@ -154,21 +156,29 @@ app.post('/schedule', async (req, res)=>{
   if(firstName!=null && subj!=null)
   {
     var results = []
+    var classes = []
+    classes = recentClass
     await scrape(firstName, subj, results)
-    res.render('pages/schedule', {results:results})
+    recentProf = results
+    res.render('pages/schedule', {results:results, classes:classes})
     return 0;
   }
   else if(course)
   {
-    var arr = []
-    await getCourseInformation(course, arr)
-    console.log(arr)
+    var classes = []
+    var results = []
+    results = recentProf
+    await getCourseInformation(course, classes)
+    recentClass = classes
+    console.log(classes)
+    res.render('pages/schedule', {results:results, classes:classes})
     return 0;
   }
   else
   {
-    var results = []
-    res.render('pages/schedule', {results:results})
+    var results = recentProf
+    var classes = recentClass
+    res.render('pages/schedule', {classes:classes})
   }
 })
 
@@ -257,15 +267,31 @@ async function getCourseInformation(course, courseInfo)
       const sectionData = await axios.get(sectionurl)
       if(hasRan == 0)
       {
-        courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
+        courseInfo.push({
+          desc: sectionData['data']['info']['description'],
+          prereq: sectionData['data']['info']['prerequisites'],
+          notes: sectionData['data']['info']['notes']
+        })
+        // courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
         hasRan = 1
       }
       if(sectionData['data']['courseSchedule'][0]["sectionCode"]=="LEC")
       {
-        var arr = []
-        arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
-        sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
-        courseInfo.push(arr)
+        courseInfo.push({
+          name: sectionData['data']['info']['name'],
+          term: sectionData['data']['info']['term'],
+          prof: sectionData['data']['instructor'][0]['name'],
+          campus: sectionData['data']['courseSchedule'][0]["campus"],
+          room: sectionData['data']['courseSchedule'][0]["buildingCode"],
+          roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
+          days: sectionData['data']['courseSchedule'][0]["days"],
+          start: sectionData['data']['courseSchedule'][0]["startTime"],
+          end: sectionData['data']['courseSchedule'][0]["endTime"]
+
+        })
+        // arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
+        // sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
+        // courseInfo.push(arr)
       }
       i++;
     }
@@ -311,15 +337,6 @@ async function scrape(name, subject, arr)
           comment: data['ratings'][2]['comment'],
           grade: data['ratings'][2]['grade']
         })
-        // arr['fname'] = data['firstName']
-        // arr['avgRating'] = data['avgRating']
-        // arr['lname'] = data['lastName']
-
-        // arr.push(data['firstName'], data['lastName'], data['avgRating'])
-        // var review1 = [data['ratings'][0]['class'], data['ratings'][0]['clarityRating'], data['ratings'][0]['comment']]
-        // var review2 = [data['ratings'][1]['class'], data['ratings'][0]['clarityRating'], data['ratings'][1]['comment']]
-        // var review3 = [data['ratings'][2]['class'], data['ratings'][0]['clarityRating'], data['ratings'][2]['comment']]
-        // arr.push(review1, review2, review3)
         {break;}
       }
     }
