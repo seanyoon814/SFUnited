@@ -7,7 +7,10 @@ const { Pool } = require('pg');
 const { query } = require('express')
 var pool;
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
