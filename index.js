@@ -7,10 +7,7 @@ const { Pool } = require('pg');
 const { query } = require('express')
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
@@ -196,7 +193,7 @@ app.post('/schedule', async (req, res)=>{
   }
 })
 
-app.post('/enroll', (req, res)=>{
+app.post('/enroll', async (req, res)=>{
   var username = user
   var course = req.body.fname.trim()
   var location = req.body.fcampus
@@ -208,15 +205,23 @@ app.post('/enroll', (req, res)=>{
   INSERT INTO classes (username, course, section, location, professor, days, startt, endt)
   VALUES ('${username}', '${course}', '${course}', '${location}', '${prof}', '${days}', '${start}', '${end}')
   `;
-  pool.query(queryString, (error, result)=>{
-    if(error)
-    {
-      res.send("Error inserting into DB")
-      return 0;
-    }
-    recentClass = []
-    res.redirect("/schedule")
-  })
+  var bool = await checkConflictingTime(start, end, days)
+  if(bool == 1)
+  {
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send("Error inserting into DB")
+        return 0;
+      }
+      recentClass = []
+      res.redirect("/schedule")
+    })
+  }
+  else
+  {
+    res.redirect('/schedule')
+  }
 })
 
 app.post('/delete', (req, res)=>{
@@ -398,4 +403,49 @@ async function scrape(name, subject, arr)
 function hasNumber(string)
 {
   return /\d/.test(string)
+}
+//returns 1 if true, 0 if false
+async function checkConflictingTime(startTime, endTime, days)
+{
+  return new Promise((resolve, reject)=>
+  {
+    var getUsersQuery = `SELECT * FROM classes where username='${user}'`;
+    var time = convertTime(startTime, endTime)
+    var day = days.trim().split(',')
+    setTimeout(() => {
+      pool.query(getUsersQuery, (error, result)=>{
+        if(error)
+          resolve(0);
+        var results = {'rows':result.rows}
+        for(var i = 0; i<results.rows.length; i++)
+        {
+          let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+          let otherdays = results['rows'][i]['days']
+          if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+          {
+            for(var j = 0; j<day.length; j++)
+            {
+              if(otherdays.includes(day))
+              {
+                resolve(0);
+                return 0;
+              }
+            }
+          }
+        }
+        resolve(1);
+        return 1;
+    }, 100)})
+  })
+}
+//returns [startTime, endTime] in minutes
+function convertTime(startTime, endTime)
+{
+    let start = startTime.split(":")
+    let end = endTime.split(":")
+    var arr = []
+    var minute = Number(start[0])*60 + Number(start[1])
+    var minute2 = Number(end[0])*60 + Number(end[1])
+    arr.push(minute, minute2)
+    return arr;
 }
