@@ -242,6 +242,11 @@ app.post('/delete', (req, res)=>{
     res.redirect("/schedule")
   })
 })
+
+app.get('/socials',(req,res)=>{
+
+})
+
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
@@ -408,21 +413,23 @@ async function scrape(name, subject, arr)
 request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
   if(!error && response.statusCode ==200){
     const $= cheerio.load(html);
-
-    const datarow = $(".club_listing");
+    clubs = [];
     $("td").each((i,data)=>{
-          var desc = $(data).first().text().trim();
-          var text = $(data).find('b').text();
-          var link = $(data).find('a').attr('href');
+          const desc = $(data).first().text().trim();
+          const name = $(data).find('b').text();
+          const link = $(data).find('a').attr('href');
 
-          if(desc != '' && text != '' && link != ''){
-            console.log("club: ",text);
-            console.log("desc: ", desc);
-            console.log("link: ", link);
-            console.log("\n");
+          if(desc != '' && name != '' && link != ''){
+            club = [name, desc, link]
+            clubs.push(club);
+            // console.log("club: ",text);
+            // console.log("desc: ", desc);
+            // console.log("link: ", link);
+            // console.log("\n");
           }
     })
   }
+  return clubs;
 })
 
 function checkChars(str)
