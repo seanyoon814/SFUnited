@@ -11,10 +11,7 @@ const cheerio = require('cheerio')
 
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -413,13 +410,18 @@ request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
     const $= cheerio.load(html);
 
     const datarow = $(".club_listing");
-    $("b").each((i,data)=>{
-        var text = $(data).text();
-        var link = $(data).find('a').attr('href');
-        console.log("club: ",text);
-        console.log("link: ", link);
-    })
+    $("td").each((i,data)=>{
+          var desc = $(data).first().text().trim();
+          var text = $(data).find('b').text();
+          var link = $(data).find('a').attr('href');
 
+          if(desc != '' && text != '' && link != ''){
+            console.log("club: ",text);
+            console.log("desc: ", desc);
+            console.log("link: ", link);
+            console.log("\n");
+          }
+    })
   }
 })
 
