@@ -5,6 +5,10 @@ const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
 const { query } = require('express')
+const { resolve } = require('path')
+const request = require('request-promise')
+const cheerio = require('cheerio')
+
 var pool;
 pool = new Pool({
   connectionString: process.env.DATABASE_URL, 
@@ -402,6 +406,28 @@ async function scrape(name, subject, arr)
     }
   }
 }
+
+//webscrape api for Clubs npm install cheerio, request-promise
+request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
+  if(!error && response.statusCode ==200){
+    const $= cheerio.load(html);
+
+    const datarow = $(".club_listing");
+    $("b").each((i,data)=>{
+        var text = $(data).text();
+        var link = $(data).find('a').attr('href');
+        console.log("club: ",text);
+        console.log("link: ", link);
+    })
+
+  }
+})
+
+function checkChars(str)
+{
+  return /^[a-zA-Z]+$/.test(str)
+}
+
 function hasNumber(string)
 {
   return /\d/.test(string)
