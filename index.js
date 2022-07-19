@@ -156,6 +156,9 @@ app.get('/schedule', (req, res)=>{
   res.render('pages/schedule')
 })
 
+// app.post('/social', (req, res)=>{
+  
+// })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
@@ -247,14 +250,19 @@ request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
     const $= cheerio.load(html);
 
     const datarow = $(".club_listing");
-    $("b").each((i,data)=>{
-        var text = $(data).text();
-        var link = $(data).find('a').attr('href');
-        console.log("club: ",text);
-        console.log("link: ", link);
-    })
+    $("td").each((i,data)=>{
+          var desc = $(data).first().text().trim();
+          var text = $(data).find('b').text();
+          var link = $(data).find('a').attr('href');
 
-  }
+          if(desc != '' && text != '' && link != ''){
+            console.log("club: ",text);
+            console.log("desc: ", desc);
+            console.log("link: ", link);
+            console.log("\n");
+          }
+    })  
+  }  
 })
 
 function checkChars(str)
