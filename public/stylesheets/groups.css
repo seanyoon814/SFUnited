@@ -6,9 +6,18 @@ body {
 
 }
 .container {
-    width: 95%;
+    width: 98%;
     margin: 0 auto;
 }
+
+.tophead {
+    margin-top:0;
+    padding-top:0;
+    height:30px;
+    background-color: #f5f5f5;
+}
+
+
 
 header {
     background: #B5121B;
@@ -37,9 +46,9 @@ nav ul {
 
 nav li {
     display: inline-block;
-    margin-left: 70px;
-    padding-top: 30px;
-    margin-right: 50px;
+    margin-left: 40px;
+    padding-top: 28px;
+    margin-right: 30px;
 
     position: relative;
 }
@@ -87,4 +96,52 @@ nav a:hover:before {
     width: 30%;
     display: flex;
     padding: 2px;
+}
+
+.tophead ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    list-style: none;
+   
+}
+
+.tophead li {
+    display: inline-block;
+    padding-left: 40px;
+    margin-left: 5px;
+    margin-right: 0px;
+    position: relative;
+    margin-top: 6px;
+    
+}
+
+
+.tophead a {
+    font-family: "FFDINProCondBlack";
+    font-size: 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #cc0633;
+    font-weight: 700;
+    margin:0;
+    cursor: pointer;
+    
+}
+.tophead .icons ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    list-style: none;
+   
+}
+
+.tophead .icons li {
+    display: inline-block;
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    position: relative;
+    margin-top: 6px;
+    
 }
