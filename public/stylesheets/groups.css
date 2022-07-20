@@ -128,3 +128,20 @@ nav a:hover:before {
     cursor: pointer;
     
 }
+.tophead .icons ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    list-style: none;
+   
+}
+
+.tophead .icons li {
+    display: inline-block;
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    position: relative;
+    margin-top: 6px;
+    
+}
