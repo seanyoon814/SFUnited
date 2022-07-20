@@ -1,0 +1,471 @@
+:root {
+    /* numDays corresponds to the number of columns / days on the schedule*/
+    --numDays: 5;
+    /* corresponds to the number of rows / hours */
+    --numHours: 26;
+    /* spacing between top and bottom for the times */
+    --timeHeight: 55px;
+    /* background colour for the inside of the schedule*/
+    --calBgColor: white;
+    --eventBorderColor: #f2d3d8;
+  
+    --primary-color: #0a1118;
+    --primary-color-highlight: #233D54;
+  
+    /* bootstrap background colour and font*/
+    --bs-body-bg: #FBF0F6;
+    --bs-body-font-family: 'Montserrat', sans-serif;
+  
+  
+    /* colours that correspond to one type of thing on the schedule */
+    --eventColor2: #fafaa3;
+    --eventColor1: #e2f8ff;
+    --eventColor3: #892d21;
+    --eventColor4: #d1ffe6;
+  }
+  
+  /* change colour of the links */
+  a{color: var(--primary-color);}
+  /* change colour of the links when hovering over */
+  a:hover{color: rgb(214, 49, 37);}
+  
+  /* 
+    media queries that will break and shift from desktop to mobile
+    changes the text of hero to fit the screen
+    @media (min-width: 570px)  {}
+    @media (min-width: 768px)  {}
+    @media (min-width: 992px)  {}
+    @media (min-width: 1200px) {}
+    @media (min-width: 1400px) {}
+    @media (min-width: 1600px) {} 
+    these numbers represent the moment bootrstrap grids switch 
+  */
+  @media (min-width: 1200px) {
+    .container__hero{
+        width: 1140px;
+    }
+  }
+  
+  @media (min-width: 1400px) {
+    .container__hero{
+        width: 1340px;
+    }
+    /* adjust the heading of hero box when large enough*/
+    .hero__heading{
+        font-size:3.2rem;
+    }
+  }
+  
+  
+  @media (min-width: 1600px) {
+    .container__hero{
+        width: 1520px;
+    }
+  }
+
+  /* background colour for entire site */
+  .body__background_colour_site{
+    background-color: #FBF0F6;
+  }
+
+  
+  /* ------------------------------------------------------------------------------------------------------------------------------ */
+  
+  /*
+    Main Header
+  */
+  .header{
+    /* need z index becasue main header is positioned absolute*/
+    /* sets the order of things rendered out first (greater the Z, more recent the render*/
+    z-index: 2;
+  }
+  
+  /* ------------------------------------------------------------------------------------------------------------------------------ */
+  
+  /* 
+    Navigation Bar (Menu Button)
+  */
+  #navbar{
+    /* Menu always stays on top even if you scroll */
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  
+    /* background colour when the navbar is on */
+    /* background-color: rgb(255, 247, 231); */
+    background-color: var(--bs-body-bg);
+  
+    /* ensures that the navbar is rendered above the screen */
+    z-index: 4;
+  }
+  
+  /* 
+    Exit Button for Nav Bar
+  */
+  .dropdown-nav__closeNavButton{
+    position: absolute;
+    top: 20px;
+    right: 16px;
+    /* set colour and opacity */
+    /* background-color: rgba(255, 255, 255, 0.6); */
+    /* background-color: rgb(4, 201, 245,0.6); */
+    background-color: var(--bs-body-bg);
+  }
+  
+  /*
+    Animation for Menu container after you press the menu
+    Fixes the animation stutter
+  */
+  dropdown-nav__container{
+    /* sets the height of the container to be 100% of the viewport/visable area on screen */
+    /*1vh is 1% of the visable area, 100vh is 100%*/
+    height: 100vh;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+  }
+  
+  
+  /* ------------------------------------------------------------------------------------------------------------------------------ */
+  /* ------------------------------------------------------------------------------------------------------------------------------ */
+  
+  /* 
+      Body Sections (main info)
+  */
+  /* container for the main body section of the home page */
+  /* really don't need this but idk if I should delete this or not */
+  .body{
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  
+  /* style for the body picture */
+  .body__text_picture{
+    height: auto;
+    margin: 0 auto;
+  }
+  
+  /* adjust if mobile */
+  @media(min-width: 544px){
+    .steps{
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+  }
+  
+  /* container for the body */
+  .container_body{
+    width: 100%;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+    margin: 0 auto;
+  }
+  
+  /* max width for the main text body */
+  /* shifts it to the center */
+  .body__text_width{
+    max-width: 600px;
+    margin: auto auto;
+  }
+  
+  /*
+    background colour for the second section
+  */
+  .body__background_colour{
+    background-color:#736b6b;
+    /* background-color: #CC0633; */
+  }
+
+  .col{
+    border-right: 1px solid gray;
+    border-left: 1px solid gray;
+  }
+
+  .row__body{
+    border-bottom: solid 1px red;
+  }
+
+
+
+
+  /* ------------------------------------------------------------------------------------------------------------------------------ */
+  
+  
+  
+  /* START OF SCHEDULER */
+  /* remove this cuz header funky */
+  .background-colour{
+    /* background-color:rgb(131, 90, 125) */
+  }
+  
+  /* change the text font and size */
+  body {
+    /* change the font to be consitent with the dashboard */
+    font-family: (--bs-body-font-family);
+  }
+  
+  /* the font of the times on the side */
+  .time-marker{
+    font-weight: bold;
+  }
+  
+  
+  /* style the entire scheduler*/
+  .scheduler-container{
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto 1fr;
+    margin: 2rem;
+  }
+  /*create a pseudo table with size a certain size*/
+  .table__creator{
+    display: grid;
+    grid-template-rows: repeat(var(--numHours), var(--timeHeight));
+  }
+  /* 
+    style for the days container
+    set the entire grid to be side by side
+  */
+  .days__container {
+    display: grid;
+    grid-column: 2;
+    gap: 5px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  /*  
+    style the individual columns / background of the scheduler
+  */
+  .events {
+    display: grid;
+    grid-template-rows: repeat(var(--numHours), var(--timeHeight));
+    border-radius: 5px;
+    background: var(--calBgColor);
+  }
+  
+  /* for the class / event name */
+  .title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* style for the individual event / class */
+  .event {
+    /* create a border around the event*/
+    border: 2px solid var(--eventBorderColor);
+    border-radius: 5px;
+    padding: 0.5rem;
+    margin: 0 0.5rem;
+    background: white;
+  }
+  
+  /*  Size and style of the Days */
+  .date-day {
+    display: inline;
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 50px 50px;
+  }
+  
+  
+  .space .date {
+    height: 60px
+  }
+  
+  /* colour of the class event*/
+  .eColor {
+    background: var(--eventColor1);
+  }
+  
+  
+  /* 
+    correctly place the times to span during the correct time frame
+    each is needed to determine where the row starts and ends
+  */
+  
+  .start-800{
+    grid-row-start: 2;
+  }
+  .start-830{
+    grid-row-start: 3;
+  }
+  .start-900{
+    grid-row-start: 4;
+  }
+  .start-930{
+    grid-row-start: 5;
+  }
+  .start-1000{
+    grid-row-start: 6;
+  }
+  .start-1030{
+    grid-row-start: 7;
+  }
+  .start-1100{
+    grid-row-start: 8;
+  }
+  .start-1130{
+    grid-row-start: 9;
+  }
+  .start-1200{
+    grid-row-start: 10;
+  }
+  .start-1230{
+    grid-row-start: 11;
+  }
+  .start-1300{
+    grid-row-start: 12;
+  }
+  .start-1330{
+    grid-row-start: 13;
+  }
+  .start-1400{
+    grid-row-start: 14;
+  }
+  .start-1430{
+    grid-row-start: 15;
+  }
+  .start-1500{
+    grid-row-start: 16;
+  }
+  .start-1530{
+    grid-row-start: 17;
+  }
+  .start-1600{
+    grid-row-start: 18;
+  }
+  .start-1630{
+    grid-row-start: 19;
+  }
+  .start-1700{
+    grid-row-start: 20;
+  }
+  .start-1730{
+    grid-row-start: 21;
+  }
+  .start-1800{
+    grid-row-start: 22;
+  }
+  .start-1830{
+    grid-row-start: 23;
+  }
+  .start-1900{
+    grid-row-start: 24;
+  }
+  .start-1930{
+    grid-row-start: 25;
+  }
+  /* corresponds to 8pm */
+  .start-2000{
+    grid-row-start: 26;
+  }
+  
+
+
+
+  .end-800{
+    grid-row-end: 2;
+  }
+  .end-830{
+    grid-row-end: 3;
+  }
+  .end-900{
+    grid-row-end: 4;
+  }
+  .end-930{
+    grid-row-end: 5;
+  }
+  .end-1000{
+    grid-row-end: 6;
+  }
+  .end-1030{
+    grid-row-end: 7;
+  }
+  .end-1100{
+    grid-row-end: 8;
+  }
+  .end-1130{
+    grid-row-end: 9;
+  }
+  .end-1200{
+    grid-row-end: 10;
+  }
+  .end-1230{
+    grid-row-end: 11;
+  }
+  .end-1300{
+    grid-row-end: 12;
+  }
+  .end-1330{
+    grid-row-end: 13;
+  }
+  .end-1400{
+    grid-row-end: 14;
+  }
+  .end-1430{
+    grid-row-end: 15;
+  }
+  .end-1500{
+    grid-row-end: 16;
+  }
+  .end-1530{
+    grid-row-end: 17;
+  }
+  .end-1600{
+    grid-row-end: 18;
+  }
+  .end-1630{
+    grid-row-end: 19;
+  }
+  .end-1700{
+    grid-row-end: 20;
+  }
+  .end-1730{
+    grid-row-end: 21;
+  }
+  .end-1800{
+    grid-row-end: 22;
+  }
+  .end-1830{
+    grid-row-end: 23;
+  }
+  .end-1900{
+    grid-row-end: 24;
+  }
+  .end-1930{
+    grid-row-end: 25;
+  }
+  /* corresponds to 8pm */
+  .end-2000{
+    grid-row-end: 26;
+  }
+  
+  
+  
+  /* ------------------------------------------------------------------------------------------------------------------------------ */
+  
+  /* 
+    Footer Section
+  */
+  
+  /*
+    Footer box
+  */
+  .footer{
+    border-top: 1px solid var(--primary-color-highlight);
+  }
+  
+  .border_highlight{
+    border-top: 1px solid var(--primary-color-highlight);
+  }
+  
+  /* container for the footery */
+  /* adds padding so footer is slightly moved towards the center */
+  .container_footer{
+    width: 100%;
+    /* vertical | horizontal */
+    padding: 0 1rem;
+    margin: 0 auto;
+  }
+  
