@@ -245,6 +245,93 @@ app.post('/delete', (req, res)=>{
     res.redirect("/schedule")
   })
 })
+
+app.get('/groups',async (req,res)=>{
+  if (req.session.user)
+  {
+    clubScrape(function(clubs){
+      res.render('pages/groups', {clubs:clubs})
+    })
+
+  }
+  else
+  {
+    res.redirect('/')
+  }
+})
+
+app.post('/schedule', async (req, res)=>{
+  var course = req.body.fcourse
+  var firstName = req.body.fname
+  var subj = req.body.subj
+  if(firstName!=null && subj!=null)
+  {
+    var results = []
+    await scrape(firstName, subj, results)
+    recentProf = results
+    res.redirect('/schedule')
+    return 0;
+  }
+  else if(course)
+  {
+    var classes = []
+    await getCourseInformation(course, classes)
+    recentClass = classes
+    res.redirect('/schedule')
+    return 0;
+  }
+  else
+  {
+    res.redirect('/schedule')
+  }
+})
+
+app.post('/enroll', async (req, res)=>{
+  var username = user
+  var course = req.body.fname.trim()
+  var location = req.body.fcampus
+  var prof = req.body.fprofessor
+  var days = req.body.fdays
+  var start = req.body.fstart
+  var end = req.body.fend
+  var queryString = `
+  INSERT INTO classes (username, course, section, location, professor, days, startt, endt)
+  VALUES ('${username}', '${course}', '${course}', '${location}', '${prof}', '${days}', '${start}', '${end}')
+  `;
+  var bool = await checkConflictingTime(start, end, days)
+  if(bool == 1)
+  {
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send("Error inserting into DB")
+        return 0;
+      }
+      recentClass = []
+      res.redirect("/schedule")
+    })
+  }
+  else
+  {
+    res.redirect('/schedule')
+  }
+})
+
+app.post('/delete', (req, res)=>{
+  var course = req.body.fcourse
+  course.trim()
+  var queryString = `
+  DELETE FROM classes
+  WHERE course='${course}'`;
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send(error)
+      return 0;
+    }
+    res.redirect("/schedule")
+  })
+})
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
@@ -421,26 +508,43 @@ async function scrape(name, subject, arr)
     }
   }
 }
-//webscrape api for Clubs npm install cheerio, request-promise
-request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
+
+//webscraper for Clubs npm install cheerio, request-promise
+async function clubScrape(callback)
+{
+  clubs = []
+  request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
   if(!error && response.statusCode ==200){
-    const $= cheerio.load(html);
+      const $= cheerio.load(html);
+      $("b").each((i,data)=>{
+            club = {name:"", desc:"", link:""};
+            const name = $(data).text();
+            const link = $(data).find('a').attr('href');
+            club.name = name;
+            club.link = link;
+            if(name != '' && link != ''){
+              clubs.push(club);
+            }
+      })
 
-    const datarow = $(".club_listing");
-    $("td").each((i,data)=>{
-          var desc = $(data).first().text().trim();
-          var text = $(data).find('b').text();
-          var link = $(data).find('a').attr('href');
-
-          if(desc != '' && text != '' && link != ''){
-            // console.log("club: ",text);
-            // console.log("desc: ", desc);
-            // console.log("link: ", link);
-            // console.log("\n");
+      $('b').remove();
+      value = 0;
+      $("td").each((num,data)=>{
+          const desc = $(data).text().trim();
+          if(desc != ''){
+            clubs[value].desc = desc;
+            value++;
           }
-    })
-  }
-})
+      })
+      callback(clubs);
+    }
+  })
+}
+
+function checkChars(str)
+{
+  return /^[a-zA-Z]+$/.test(str)
+}
 
 function hasNumber(string)
 {
@@ -452,37 +556,132 @@ async function checkConflictingTime(startTime, endTime, days)
   return new Promise((resolve, reject)=>
   {
     var getUsersQuery = `SELECT * FROM classes where username='${user}'`;
-    var time = convertTime(startTime, endTime)
-    var day = days.trim().split(',')
-    setTimeout(() => {
-      pool.query(getUsersQuery, (error, result)=>{
-        if(error)
-          resolve(0);
-        var results = {'rows':result.rows}
-        for(var i = 0; i<results.rows.length; i++)
-        {
-          let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
-          let otherdays = results['rows'][i]['days']
-          if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+    if(startTime.includes(","))
+    {
+      var time = convertTime(startTime, endTime)
+      var day = days.trim().split(',')
+      setTimeout(() => {
+        pool.query(getUsersQuery, (error, result)=>{
+          if(error)
           {
-            for(var j = 0; j<day.length; j++)
+            resolve(0);
+          }
+          var results = {'rows':result.rows}
+          for(var i = 0; i<results.rows.length; i++)
+          {
+            if(results['rows'][i]['startt'].includes(","))
             {
-              if(otherdays.includes(day))
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+              || ((time[2] >= start[2] && time[3] <=start[3]) || (time[2] <= start[2] && (time[3] >= start[2] && time[3] <= start[2])) || (time[3] >= start[3] && (time[2] >= start[2] && time[2] <=start[3]))))
               {
-                resolve(0);
-                return 0;
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+              || (time[2] >= start[0] && time[3] <=start[1]) || (time[2] <= start[0] && (time[3] >= start[0] && time[3] <= start[1])) || (time[3] >= start[1] && (time[2] >= start[0] && time[2] <=start[1])))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
               }
             }
           }
-        }
-        resolve(1);
-        return 1;
-    }, 100)})
+          resolve(1);
+          return 1;
+
+        }, 100)})
+    }
+    else
+    {
+      var time = convertTime(startTime, endTime)
+      var day = days.trim().split(',')
+      setTimeout(() => {
+        pool.query(getUsersQuery, (error, result)=>{
+          if(error)
+            resolve(0);
+          var results = {'rows':result.rows}
+          for(var i = 0; i<results.rows.length; i++)
+          {
+            
+            if(results['rows'][i]['startt'].includes(","))
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1]))
+              || (time[0] >= start[2] && time[1] <=start[3]) || (time[0] <= start[2] && (time[1] >= start[2] && time[1] <= start[3])) || (time[1] >= start[3] && (time[0] >= start[2] && time[0] <=start[3])))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1]))))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+          }
+          resolve(1);
+          return 1;
+      }, 100)})
+    }
   })
 }
 //returns [startTime, endTime] in minutes
 function convertTime(startTime, endTime)
 {
+  if(startTime.includes(","))
+  {
+    let start = startTime.split(",")
+    let end = endTime.split(",")
+    let start1 = start[0].split(":")
+    let start2 = start[1].split(":")
+    let end1 = end[0].split(":")
+    let end2 = end[1].split(":")
+    var arr = []
+    var s1minute = Number(start1[0])*60 + Number(start1[1])
+    var s2minute = Number(start2[0])*60 + Number(start2[1])
+    var e1minute = Number(end1[0])*60 + Number(end1[1])
+    var e2minute = Number(end2[0])*60 + Number(end2[1])
+    arr.push(s1minute, e1minute, s2minute, e2minute)
+    return arr;
+  }
+  else
+  {
     let start = startTime.split(":")
     let end = endTime.split(":")
     var arr = []
@@ -490,4 +689,5 @@ function convertTime(startTime, endTime)
     var minute2 = Number(end[0])*60 + Number(end[1])
     arr.push(minute, minute2)
     return arr;
+  }
 }
