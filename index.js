@@ -214,7 +214,7 @@ app.post('/enroll', async (req, res)=>{
     pool.query(queryString, (error, result)=>{
       if(error)
       {
-        res.send("Error inserting into DB")
+        res.send(error)
         return 0;
       }
       recentClass = []
@@ -344,9 +344,9 @@ async function getCourseInformation(course, courseInfo)
             campus: sectionData['data']['courseSchedule'][0]["campus"],
             room: sectionData['data']['courseSchedule'][0]["buildingCode"],
             roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
-            days: sectionData['data']['courseSchedule'][0]["days"] + "," + sectionData['data']['courseSchedule'][1]["days"],
-            start: sectionData['data']['courseSchedule'][0]["startTime"],
-            end: sectionData['data']['courseSchedule'][0]["endTime"]
+            days: sectionData['data']['courseSchedule'][0]["days"] + ", " + sectionData['data']['courseSchedule'][1]["days"],
+            start: sectionData['data']['courseSchedule'][0]["startTime"] + "," + sectionData['data']['courseSchedule'][1]["startTime"],
+            end: sectionData['data']['courseSchedule'][0]["endTime"] + "," + sectionData['data']['courseSchedule'][1]["endTime"],
           })
         }
         catch(err)
@@ -380,14 +380,13 @@ async function getCourseInformation(course, courseInfo)
 async function scrape(name, subject, arr)
 {
   const nm = name.trim().split(/\s+/)
-  const subj = subject.toLowerCase()
   for(let i = 0; i<letters.length; i++)
   {
     const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
     const { data } = await axios.get(url);
     try
     {
-      if(data['ratings'][i]['class'].includes(subj))
+      if(data['ratings'][i]['class'].includes(subject.toUpperCase()))
       {
         arr.push({
           fname: data['firstName'],
@@ -419,7 +418,6 @@ async function scrape(name, subject, arr)
     }
   }
 }
-
 //webscrape api for Clubs npm install cheerio, request-promise
 request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
   if(!error && response.statusCode ==200){
@@ -432,10 +430,10 @@ request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
           var link = $(data).find('a').attr('href');
 
           if(desc != '' && text != '' && link != ''){
-            console.log("club: ",text);
-            console.log("desc: ", desc);
-            console.log("link: ", link);
-            console.log("\n");
+            // console.log("club: ",text);
+            // console.log("desc: ", desc);
+            // console.log("link: ", link);
+            // console.log("\n");
           }
     })
   }

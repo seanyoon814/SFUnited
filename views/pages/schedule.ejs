@@ -208,6 +208,7 @@
             <!-- class that divides the entire week -->
             <div class="days__container">
                 <!-- monday -->
+                <% var i = 0; %>
                 <div class="day-mon">
                     <!--  -->
                     <div class="date">
@@ -220,10 +221,21 @@
                         <% enrolled.forEach(function(e){%>
                             <% var str = e.days %>
                             <%if(str.includes("Mo")){ %>
-                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
-                                    <p class="title"><%=e.course%></p>
-                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
-                                </div>
+                                <% if(e.startt.includes(",")) { %>
+                                    <% var startSplice = e.startt.split(",");
+                                    var endSplice = e.endt.split(","); %>
+                                    <div class ="event start-<%=startSplice[i]%> end-<%=endSplice[i]%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=startSplice[i]%> - <%=endSplice[i]%></p>
+                                    </div>
+                                    <% i++ %>
+                                <% }else{%>
+                                    
+                                    <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                    </div>
+                                <%}%>
                             <%}%>
                         <%})%>
                     </div>
@@ -241,10 +253,21 @@
                         <% enrolled.forEach(function(e){%>
                             <% var str = e.days %>
                             <%if(str.includes("Tu")){ %>
-                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
-                                    <p class="title"><%=e.course%></p>
-                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
-                                </div>
+                                <% if(e.startt.includes(",")) { %>
+                                    <% var startSplice = e.startt.split(",");
+                                    var endSplice = e.endt.split(",");%>
+                                    <div class ="event start-<%=startSplice[i]%> end-<%=endSplice[i]%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=startSplice[i]%> - <%=endSplice[i]%></p>
+                                    </div>
+                                    <% i++ %>
+                                <% }else{%>
+                                    
+                                    <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                    </div>
+                                <%}%>
                             <%}%>
                         <%})%>
                     </div>
@@ -262,10 +285,21 @@
                         <% enrolled.forEach(function(e){%>
                             <% var str = e.days %>
                             <%if(str.includes("We")){ %>
-                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
-                                    <p class="title"><%=e.course%></p>
-                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
-                                </div>
+                                <% if(e.startt.includes(",")) { %>
+                                    <% var startSplice = e.startt.split(",");
+                                    var endSplice = e.endt.split(",");%>
+                                    <div class ="event start-<%=startSplice[i]%> end-<%=endSplice[i]%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=startSplice[i]%> - <%=endSplice[i]%></p>
+                                    </div>
+                                    <% i++ %>
+                                <% }else{%>
+                                    
+                                    <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                    </div>
+                                <%}%>
                             <%}%>
                         <%})%>
                     </div>
@@ -283,10 +317,21 @@
                         <% enrolled.forEach(function(e){%>
                             <% var str = e.days %>
                             <%if(str.includes("Th")){ %>
-                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
-                                    <p class="title"><%=e.course%></p>
-                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
-                                </div>
+                                <% if(e.startt.includes(",")) { %>
+                                    <% var startSplice = e.startt.split(",");
+                                    var endSplice = e.endt.split(",");%>
+                                    <div class ="event start-<%=startSplice[i]%> end-<%=endSplice[i]%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=startSplice[i]%> - <%=endSplice[i]%></p>
+                                    </div>
+                                    <% i++ %>
+                                <% }else{%>
+                                    
+                                    <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                    </div>
+                                <%}%>
                             <%}%>
                         <%})%>
                     </div>
@@ -304,10 +349,21 @@
                         <% enrolled.forEach(function(e){%>
                             <% var str = e.days %>
                             <%if(str.includes("Fr")){ %>
-                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
-                                    <p class="title"><%=e.course%></p>
-                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
-                                </div>
+                                <% if(e.startt.includes(",")) { %>
+                                    <% var startSplice = e.startt.split(",");
+                                    var endSplice = e.endt.split(",");%>
+                                    <div class ="event start-<%=startSplice[i]%> end-<%=endSplice[i]%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=startSplice[i]%> - <%=endSplice[i]%></p>
+                                    </div>
+                                    <% i++ %>
+                                <% }else{%>
+                                    
+                                    <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                        <p class="title"><%=e.course%></p>
+                                        <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                    </div>
+                                <%}%>
                             <%}%>
                         <%})%>
                     </div>
@@ -355,16 +411,32 @@
                     <h1 class="h2 display-6 mb-4 fw-bolder row justify-content-center">Currently enrolled courses</h1>
                     <p><strong>View your currently enrolled courses! Add Courses as well as remove courses. Choose your prefered timeslot and automatically add to the scheduler! </strong></p>
                     <% enrolled.forEach(function(e){%>
-                        <div>
-                            <h4 class="mb-4 fw-bold text-danger"><%=e.course%></h4>
-                            <p class="lead">
-                                <strong>
-                                    <b>Location: </b><%=e.location%>,
-                                    <b>Days: </b> <%=e.days%>, 
-                                    <b>Time: </b> <%=e.startt%> - <%=e.endt%>
-                                </strong>
-                            </p>
-                        </div>
+                        <%if(e.startt.includes(",")){%>
+                            <% var startSplice = e.startt.split(",");
+                                var endSplice = e.endt.split(",");
+                                var daySplice = e.days.split(",");%>
+                                <div>
+                                    <h4 class="mb-4 fw-bold text-danger"><%=e.course%></h4>
+                                    <p class="lead">
+                                        <strong>
+                                            <b>Location: </b><%=e.location%>,
+                                            <b>Days: </b> <%=daySplice[0]%>, <%=daySplice[1]%>
+                                            <b>Time: </b> <%=startSplice[0]%> - <%=endSplice[0]%>, <%=startSplice[1]%> - <%=endSplice[1]%>
+                                        </strong>
+                                    </p>
+                                </div>
+                        <%}else{%>
+                            <div>
+                                <h4 class="mb-4 fw-bold text-danger"><%=e.course%></h4>
+                                <p class="lead">
+                                    <strong>
+                                        <b>Location: </b><%=e.location%>,
+                                        <b>Days: </b> <%=e.days%>, 
+                                        <b>Time: </b> <%=e.startt%> - <%=e.endt%>
+                                    </strong>
+                                </p>
+                            </div>
+                        <%}%>
                     <%})%>
                 </form>
 
@@ -382,8 +454,12 @@
                                 <p><b>Notes:</b> <%= c.notes%></p>
                             <%}%>
                         <%}else{%>
+                            <% if(c.start.includes(",")) {%>
+                            <% var startSplice = c.start.split(",");
+                                var endSplice = c.end.split(",");
+                                var daySplice = c.days.split(",");%>
                             <form action = '/enroll' method = 'POST'>
-                                <p class="lead"><strong><b><%=c.name.trim()%></b>, <%=c.days%>, <%=c.start%>-<%=c.end%></b></strong></p>
+                                <p class="lead"><strong><b><%=c.name.trim()%></b>, <%=daySplice[0]%> <%=startSplice[0]%>-<%=endSplice[0]%>, <%=daySplice[1]%> <%=startSplice[1]%>-<%=endSplice[1]%></b></strong></p>
                                 <p class="lead">
                                     <strong>
                                         <b>Location: </b><%=c.campus%>: <%=c.room%> <%=c.roomNum%>
@@ -397,10 +473,26 @@
                                 <input type="hidden" name="fdays" value="<%=c.days%>"></input>
                                 <input type="hidden" name="fstart" value=<%=c.start%>></input>
                                 <input type="hidden" name="fend" value=<%=c.end%>></input>
-
-
                                 <input type="submit" class="btn btn-info btn-block" value="Enroll">
                             </form>
+                            <% } else{%>
+                                <form action = '/enroll' method = 'POST'>
+                                    <p class="lead"><strong><b><%=c.name.trim()%></b>, <%=c.days%>, <%=c.start%>-<%=c.end%></b></strong></p>
+                                    <p class="lead">
+                                        <strong>
+                                            <b>Location: </b><%=c.campus%>: <%=c.room%> <%=c.roomNum%>
+                                            <b>Prof: </b> <%=c.prof%>, 
+                                        </strong>
+                                    </p>
+                                    <input type="hidden" name="fname" value="<%=c.name.trim()%>"></input>
+                                    <input type="hidden" name="fcampus" value=<%=c.campus%>></input>
+                                    <input type="hidden" name="fprofessor" value="<%=c.prof%>"></input>
+                                    <input type="hidden" name="fdays" value="<%=c.days%>"></input>
+                                    <input type="hidden" name="fstart" value=<%=c.start%>></input>
+                                    <input type="hidden" name="fend" value=<%=c.end%>></input>
+                                    <input type="submit" class="btn btn-info btn-block" value="Enroll">
+                                </form>
+                            <%}%>
                         <%}%>
                     <%})%>
                 <%}%>
@@ -415,23 +507,46 @@
         <div class="row">
             <div class="col-12 col-md-12 d-md-flex justify-content-md-center h-auto p-3">
                 <% enrolled.forEach(function(e){%>
-                <form action = '/delete' method = 'POST' class="border border-dark rounded w-100" style="background-color:#23efef64">
-                    <div class="mb-8 p-1">
-                    <!-- Currently enrolled classes -->
-                            <h4 class="mb-4 fw-bold text-danger"><%=e.course%></h4>
-                            <p class="lead">
-                                <strong>
-                                    <b>Location: </b><%=e.location%>,
-                                    <b>Days: </b> <%=e.days%>, 
-                                    <b>Time: </b> <%=e.startt%> - <%=e.endt%>
-                                </strong>
-                            </p>
-                            <input type="submit" class="btn btn-info btn-block" value ="Remove Class">
-                            <input type="hidden" name="fcourse" value="<%=e.course%>"></input>
-                            <p></p>
-                    <!-- DO NOT ADD THE /DIV HERE-->
-                    <!-- LITERALLY MAKES IT LOOK WORSE IDK WHAT IS HAPPENING?? -->
-                </form>
+                    <%if(e.startt.includes(",")){%>
+                        <% var startSplice = e.startt.split(",");
+                            var endSplice = e.endt.split(",");
+                            var daySplice = e.days.split(",");%>
+                        <form action = '/delete' method = 'POST' class="border border-dark rounded w-100" style="background-color:#23efef64">
+                            <div class="mb-8 p-1">
+                            <!-- Currently enrolled classes -->
+                                    <h4 class="mb-4 fw-bold text-danger"><%=e.course%></h4>
+                                    <p class="lead">
+                                        <strong>
+                                            <b>Location: </b><%=e.location%>,
+                                            <b>Days: </b> <%=daySplice[0]%>, <%=daySplice[1]%>
+                                            <b>Time: </b> <%=startSplice[0]%> - <%=endSplice[0]%>, <%=startSplice[1]%> - <%=endSplice[1]%>
+                                        </strong>
+                                    </p>
+                                    <input type="submit" class="btn btn-info btn-block" value ="Remove Class">
+                                    <input type="hidden" name="fcourse" value="<%=e.course%>"></input>
+                                    <p></p>
+                            <!-- DO NOT ADD THE /DIV HERE-->
+                            <!-- LITERALLY MAKES IT LOOK WORSE IDK WHAT IS HAPPENING?? -->
+                        </form>
+                    <%}else{%>
+                        <form action = '/delete' method = 'POST' class="border border-dark rounded w-100" style="background-color:#23efef64">
+                            <div class="mb-8 p-1">
+                            <!-- Currently enrolled classes -->
+                                    <h4 class="mb-4 fw-bold text-danger"><%=e.course%></h4>
+                                    <p class="lead">
+                                        <strong>
+                                            <b>Location: </b><%=e.location%>,
+                                            <b>Days: </b> <%=e.days%>, 
+                                            <b>Time: </b> <%=e.startt%> - <%=e.endt%>
+                                        </strong>
+                                    </p>
+                                    <input type="submit" class="btn btn-info btn-block" value ="Remove Class">
+                                    <input type="hidden" name="fcourse" value="<%=e.course%>"></input>
+                                    <p></p>
+                            <!-- DO NOT ADD THE /DIV HERE-->
+                            <!-- LITERALLY MAKES IT LOOK WORSE IDK WHAT IS HAPPENING?? -->
+                        </form>
+                    <%}%>
                 <%})%>
             </div>
         </div>
