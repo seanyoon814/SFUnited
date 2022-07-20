@@ -11,7 +11,10 @@ const cheerio = require('cheerio')
 
 var pool;
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
