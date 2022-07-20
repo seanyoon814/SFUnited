@@ -8,7 +8,6 @@ const { query } = require('express')
 const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
-
 var pool;
 pool = new Pool({
   connectionString: 'postgres://postgres:admin@localhost/users'
@@ -246,8 +245,10 @@ app.post('/delete', (req, res)=>{
 app.get('/groups',async (req,res)=>{
   if (req.session.user)
   {
-    clubs = await clubScrape();
-    res.render('pages/groups', {clubName:clubs.name, clubDesc:clubs.desc, clubLink:clubs.link})
+    clubScrape(function(clubs){
+      res.render('pages/groups', {clubs:clubs})
+    })
+
   }
   else
   {
@@ -490,32 +491,35 @@ async function scrape(name, subject, arr)
 }
 
 //webscraper for Clubs npm install cheerio, request-promise
-async function clubScrape()
+async function clubScrape(callback)
 {
   clubs = []
   request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
   if(!error && response.statusCode ==200){
       const $= cheerio.load(html);
-      $("td").each((i,data)=>{
+      $("b").each((i,data)=>{
             club = {name:"", desc:"", link:""};
-            const desc = $(data).first().text().trim();
-            const name = $(data).find('b').text();
+            const name = $(data).text();
             const link = $(data).find('a').attr('href');
             club.name = name;
-            club.desc = desc;
             club.link = link;
-            if(desc != '' && name != '' && link != ''){
+            if(name != '' && link != ''){
               clubs.push(club);
-              console.log("successful push");
-              // console.log("club: ",text);
-              // console.log("desc: ", desc);
-              // console.log("link: ", link);
-              // console.log("\n");
             }
       })
+
+      $('b').remove();
+      value = 0;
+      $("td").each((num,data)=>{
+          const desc = $(data).text().trim();
+          if(desc != ''){
+            clubs[value].desc = desc;
+            value++;
+          }
+      })
+      callback(clubs);
     }
   })
-  return clubs;
 }
 
 function checkChars(str)
