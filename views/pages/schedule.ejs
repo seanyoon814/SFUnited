@@ -11,7 +11,7 @@
     <h1>Currently enrolled courses</h1>
     <% enrolled.forEach(function(e){%>
         <form action = '/delete' method = 'POST'>
-            <p><b><%=e.course%></b>, <%=e.location%>, <%=e.days%>, <%=e.startt%>-<%=e.endt%></p>
+            <p class ="course"><b><%=e.course%></b>, <%=e.location%>, <%=e.days%>, <%=e.startt%>-<%=e.endt%></p>
             <input type="submit" value ="Drop Course">
             <input type="hidden" name="fcourse" value="<%=e.course%>"></input>
         </form>
