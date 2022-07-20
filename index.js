@@ -11,7 +11,7 @@ const cheerio = require('cheerio')
 
 var pool;
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: 'postgres://postgres:admin@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -243,8 +243,16 @@ app.post('/delete', (req, res)=>{
   })
 })
 
-app.get('/socials',(req,res)=>{
-
+app.get('/groups',async (req,res)=>{
+  if (req.session.user)
+  {
+    clubs = await clubScrape();
+    res.render('pages/groups', {clubName:clubs.name, clubDesc:clubs.desc, clubLink:clubs.link})
+  }
+  else
+  {
+    res.redirect('/')
+  }
 })
 
 //Function to check if logged in users are registered in "usr" table.
@@ -409,28 +417,34 @@ async function scrape(name, subject, arr)
   }
 }
 
-//webscrape api for Clubs npm install cheerio, request-promise
-request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
+//webscraper for Clubs npm install cheerio, request-promise
+async function clubScrape()
+{
+  clubs = []
+  request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
   if(!error && response.statusCode ==200){
-    const $= cheerio.load(html);
-    clubs = [];
-    $("td").each((i,data)=>{
-          const desc = $(data).first().text().trim();
-          const name = $(data).find('b').text();
-          const link = $(data).find('a').attr('href');
-
-          if(desc != '' && name != '' && link != ''){
-            club = [name, desc, link]
-            clubs.push(club);
-            // console.log("club: ",text);
-            // console.log("desc: ", desc);
-            // console.log("link: ", link);
-            // console.log("\n");
-          }
-    })
-  }
+      const $= cheerio.load(html);
+      $("td").each((i,data)=>{
+            club = {name:"", desc:"", link:""};
+            const desc = $(data).first().text().trim();
+            const name = $(data).find('b').text();
+            const link = $(data).find('a').attr('href');
+            club.name = name;
+            club.desc = desc;
+            club.link = link;
+            if(desc != '' && name != '' && link != ''){
+              clubs.push(club);
+              console.log("successful push");
+              // console.log("club: ",text);
+              // console.log("desc: ", desc);
+              // console.log("link: ", link);
+              // console.log("\n");
+            }
+      })
+    }
+  })
   return clubs;
-})
+}
 
 function checkChars(str)
 {
