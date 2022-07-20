@@ -11,7 +11,10 @@ const cheerio = require('cheerio')
 
 var pool;
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -553,37 +556,132 @@ async function checkConflictingTime(startTime, endTime, days)
   return new Promise((resolve, reject)=>
   {
     var getUsersQuery = `SELECT * FROM classes where username='${user}'`;
-    var time = convertTime(startTime, endTime)
-    var day = days.trim().split(',')
-    setTimeout(() => {
-      pool.query(getUsersQuery, (error, result)=>{
-        if(error)
-          resolve(0);
-        var results = {'rows':result.rows}
-        for(var i = 0; i<results.rows.length; i++)
-        {
-          let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
-          let otherdays = results['rows'][i]['days']
-          if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+    if(startTime.includes(","))
+    {
+      var time = convertTime(startTime, endTime)
+      var day = days.trim().split(',')
+      setTimeout(() => {
+        pool.query(getUsersQuery, (error, result)=>{
+          if(error)
           {
-            for(var j = 0; j<day.length; j++)
+            resolve(0);
+          }
+          var results = {'rows':result.rows}
+          for(var i = 0; i<results.rows.length; i++)
+          {
+            if(results['rows'][i]['startt'].includes(","))
             {
-              if(otherdays.includes(day))
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+              || ((time[2] >= start[2] && time[3] <=start[3]) || (time[2] <= start[2] && (time[3] >= start[2] && time[3] <= start[2])) || (time[3] >= start[3] && (time[2] >= start[2] && time[2] <=start[3]))))
               {
-                resolve(0);
-                return 0;
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+              || (time[2] >= start[0] && time[3] <=start[1]) || (time[2] <= start[0] && (time[3] >= start[0] && time[3] <= start[1])) || (time[3] >= start[1] && (time[2] >= start[0] && time[2] <=start[1])))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
               }
             }
           }
-        }
-        resolve(1);
-        return 1;
-    }, 100)})
+          resolve(1);
+          return 1;
+
+        }, 100)})
+    }
+    else
+    {
+      var time = convertTime(startTime, endTime)
+      var day = days.trim().split(',')
+      setTimeout(() => {
+        pool.query(getUsersQuery, (error, result)=>{
+          if(error)
+            resolve(0);
+          var results = {'rows':result.rows}
+          for(var i = 0; i<results.rows.length; i++)
+          {
+            
+            if(results['rows'][i]['startt'].includes(","))
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1]))
+              || (time[0] >= start[2] && time[1] <=start[3]) || (time[0] <= start[2] && (time[1] >= start[2] && time[1] <= start[3])) || (time[1] >= start[3] && (time[0] >= start[2] && time[0] <=start[3])))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1]))))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+          }
+          resolve(1);
+          return 1;
+      }, 100)})
+    }
   })
 }
 //returns [startTime, endTime] in minutes
 function convertTime(startTime, endTime)
 {
+  if(startTime.includes(","))
+  {
+    let start = startTime.split(",")
+    let end = endTime.split(",")
+    let start1 = start[0].split(":")
+    let start2 = start[1].split(":")
+    let end1 = end[0].split(":")
+    let end2 = end[1].split(":")
+    var arr = []
+    var s1minute = Number(start1[0])*60 + Number(start1[1])
+    var s2minute = Number(start2[0])*60 + Number(start2[1])
+    var e1minute = Number(end1[0])*60 + Number(end1[1])
+    var e2minute = Number(end2[0])*60 + Number(end2[1])
+    arr.push(s1minute, e1minute, s2minute, e2minute)
+    return arr;
+  }
+  else
+  {
     let start = startTime.split(":")
     let end = endTime.split(":")
     var arr = []
@@ -591,4 +689,5 @@ function convertTime(startTime, endTime)
     var minute2 = Number(end[0])*60 + Number(end[1])
     arr.push(minute, minute2)
     return arr;
+  }
 }
