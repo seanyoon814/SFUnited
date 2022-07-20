@@ -242,6 +242,93 @@ app.post('/delete', (req, res)=>{
     res.redirect("/schedule")
   })
 })
+
+app.get('/groups',async (req,res)=>{
+  if (req.session.user)
+  {
+    clubScrape(function(clubs){
+      res.render('pages/groups', {clubs:clubs})
+    })
+
+  }
+  else
+  {
+    res.redirect('/')
+  }
+})
+
+app.post('/schedule', async (req, res)=>{
+  var course = req.body.fcourse
+  var firstName = req.body.fname
+  var subj = req.body.subj
+  if(firstName!=null && subj!=null)
+  {
+    var results = []
+    await scrape(firstName, subj, results)
+    recentProf = results
+    res.redirect('/schedule')
+    return 0;
+  }
+  else if(course)
+  {
+    var classes = []
+    await getCourseInformation(course, classes)
+    recentClass = classes
+    res.redirect('/schedule')
+    return 0;
+  }
+  else
+  {
+    res.redirect('/schedule')
+  }
+})
+
+app.post('/enroll', async (req, res)=>{
+  var username = user
+  var course = req.body.fname.trim()
+  var location = req.body.fcampus
+  var prof = req.body.fprofessor
+  var days = req.body.fdays
+  var start = req.body.fstart
+  var end = req.body.fend
+  var queryString = `
+  INSERT INTO classes (username, course, section, location, professor, days, startt, endt)
+  VALUES ('${username}', '${course}', '${course}', '${location}', '${prof}', '${days}', '${start}', '${end}')
+  `;
+  var bool = await checkConflictingTime(start, end, days)
+  if(bool == 1)
+  {
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send("Error inserting into DB")
+        return 0;
+      }
+      recentClass = []
+      res.redirect("/schedule")
+    })
+  }
+  else
+  {
+    res.redirect('/schedule')
+  }
+})
+
+app.post('/delete', (req, res)=>{
+  var course = req.body.fcourse
+  course.trim()
+  var queryString = `
+  DELETE FROM classes
+  WHERE course='${course}'`;
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send(error)
+      return 0;
+    }
+    res.redirect("/schedule")
+  })
+})
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
@@ -418,26 +505,43 @@ async function scrape(name, subject, arr)
     }
   }
 }
-//webscrape api for Clubs npm install cheerio, request-promise
-request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
+
+//webscraper for Clubs npm install cheerio, request-promise
+async function clubScrape(callback)
+{
+  clubs = []
+  request("https://go.sfss.ca/clubs/list", (error,response,html)=>{
   if(!error && response.statusCode ==200){
-    const $= cheerio.load(html);
+      const $= cheerio.load(html);
+      $("b").each((i,data)=>{
+            club = {name:"", desc:"", link:""};
+            const name = $(data).text();
+            const link = $(data).find('a').attr('href');
+            club.name = name;
+            club.link = link;
+            if(name != '' && link != ''){
+              clubs.push(club);
+            }
+      })
 
-    const datarow = $(".club_listing");
-    $("td").each((i,data)=>{
-          var desc = $(data).first().text().trim();
-          var text = $(data).find('b').text();
-          var link = $(data).find('a').attr('href');
-
-          if(desc != '' && text != '' && link != ''){
-            // console.log("club: ",text);
-            // console.log("desc: ", desc);
-            // console.log("link: ", link);
-            // console.log("\n");
+      $('b').remove();
+      value = 0;
+      $("td").each((num,data)=>{
+          const desc = $(data).text().trim();
+          if(desc != ''){
+            clubs[value].desc = desc;
+            value++;
           }
-    })
-  }
-})
+      })
+      callback(clubs);
+    }
+  })
+}
+
+function checkChars(str)
+{
+  return /^[a-zA-Z]+$/.test(str)
+}
 
 function hasNumber(string)
 {
