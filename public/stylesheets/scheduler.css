@@ -247,7 +247,7 @@
   /* for the class / event name */
   .title {
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: -0.25rem;
   }
   
   /* style for the individual event / class */
@@ -284,160 +284,160 @@
     each is needed to determine where the row starts and ends
   */
   
-  .start-800{
+  .start-8\:00{
     grid-row-start: 2;
   }
-  .start-830{
+  .start-8\:30{
     grid-row-start: 3;
   }
-  .start-900{
+  .start-9\:00{
     grid-row-start: 4;
   }
-  .start-930{
+  .start-9\:30{
     grid-row-start: 5;
   }
-  .start-1000{
+  .start-10\:00{
     grid-row-start: 6;
   }
-  .start-1030{
+  .start-10\:30{
     grid-row-start: 7;
   }
-  .start-1100{
+  .start-11\:00{
     grid-row-start: 8;
   }
-  .start-1130{
+  .start-11\:30{
     grid-row-start: 9;
   }
-  .start-1200{
+  .start-12\:00{
     grid-row-start: 10;
   }
-  .start-1230{
+  .start-12\:30{
     grid-row-start: 11;
   }
-  .start-1300{
+  .start-13\:00{
     grid-row-start: 12;
   }
-  .start-1330{
+  .start-13\:30{
     grid-row-start: 13;
   }
-  .start-1400{
+  .start-14\:00{
     grid-row-start: 14;
   }
-  .start-1430{
+  .start-14\:30{
     grid-row-start: 15;
   }
-  .start-1500{
+  .start-15\:00{
     grid-row-start: 16;
   }
-  .start-1530{
+  .start-15\:30{
     grid-row-start: 17;
   }
-  .start-1600{
+  .start-16\:00{
     grid-row-start: 18;
   }
-  .start-1630{
+  .start-16\:30{
     grid-row-start: 19;
   }
-  .start-1700{
+  .start-17\:00{
     grid-row-start: 20;
   }
-  .start-1730{
+  .start-17\:30{
     grid-row-start: 21;
   }
-  .start-1800{
+  .start-18\:00{
     grid-row-start: 22;
   }
-  .start-1830{
+  .start-18\:30{
     grid-row-start: 23;
   }
-  .start-1900{
+  .start-19\:00{
     grid-row-start: 24;
   }
-  .start-1930{
+  .start-19\:30{
     grid-row-start: 25;
   }
   /* corresponds to 8pm */
-  .start-2000{
+  .start-20\:00{
     grid-row-start: 26;
   }
   
 
 
 
-  .end-800{
+  .end-8\:00{
     grid-row-end: 2;
   }
-  .end-830{
+  .end-8\:20{
     grid-row-end: 3;
   }
-  .end-900{
+  .end-9\:00{
     grid-row-end: 4;
   }
-  .end-930{
+  .end-9\:20{
     grid-row-end: 5;
   }
-  .end-1000{
+  .end-10\:00{
     grid-row-end: 6;
   }
-  .end-1030{
+  .end-10\:20{
     grid-row-end: 7;
   }
-  .end-1100{
+  .end-11\:00{
     grid-row-end: 8;
   }
-  .end-1130{
+  .end-11\:20{
     grid-row-end: 9;
   }
-  .end-1200{
+  .end-12\:00{
     grid-row-end: 10;
   }
-  .end-1230{
+  .end-12\:20{
     grid-row-end: 11;
   }
-  .end-1300{
+  .end-13\:00{
     grid-row-end: 12;
   }
-  .end-1330{
+  .end-13\:20{
     grid-row-end: 13;
   }
-  .end-1400{
+  .end-14\:00{
     grid-row-end: 14;
   }
-  .end-1430{
+  .end-14\:20{
     grid-row-end: 15;
   }
-  .end-1500{
+  .end-15\:00{
     grid-row-end: 16;
   }
-  .end-1530{
+  .end-15\:20{
     grid-row-end: 17;
   }
-  .end-1600{
+  .end-16\:00{
     grid-row-end: 18;
   }
-  .end-1630{
+  .end-16\:20{
     grid-row-end: 19;
   }
-  .end-1700{
+  .end-17\:00{
     grid-row-end: 20;
   }
-  .end-1730{
+  .end-17\:20{
     grid-row-end: 21;
   }
-  .end-1800{
+  .end-18\:00{
     grid-row-end: 22;
   }
-  .end-1830{
+  .end-18\:20{
     grid-row-end: 23;
   }
-  .end-1900{
+  .end-19\:00{
     grid-row-end: 24;
   }
-  .end-1930{
+  .end-19\:20{
     grid-row-end: 25;
   }
   /* corresponds to 8pm */
-  .end-2000{
+  .end-20\:00{
     grid-row-end: 26;
   }
   

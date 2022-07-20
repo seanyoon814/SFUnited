@@ -217,12 +217,15 @@
                     <div class="events">
                         <!-- start and end events are where the times start and end -->
                         <!-- find out how to get an indidual colour -->
-                        <div class="event start-8 end-1130 eColor">
-                            <p class="title">fuck: 8 PM - 11:30 PM</p>
-                        </div>
-                        <div class="event start-1300 end-1600 eColor">
-                            <p class="title">c: 1PM - 4PM</p>
-                        </div>
+                        <% enrolled.forEach(function(e){%>
+                            <% var str = e.days %>
+                            <%if(str.includes("Mo")){ %>
+                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                    <p class="title"><%=e.course%></p>
+                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                </div>
+                            <%}%>
+                        <%})%>
                     </div>
                 </div>
 
@@ -235,9 +238,15 @@
                     <!-- events that needs to be changed to include  -->
                     <div class="events">
                         <!-- start and end events are where the times start and end -->
-                        <div class="event start-730 time-800">
-                            <p class="title">temp thing nubmer one: 2 PM - 5 PM</p>
-                        </div>
+                        <% enrolled.forEach(function(e){%>
+                            <% var str = e.days %>
+                            <%if(str.includes("Tu")){ %>
+                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                    <p class="title"><%=e.course%></p>
+                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                </div>
+                            <%}%>
+                        <%})%>
                     </div>
                 </div>
 
@@ -250,13 +259,15 @@
                     <!-- events that needs to be changed to include  -->
                     <div class="events">
                         <!-- start and end events are where the times start and end -->
-                        <div class="event start-11 end-1230 eColor">
-                            <p class="title">blue blue blue: 11 AM - 12 PM</p>
-                            <p class="time"></p>
-                          </div>
-                          <div class="event start-2 end-5 s eColor">
-                            <p class="title">cvdfdn: 2 PM - 5 PM</p>
-                          </div>
+                        <% enrolled.forEach(function(e){%>
+                            <% var str = e.days %>
+                            <%if(str.includes("We")){ %>
+                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                    <p class="title"><%=e.course%></p>
+                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                </div>
+                            <%}%>
+                        <%})%>
                     </div>
                 </div>
 
@@ -269,14 +280,15 @@
                     <!-- events that needs to be changed to include  -->
                     <div class="events">
                         <!-- start and end events are where the times start and end -->
-                        <div class="event start-10 end-12 corp-fi">
-                            <p class="title">Casdce</p>
-                            <p class="time">10 AM - 12 PM</p>
-                          </div>
-                          <div class="event start-1 end-4 ent-law">
-                            <p class="title">dsfw</p>
-                            <p class="time">1PM - 4PM</p>
-                          </div>
+                        <% enrolled.forEach(function(e){%>
+                            <% var str = e.days %>
+                            <%if(str.includes("Th")){ %>
+                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                    <p class="title"><%=e.course%></p>
+                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                </div>
+                            <%}%>
+                        <%})%>
                     </div>
                 </div>
 
@@ -289,8 +301,15 @@
                     <!-- events that needs to be changed to include  -->
                     <div class="events">
                         <!-- start and end events are where the times start and end -->
-                        <div class="event start-5 end-6">
-                            <p class="title">cool: 5-6</p>
+                        <% enrolled.forEach(function(e){%>
+                            <% var str = e.days %>
+                            <%if(str.includes("Fr")){ %>
+                                <div class ="event start-<%=e.startt%> end-<%=e.endt%> eColor">
+                                    <p class="title"><%=e.course%></p>
+                                    <p class = "time"><%=e.startt%> - <%=e.endt%></p>
+                                </div>
+                            <%}%>
+                        <%})%>
                     </div>
                 </div>
             </div>
@@ -317,7 +336,7 @@
                         </p>
                     </div>
 
-                    <label>Professor Name!</label>
+                    <label>Course Name</label>
                     <input type="text"  class="prof form-control mb-4" placeholder="Course (e.g., CMPT120)" name="fcourse">
                 
                     <input type="submit" class="btn btn-info btn-block" value="Submit">
