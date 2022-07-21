@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "mocha-test": "mocha tests --timeout 10000"
   },
   "dependencies": {
     "axios": "^0.27.2",
@@ -19,6 +20,7 @@
     "ejs": "^3.1.8",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
+    "mocha": "^10.0.0",
     "pg": "^8.7.3",
     "request-promise": "^4.2.6"
   },
