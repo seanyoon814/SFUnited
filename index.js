@@ -455,42 +455,45 @@ async function getCourseInformation(course, courseInfo)
 //output: [firstname, lastname, averageRating, [class, rating, comment] x 3]]
 async function scrape(name, subject, arr)
 {
-  const nm = name.trim().split(/\s+/)
-  for(let i = 0; i<letters.length; i++)
+  if(name.length>0 && subject.length>0 && !hasNumber(name) && !hasNumber(subject) && name.includes(" "))
   {
-    const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
-    const { data } = await axios.get(url);
-    try
+    const nm = name.trim().split(/\s+/)
+    for(let i = 0; i<letters.length; i++)
     {
-      if(data['ratings'][i]['class'].includes(subject.toUpperCase()))
+      const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
+      const { data } = await axios.get(url);
+      try
       {
-        arr.push({
-          fname: data['firstName'],
-          lname: data['lastName'],
-          r: data['avgRating']
-        })
-        arr.push({
-          class: data['ratings'][0]['class'],
-          rating: data['ratings'][0]['clarityRating'],
-          comment: data['ratings'][0]['comment'],
-          grade: data['ratings'][0]['grade']
-        })
-        arr.push({
-          class: data['ratings'][1]['class'],
-          rating: data['ratings'][1]['clarityRating'],
-          comment: data['ratings'][1]['comment'],
-          grade: data['ratings'][1]['grade']
-        })
-        arr.push({
-          class: data['ratings'][2]['class'],
-          rating: data['ratings'][2]['clarityRating'],
-          comment: data['ratings'][2]['comment'],
-          grade: data['ratings'][2]['grade']
-        })
-        {break;}
+        if(data['ratings'][i]['class'].includes(subject.toUpperCase()))
+        {
+          arr.push({
+            fname: data['firstName'],
+            lname: data['lastName'],
+            r: data['avgRating']
+          })
+          arr.push({
+            class: data['ratings'][0]['class'],
+            rating: data['ratings'][0]['clarityRating'],
+            comment: data['ratings'][0]['comment'],
+            grade: data['ratings'][0]['grade']
+          })
+          arr.push({
+            class: data['ratings'][1]['class'],
+            rating: data['ratings'][1]['clarityRating'],
+            comment: data['ratings'][1]['comment'],
+            grade: data['ratings'][1]['grade']
+          })
+          arr.push({
+            class: data['ratings'][2]['class'],
+            rating: data['ratings'][2]['clarityRating'],
+            comment: data['ratings'][2]['comment'],
+            grade: data['ratings'][2]['grade']
+          })
+          {break;}
+        }
       }
-    }
-    catch(err){
+      catch(err){
+      }
     }
   }
 }
