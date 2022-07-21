@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const axios = require('axios')
 const session = require('express-session')
 const path = require('path')
@@ -8,7 +9,6 @@ const { query } = require('express')
 const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
-
 var pool;
 pool = new Pool({
   connectionString: process.env.DATABASE_URL, 
@@ -172,7 +172,6 @@ app.get('/schedule', async(req, res)=>{
     res.redirect('/')
   }
 })
-
 app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
@@ -276,40 +275,16 @@ app.post('/schedule', async (req, res)=>{
   {
     var classes = []
     await getCourseInformation(course, classes)
-    recentClass = classes
-    res.redirect('/schedule')
-    return 0;
-  }
-  else
-  {
-    res.redirect('/schedule')
-  }
-})
-
-app.post('/enroll', async (req, res)=>{
-  var username = user
-  var course = req.body.fname.trim()
-  var location = req.body.fcampus
-  var prof = req.body.fprofessor
-  var days = req.body.fdays
-  var start = req.body.fstart
-  var end = req.body.fend
-  var queryString = `
-  INSERT INTO classes (username, course, section, location, professor, days, startt, endt)
-  VALUES ('${username}', '${course}', '${course}', '${location}', '${prof}', '${days}', '${start}', '${end}')
-  `;
-  var bool = await checkConflictingTime(start, end, days)
-  if(bool == 1)
-  {
-    pool.query(queryString, (error, result)=>{
-      if(error)
-      {
-        res.send("Error inserting into DB")
-        return 0;
-      }
-      recentClass = []
-      res.redirect("/schedule")
-    })
+    if(classes.length>0)
+    {
+      recentClass = classes
+      res.redirect('/schedule')
+      return 0;
+    }
+    else
+    {
+      res.redirect('/schedule')
+    }
   }
   else
   {
@@ -405,62 +380,73 @@ async function getCourseInformation(course, courseInfo)
   const courseLetters = formattedStr.slice(0, index-1).toLowerCase();
   const courseNumbers = formattedStr.slice(index, formattedStr.length);
   var url = 'https://www.sfu.ca/bin/wcm/course-outlines?2022/fall/' + courseLetters + '/' + courseNumbers + '/'
-  const {data} = await axios.get(url);
+  var valid = 0;
+  try
+  {
+    var {data} = await axios.get(url)
+  }
+  catch
+  {
+    valid = 1
+  }
   let i = 0;
   //variable to print the information of the course only once
   let hasRan = 0;
-  while(i<data.length)
+  if(valid == 0)
   {
-    const sectionurl = url + data[i]['value']
-    try{
-      const sectionData = await axios.get(sectionurl)
-      if(hasRan == 0)
-      {
-        courseInfo.push({
-          desc: sectionData['data']['info']['description'],
-          prereq: sectionData['data']['info']['prerequisites'],
-          notes: sectionData['data']['info']['notes']
-        })
-        // courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
-        hasRan = 1
-      }
-      if(sectionData['data']['courseSchedule'][0]["sectionCode"]=="LEC")
-      { 
-        try{
-            courseInfo.push({
-            name: sectionData['data']['info']['name'],
-            term: sectionData['data']['info']['term'],
-            prof: sectionData['data']['instructor'][0]['name'],
-            campus: sectionData['data']['courseSchedule'][0]["campus"],
-            room: sectionData['data']['courseSchedule'][0]["buildingCode"],
-            roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
-            days: sectionData['data']['courseSchedule'][0]["days"] + ", " + sectionData['data']['courseSchedule'][1]["days"],
-            start: sectionData['data']['courseSchedule'][0]["startTime"] + "," + sectionData['data']['courseSchedule'][1]["startTime"],
-            end: sectionData['data']['courseSchedule'][0]["endTime"] + "," + sectionData['data']['courseSchedule'][1]["endTime"],
-          })
-        }
-        catch(err)
+    while(i<data.length)
+    {
+      const sectionurl = url + data[i]['value']
+      try{
+        const sectionData = await axios.get(sectionurl)
+        if(hasRan == 0)
         {
           courseInfo.push({
-            name: sectionData['data']['info']['name'],
-            term: sectionData['data']['info']['term'],
-            prof: sectionData['data']['instructor'][0]['name'],
-            campus: sectionData['data']['courseSchedule'][0]["campus"],
-            room: sectionData['data']['courseSchedule'][0]["buildingCode"],
-            roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
-            days: sectionData['data']['courseSchedule'][0]["days"],
-            start: sectionData['data']['courseSchedule'][0]["startTime"],
-            end: sectionData['data']['courseSchedule'][0]["endTime"]
+            desc: sectionData['data']['info']['description'],
+            prereq: sectionData['data']['info']['prerequisites'],
+            notes: sectionData['data']['info']['notes']
           })
+          // courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
+          hasRan = 1
         }
-        // arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
-        // sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
-        // courseInfo.push(arr)
+        if(sectionData['data']['courseSchedule'][0]["sectionCode"]=="LEC")
+        { 
+          try{
+              courseInfo.push({
+              name: sectionData['data']['info']['name'],
+              term: sectionData['data']['info']['term'],
+              prof: sectionData['data']['instructor'][0]['name'],
+              campus: sectionData['data']['courseSchedule'][0]["campus"],
+              room: sectionData['data']['courseSchedule'][0]["buildingCode"],
+              roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
+              days: sectionData['data']['courseSchedule'][0]["days"] + ", " + sectionData['data']['courseSchedule'][1]["days"],
+              start: sectionData['data']['courseSchedule'][0]["startTime"] + "," + sectionData['data']['courseSchedule'][1]["startTime"],
+              end: sectionData['data']['courseSchedule'][0]["endTime"] + "," + sectionData['data']['courseSchedule'][1]["endTime"],
+            })
+          }
+          catch(err)
+          {
+            courseInfo.push({
+              name: sectionData['data']['info']['name'],
+              term: sectionData['data']['info']['term'],
+              prof: sectionData['data']['instructor'][0]['name'],
+              campus: sectionData['data']['courseSchedule'][0]["campus"],
+              room: sectionData['data']['courseSchedule'][0]["buildingCode"],
+              roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
+              days: sectionData['data']['courseSchedule'][0]["days"],
+              start: sectionData['data']['courseSchedule'][0]["startTime"],
+              end: sectionData['data']['courseSchedule'][0]["endTime"]
+            })
+          }
+          // arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
+          // sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
+          // courseInfo.push(arr)
+        }
+        i++;
       }
-      i++;
-    }
-    catch(err){
-      i++;
+      catch(err){
+        i++;
+      }
     }
   }
 }
