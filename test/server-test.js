@@ -2,6 +2,13 @@ const { spawn } = require('child_process');
 const got = require('got');
 const test = require('tape');
 
+var chai = require("chai")
+var chaihttp = require("chai-http");
+var server = require('../index');
+var should = chai.should();
+
+chai.use(chaihttp)
+
 // Start the app
 const env = Object.assign({}, process.env, {PORT: 5000});
 const child = spawn('node', ['index.js'], {env});
@@ -26,3 +33,21 @@ test('responds to requests', (t) => {
     })();
   });
 });
+
+describe('groups', (ui)=>{
+  it('clubs should contain name, description and link',(done)=>{
+      chai.request(server).get('/groups').end(function(error,res){
+        res.should.have.status(200);
+
+        // res.body is clubs array
+        expect(res.body).to.be.an.instanceOf(Array);
+
+        // first club in clubs should have properties
+        res.body[0].a.should.property('name');
+        res.body[0].a.should.property('desc');
+        res.body[0].a.should.property('link');
+
+        done();
+      })
+  })
+})

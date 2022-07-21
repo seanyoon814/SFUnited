@@ -4,10 +4,11 @@ const session = require('express-session')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
-const { query } = require('express')
-const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
+var cors = require('cors');
+
+
 var pool;
 pool = new Pool({
   connectionString: 'postgres://postgres:admin@localhost/users'
@@ -328,6 +329,10 @@ app.post('/delete', (req, res)=>{
     res.redirect("/schedule")
   })
 })
+
+// app.post('/filter', (req,res)=>{
+
+// })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
