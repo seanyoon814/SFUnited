@@ -8,7 +8,6 @@ const request = require('request-promise')
 const cheerio = require('cheerio')
 var cors = require('cors');
 
-
 var pool;
 pool = new Pool({
   connectionString: 'postgres://postgres:admin@localhost/users'
@@ -581,3 +580,16 @@ function convertTime(startTime, endTime)
     arr.push(minute, minute2)
     return arr;
 }
+
+// testing
+var stuff = []
+app.get("/allstuff", (req,res)=>{
+    res.json(stuff);
+})
+
+app.post("/addstuff", (req,res)=>{
+    stuff.push(req.body);
+    res.json(stuff);
+})
+
+module.exports = app

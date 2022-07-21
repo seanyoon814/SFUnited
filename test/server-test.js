@@ -2,10 +2,12 @@ const { spawn } = require('child_process');
 const got = require('got');
 const test = require('tape');
 
+
 var chai = require("chai")
 var chaihttp = require("chai-http");
 var server = require('../index');
 var should = chai.should();
+const expect = chai.expect
 
 chai.use(chaihttp)
 
@@ -39,13 +41,13 @@ describe('groups', (ui)=>{
       chai.request(server).get('/groups').end(function(error,res){
         res.should.have.status(200);
 
-        // res.body is clubs array
-        expect(res.body).to.be.an.instanceOf(Array);
+        // res.body is club
+        expect(res.body).to.be.an.instanceOf(Object);
 
         // first club in clubs should have properties
-        res.body[0].a.should.property('name');
-        res.body[0].a.should.property('desc');
-        res.body[0].a.should.property('link');
+        expect(res.body)
+        .to.be.an.instanceof(Object)
+        .that.includes.all.keys(['name', 'desc', 'link'])
 
         done();
       })
