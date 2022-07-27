@@ -19,7 +19,7 @@
       <body>
         <h3>Google Maps</h3>
         <div id="map"></div>
-        
+        <ol id="places"></ol>
         <script>
           var map;
           function initMap() {
@@ -38,9 +38,21 @@
                 position: uluru,
                 map: map
             });
-          }
+            const cityCircle = new google.maps.Circle({
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+                map,
+                center: uluru,
+                radius: 600,
+            });
+        }
+          
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"
         async defer></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
     </body>
 </html>

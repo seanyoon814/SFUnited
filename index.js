@@ -13,10 +13,8 @@ const {Client} = require("@googlemaps/google-maps-services-js");
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -686,17 +684,12 @@ function convertTime(startTime, endTime)
   }
 }
 
-function initMap() {
-  // The location of Uluru
-  const uluru = { lat: -25.344, lng: 131.031 };
-  // The map, centered at Uluru
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 4,
-    center: uluru,
-  });
-  // The marker, positioned at Uluru
-  const marker = new google.maps.Marker({
-    position: uluru,
-    map: map,
-  });
+function findLocalRestauraunts(arr)
+{
+  const request = {
+    location: new google.maps.LatLng(51.5287352, -0.3817841),
+      radius: 5000,
+      type: ['restaurant']
+  };
+  const results = [];
 }
