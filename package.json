@@ -12,6 +12,7 @@
     "mocha-test": "mocha tests --timeout 10000"
   },
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.3.16",
     "axios": "^0.27.2",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
@@ -20,11 +21,13 @@
     "ejs": "^3.1.8",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
+    "google": "^0.6.0",
     "mocha": "^10.0.0",
     "pg": "^8.7.3",
     "request-promise": "^4.2.6"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.49.2",
     "got": "^11.3.0",
     "tape": "^4.7.0"
   },

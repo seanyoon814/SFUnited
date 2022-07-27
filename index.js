@@ -9,7 +9,9 @@ const { query } = require('express')
 const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
+const {Client} = require("@googlemaps/google-maps-services-js");
 var pool;
+const client = new Client({});
 pool = new Pool({
   connectionString: process.env.DATABASE_URL, 
   ssl: {
@@ -306,6 +308,9 @@ app.post('/delete', (req, res)=>{
     }
     res.redirect("/schedule")
   })
+})
+app.get('/maps', (req, res)=>{
+  res.render('pages/maps')
 })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -679,4 +684,19 @@ function convertTime(startTime, endTime)
     arr.push(minute, minute2)
     return arr;
   }
+}
+
+function initMap() {
+  // The location of Uluru
+  const uluru = { lat: -25.344, lng: 131.031 };
+  // The map, centered at Uluru
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 4,
+    center: uluru,
+  });
+  // The marker, positioned at Uluru
+  const marker = new google.maps.Marker({
+    position: uluru,
+    map: map,
+  });
 }
