@@ -10,6 +10,7 @@ const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
 const {Client} = require("@googlemaps/google-maps-services-js");
+const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
@@ -24,6 +25,8 @@ var user;
 var recentProf = []
 var recentClass = []
 var enrolled = []
+var currentRadius;
+var currentRestaurant = []
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -307,8 +310,16 @@ app.post('/delete', (req, res)=>{
     res.redirect("/schedule")
   })
 })
-app.get('/maps', (req, res)=>{
-  res.render('pages/maps')
+app.get('/maps', async (req, res)=>{
+  res.render('pages/maps', {currentRestaurant:currentRestaurant})
+})
+app.post('/maps', async (req, res)=>{
+  var arr = [];
+  var fradius = req.body.radius
+  currentRadius = fradius
+  await findLocalRestauraunts(arr, fradius, "Sean")
+  currentRestaurant = arr;
+  res.redirect('/maps')
 })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -684,12 +695,54 @@ function convertTime(startTime, endTime)
   }
 }
 
-function findLocalRestauraunts(arr)
+async function findLocalRestauraunts(arr, radius, campus)
 {
-  const request = {
-    location: new google.maps.LatLng(51.5287352, -0.3817841),
-      radius: 5000,
-      type: ['restaurant']
-  };
-  const results = [];
+  const url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  console.log(url)
+  await axios.get(url)
+  .then((response)=>{
+    var data;
+    data = response.data
+    for(let i = 0; i<data["results"].length; i++)
+    {
+      arr.push({
+        address: data["results"][i]["formatted_address"],
+        name: data["results"][i]["name"],
+        rating: data["results"][i]["rating"],
+        num: data["results"][i]["user_ratings_total"],
+        price: data["results"][i]["price_level"]
+      })
+    }
+    quickSortRecursive(arr, 0, arr.length-1)
+    return;
+  })
+}
+// https://stackabuse.com/quicksort-in-javascript/
+async function partition(arr, start, end){
+  // Taking the last element as the pivot
+  const pivotValue = arr[arr.length-1]['price'];
+  let pivotIndex = start; 
+  for (let i = start; i < end; i++) {
+      if (arr[i]['price'] < pivotValue) {
+      // Swapping elements
+      [arr[i], arr[pivotIndex]] = [arr[pivotIndex], arr[i]];
+      // Moving to next element
+      pivotIndex++;
+      }
+  }
+  // Putting the pivot value in the middle
+  [arr[pivotIndex], arr[end]] = [arr[end], arr[pivotIndex]] 
+  return pivotIndex;
+};
+
+async function quickSortRecursive(arr, start, end) {
+  // Base case or terminating case
+  if (start >= end) {
+      return;
+  }
+  // Returns pivotIndex
+  let index = await partition(arr, start, end);
+  // Recursively apply the same logic to the left and right subarrays
+  quickSortRecursive(arr, start, index - 1);
+  quickSortRecursive(arr, index + 1, end);
 }

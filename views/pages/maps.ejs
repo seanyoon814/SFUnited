@@ -1,7 +1,7 @@
 <!DOCTYPE html>
     <html>
       <head>
-        <title>Simple Map</title>
+        <title>Restaurant Finder</title>
         <meta name="viewport" content="initial-scale=1.0">
         <meta charset="utf-8">
         <style>
@@ -17,15 +17,27 @@
         </style>
       </head>
       <body>
-        <h3>Google Maps</h3>
+        <h3>Restaurant Finder</h3>
         <div id="map"></div>
         <ol id="places"></ol>
 
-        <form>
-            <label>Radius:</label>
-            <input type ="number">
+        <form action ='/maps' method = 'POST'>
+            <label>Radius(m):</label>
+            <input type ="number" placeholder = "max: 1000m" name = "radius">
+            <input type="submit" value = "Filter by: Price">
+            <input type="submit" value = "Filter by: Top Rated">
         </form>
-
+        <div>
+            <%if(currentRestaurant.length > 0){%>
+                <%currentRestaurant.forEach(function(r){%>
+                    <%if(r.price == "1" || r.pice == ""){%>
+                        <h1><%=r.name%> : $</h1>
+                    <%}else{%>
+                        <h1><%=r.name%> : $$</h1>
+                    <%}%>
+                <%})%>
+            <%}%>
+        </div>
         <button onclick="changeBurnaby()">Burnaby</button>
         <button onclick="changeSurrey()">Surrey</button>
         <script>
@@ -61,24 +73,34 @@
                 fillOpacity: 0.35,
                 map,
                 center: uluruB,
-                radius: 600,
+                radius: 1000,
             });
             }
         var form = document.querySelector("form");
         form.addEventListener("change", function () {
-            cityCircle.setRadius(Number(form[0].value))
+            if(Number(form[0].value) >= 1000)
+            {
+                cityCircle.setRadius(1000)
+                form[0].value = 1000
+            }
+            else
+            {
+                cityCircle.setRadius(Number(form[0].value))
+            }
         });
-
+        //change to burnaby campus
         function changeBurnaby()
         {
             map.setCenter(uluruB);
             cityCircle.setCenter(uluruB)
             marker.setPosition(uluruB)
         }
+        //change to surrey campus
         function changeSurrey()
         {
             map.setCenter(uluruS);
             cityCircle.setCenter(uluruS)
+            cityCircle.setRadius(600)
             marker.setPosition(uluruS)
         }
         </script>
