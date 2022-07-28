@@ -316,9 +316,18 @@ app.get('/maps', async (req, res)=>{
 app.post('/maps', async (req, res)=>{
   var arr = [];
   var fradius = req.body.radius
+  var button = req.body.btn
   currentRadius = fradius
   await findLocalRestauraunts(arr, fradius, "Sean")
   currentRestaurant = arr;
+  if(button == "Filter by: Price")
+  {
+    quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else
+  {
+    quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
+  }
   res.redirect('/maps')
 })
 //Function to check if logged in users are registered in "usr" table.
@@ -698,51 +707,105 @@ function convertTime(startTime, endTime)
 async function findLocalRestauraunts(arr, radius, campus)
 {
   const url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
-  console.log(url)
   await axios.get(url)
   .then((response)=>{
     var data;
     data = response.data
     for(let i = 0; i<data["results"].length; i++)
     {
-      arr.push({
-        address: data["results"][i]["formatted_address"],
-        name: data["results"][i]["name"],
-        rating: data["results"][i]["rating"],
-        num: data["results"][i]["user_ratings_total"],
-        price: data["results"][i]["price_level"]
-      })
+      if(data["results"][i]["price_level"] === undefined)
+      {
+        arr.push({
+          address: data["results"][i]["formatted_address"],
+          name: data["results"][i]["name"],
+          rating: data["results"][i]["rating"],
+          num: data["results"][i]["user_ratings_total"],
+          price: 1
+        })
+      }
+      else
+      {
+        arr.push({
+          address: data["results"][i]["formatted_address"],
+          name: data["results"][i]["name"],
+          rating: data["results"][i]["rating"],
+          num: data["results"][i]["user_ratings_total"],
+          price: data["results"][i]["price_level"]
+        })
+      }
     }
-    quickSortRecursive(arr, 0, arr.length-1)
-    return;
   })
+  return;
 }
 // https://stackabuse.com/quicksort-in-javascript/
-async function partition(arr, start, end){
-  // Taking the last element as the pivot
-  const pivotValue = arr[arr.length-1]['price'];
-  let pivotIndex = start; 
-  for (let i = start; i < end; i++) {
-      if (arr[i]['price'] < pivotValue) {
-      // Swapping elements
-      [arr[i], arr[pivotIndex]] = [arr[pivotIndex], arr[i]];
-      // Moving to next element
-      pivotIndex++;
+async function swap(items, leftIndex, rightIndex){
+    var temp = items[leftIndex];
+    items[leftIndex] = items[rightIndex];
+    items[rightIndex] = temp;
+}
+async function partitionRating(items, left, right) {
+    var pivot   = items[Math.floor((right + left) / 2)]['rating'], //middle element
+        i       = left, //left pointer
+        j       = right; //right pointer
+    while (i <= j) {
+        while (items[i]['rating'] < pivot) {
+            i++;
+        }
+        while (items[j]['rating'] > pivot) {
+            j--;
+        }
+        if (i <= j) {
+            await swap(items, i, j); //sawpping two elements
+            i++;
+            j--;
+        }
+    }
+    return i;
+}
+async function partitionPrice(items, left, right) {
+  var pivot   = items[Math.floor((right + left) / 2)]['price'], //middle element
+      i       = left, //left pointer
+      j       = right; //right pointer
+  while (i <= j) {
+      while (items[i]['price'] < pivot) {
+          i++;
+      }
+      while (items[j]['price'] > pivot) {
+          j--;
+      }
+      if (i <= j) {
+          await swap(items, i, j); //sawpping two elements
+          i++;
+          j--;
       }
   }
-  // Putting the pivot value in the middle
-  [arr[pivotIndex], arr[end]] = [arr[end], arr[pivotIndex]] 
-  return pivotIndex;
-};
+  return i;
+}
 
-async function quickSortRecursive(arr, start, end) {
-  // Base case or terminating case
-  if (start >= end) {
-      return;
+
+async function quickSortRating(items, left, right) {
+    var index;
+    if (items.length > 1) {
+        index = await partitionRating(items, left, right); //index returned from partition
+        if (left < index - 1) { //more elements on the left side of the pivot
+            await quickSortRating(items, left, index - 1);
+        }
+        if (index < right) { //more elements on the right side of the pivot
+            await quickSortRating(items, index, right);
+        }
+    }
+    return items;
+}
+async function quickSortPrice(items, left, right) {
+  var index;
+  if (items.length > 1) {
+      index = await partitionPrice(items, left, right); //index returned from partition
+      if (left < index - 1) { //more elements on the left side of the pivot
+          await quickSortPrice(items, left, index - 1);
+      }
+      if (index < right) { //more elements on the right side of the pivot
+          await quickSortPrice(items, index, right);
+      }
   }
-  // Returns pivotIndex
-  let index = await partition(arr, start, end);
-  // Recursively apply the same logic to the left and right subarrays
-  quickSortRecursive(arr, start, index - 1);
-  quickSortRecursive(arr, index + 1, end);
+  return items;
 }

@@ -24,16 +24,16 @@
         <form action ='/maps' method = 'POST'>
             <label>Radius(m):</label>
             <input type ="number" placeholder = "max: 1000m" name = "radius">
-            <input type="submit" value = "Filter by: Price">
-            <input type="submit" value = "Filter by: Top Rated">
+            <input type="submit" name ="btn" value = "Filter by: Price">
+            <input type="submit" name = "btn" value = "Filter by: Top Rated">
         </form>
         <div>
             <%if(currentRestaurant.length > 0){%>
                 <%currentRestaurant.forEach(function(r){%>
                     <%if(r.price == "1" || r.pice == ""){%>
-                        <h1><%=r.name%> : $</h1>
+                        <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
                     <%}else{%>
-                        <h1><%=r.name%> : $$</h1>
+                        <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
                     <%}%>
                 <%})%>
             <%}%>
