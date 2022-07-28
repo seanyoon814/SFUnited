@@ -20,36 +20,67 @@
         <h3>Google Maps</h3>
         <div id="map"></div>
         <ol id="places"></ol>
+
+        <form>
+            <label>Radius:</label>
+            <input type ="number">
+        </form>
+
+        <button onclick="changeBurnaby()">Burnaby</button>
+        <button onclick="changeSurrey()">Surrey</button>
         <script>
-          var map;
-          function initMap() {
-            var uluru = {
+            var map;
+            var cityCircle;
+            var marker;
+            var uluruB = {
                 lat: 49.2781,
                 lng: -122.9199
             };
+            var uluruS = {
+                lat: 49.1880,
+                lng: -122.8494
+            };
+          function initMap() {
+            var r = document.getElementById("radius")
             // The map, centered at Uluru
-            var map = new google.maps.Map(
+            map = new google.maps.Map(
                 document.getElementById('map'), {
                     zoom: 15,
-                    center: uluru
+                    center: uluruB
                 });
             // The marker, positioned at Uluru
-            var marker = new google.maps.Marker({
-                position: uluru,
+            marker = new google.maps.Marker({
+                position: uluruB,
                 map: map
             });
-            const cityCircle = new google.maps.Circle({
+            cityCircle = new google.maps.Circle({
                 strokeColor: "#FF0000",
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
                 fillColor: "#FF0000",
                 fillOpacity: 0.35,
                 map,
-                center: uluru,
+                center: uluruB,
                 radius: 600,
             });
+            }
+        var form = document.querySelector("form");
+        form.addEventListener("change", function () {
+            cityCircle.setRadius(Number(form[0].value))
+        });
+
+        function changeBurnaby()
+        {
+            map.setCenter(uluruB);
+            cityCircle.setCenter(uluruB)
+            marker.setPosition(uluruB)
         }
-          
+        function changeSurrey()
+        {
+            map.setCenter(uluruS);
+            cityCircle.setCenter(uluruS)
+            marker.setPosition(uluruS)
+        }
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"
         async defer></script>
