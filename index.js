@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
 const request = require('request-promise')
 const cheerio = require('cheerio')
-var cors = require('cors');
 
 const {Client} = require("@googlemaps/google-maps-services-js");
 var pool;
@@ -84,14 +83,14 @@ app.post('/createaccount', async (req, res)=>{
   var fname = req.body.f_fname
   var lname = req.body.f_lname
  
-  // test
+  // test, 0 no popup, 1 fname or lname has numbers, 2 user already exists in db
   if(hasNumber(fname) == true || hasNumber(lname) == true)
   {
     var str = "Try again. Don't include numbers in first name or last name."
     // res.redirect('createaccount');
 
     //var incorrect = {'state': true};
-    res.render('pages/createaccount', {bool: true});
+    res.render('pages/createaccount', {bool: 1, string:str});
   }
   else
     {

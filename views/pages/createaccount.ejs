@@ -107,7 +107,7 @@
                             Sorry!
                         </h2>
                         <p>
-                            Try again. Don't include numbers in first name or last name.
+                            <%= string %>
                         </p>
                         <button type="button" style="color:black; 
                             font-weight:700; 
@@ -142,7 +142,7 @@
             popup.classList.add("openPopup");
         }
         var boolPopup = <%=bool%>;
-        if (boolPopup == true) {
+        if (boolPopup == 1) {
             openPopup();
         }
         function closePopup() {
