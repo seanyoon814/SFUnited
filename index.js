@@ -317,15 +317,30 @@ app.post('/maps', async (req, res)=>{
   var arr = [];
   var fradius = req.body.radius
   var button = req.body.btn
+  var campus = req.body.campus
   currentRadius = fradius
-  await findLocalRestauraunts(arr, fradius, "Sean")
-  currentRestaurant = arr;
-  if(button == "Filter by: Price")
+  if(button == "Filter by: Price" && campus == "true")
   {
+    await findLocalRestauraunts(arr, fradius, "Burnaby")
+    currentRestaurant = arr;
     quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
   }
-  else
+  else if(button == "Filter by: Price" && campus == "false")
   {
+    await findLocalRestauraunts(arr, fradius, "Surrey")
+    currentRestaurant = arr;
+    quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Top Rated" && campus == "true")
+  {
+    await findLocalRestauraunts(arr, fradius, "Burnaby")
+    currentRestaurant = arr;
+    quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Top Rated" && campus == "false")
+  {
+    await findLocalRestauraunts(arr, fradius, "Surrey")
+    currentRestaurant = arr;
     quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
   }
   res.redirect('/maps')
@@ -706,7 +721,15 @@ function convertTime(startTime, endTime)
 
 async function findLocalRestauraunts(arr, radius, campus)
 {
-  const url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  var url;
+  if(campus == "Burnaby")
+  {
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  }
+  else if(campus == "Surrey")
+  {
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.1880,-122.8494&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  }
   await axios.get(url)
   .then((response)=>{
     var data;

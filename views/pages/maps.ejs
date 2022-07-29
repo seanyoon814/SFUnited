@@ -17,7 +17,7 @@
         </style>
       </head>
       <body>
-        <%var map;%>
+        <%var isBurnaby = true%>
         <h3>Restaurant Finder</h3>
         <div id="map"></div>
         <ol id="places"></ol>
@@ -27,7 +27,10 @@
             <input type ="number" placeholder = "max: 1000m" name = "radius">
             <input type="submit" name ="btn" value = "Filter by: Price">
             <input type="submit" name = "btn" value = "Filter by: Top Rated">
+            <input type="hidden" name = "campus" value = <%=isBurnaby%>>
         </form>
+        <button onclick="changeBurnaby()">Burnaby</button>
+        <button onclick="changeSurrey()">Surrey</button>
         <div>
             <%if(currentRestaurant.length > 0){%>
                 <%currentRestaurant.forEach(function(r){%>
@@ -39,9 +42,8 @@
                 <%})%>
             <%}%>
         </div>
-        <button onclick="changeBurnaby()">Burnaby</button>
-        <button onclick="changeSurrey()">Surrey</button>
         <script>
+            var map;
             var cityCircle;
             var marker;
             var uluruB = {
@@ -94,6 +96,7 @@
             map.setCenter(uluruB);
             cityCircle.setCenter(uluruB)
             marker.setPosition(uluruB)
+            form[3].value = true;
         }
         //change to surrey campus
         function changeSurrey()
@@ -102,9 +105,10 @@
             cityCircle.setCenter(uluruS)
             cityCircle.setRadius(600)
             marker.setPosition(uluruS)
+            form[3].value = false;
         }
         </script>
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"></script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
     </body>
 </html>
