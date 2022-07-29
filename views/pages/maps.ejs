@@ -4,19 +4,43 @@
         <title>Restaurant Finder</title>
         <meta name="viewport" content="initial-scale=1.0">
         <meta charset="utf-8">
-        <style>
-          html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-          }
-          #map {
-            height: 50%;
-            width: 40%;
-          }
-        </style>
       </head>
       <body>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 50%;
+                width: 40%;
+            }
+            input.read-more-state {
+            display: none;
+            }
+            p.read-more-target {
+            font-size: 0;
+            max-height: 0;
+            opacity: 0;
+            transition: .25s ease;
+            }
+            input.read-more-state:checked ~ div.read-more-wrap p.read-more-target {
+            font-size: inherit;
+            max-height: 999em;
+            opacity: 1;
+            }
+            input.read-more-state ~ label.read-more-trigger:before {
+            content: 'Read more';
+            }
+            input.read-more-state:checked ~ label.read-more-trigger:before {
+            content: 'Read less';
+            }
+            label.read-more-trigger {
+            cursor: pointer;
+            display: inline-block;
+            }
+        </style>
         <%var isBurnaby = true%>
         <h3>Restaurant Finder</h3>
         <div id="map"></div>
@@ -33,12 +57,30 @@
         <button onclick="changeSurrey()">Surrey</button>
         <div>
             <%if(currentRestaurant.length > 0){%>
+                <% var i = 0;%>
                 <%currentRestaurant.forEach(function(r){%>
                     <%if(r.price == "1" || r.price == ""){%>
-                        <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
+                        <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                        <div class="read-more-wrap <%=i%>">
+                            <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
+                            <p class="read-more-target <%=i%>"><%=r.hours%></p>
+                            <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
+                            <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
+                            <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                        </div>
+                        <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
                     <%}else{%>
-                        <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
+                        <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                        <div class="read-more-wrap <%=i%>">
+                            <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
+                            <p class="read-more-target <%=i%>"><%=r.hours%></p>
+                            <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
+                            <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
+                            <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                        </div>
+                        <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
                     <%}%>
+                    <%i++%>
                 <%})%>
             <%}%>
         </div>
