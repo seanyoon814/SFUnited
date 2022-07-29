@@ -17,6 +17,7 @@
         </style>
       </head>
       <body>
+        <%var map;%>
         <h3>Restaurant Finder</h3>
         <div id="map"></div>
         <ol id="places"></ol>
@@ -30,7 +31,7 @@
         <div>
             <%if(currentRestaurant.length > 0){%>
                 <%currentRestaurant.forEach(function(r){%>
-                    <%if(r.price == "1" || r.pice == ""){%>
+                    <%if(r.price == "1" || r.price == ""){%>
                         <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
                     <%}else{%>
                         <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
@@ -41,7 +42,6 @@
         <button onclick="changeBurnaby()">Burnaby</button>
         <button onclick="changeSurrey()">Surrey</button>
         <script>
-            var map;
             var cityCircle;
             var marker;
             var uluruB = {
@@ -104,8 +104,7 @@
             marker.setPosition(uluruS)
         }
         </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"
-        async defer></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
     </body>
 </html>

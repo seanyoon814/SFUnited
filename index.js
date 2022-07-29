@@ -720,6 +720,8 @@ async function findLocalRestauraunts(arr, radius, campus)
           name: data["results"][i]["name"],
           rating: data["results"][i]["rating"],
           num: data["results"][i]["user_ratings_total"],
+          lat: data["results"][i]["geometry"]["location"]["lat"],
+          lng: data["results"][i]["geometry"]["location"]["lng"],
           price: 1
         })
       }
@@ -730,6 +732,8 @@ async function findLocalRestauraunts(arr, radius, campus)
           name: data["results"][i]["name"],
           rating: data["results"][i]["rating"],
           num: data["results"][i]["user_ratings_total"],
+          lat: data["results"][i]["geometry"]["location"]["lat"],
+          lng: data["results"][i]["geometry"]["location"]["lng"],
           price: data["results"][i]["price_level"]
         })
       }
