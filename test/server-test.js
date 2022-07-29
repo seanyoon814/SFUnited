@@ -47,7 +47,7 @@ describe('groups', (ui)=>{
         // first club in clubs should have properties
         expect(res.body)
         .to.be.an.instanceof(Object)
-        .that.includes.all.keys(['name', 'desc', 'link'])
+        .that.contains.all.keys(['name', 'desc', 'link'])
 
         done();
       })
