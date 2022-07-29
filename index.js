@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const axios = require('axios')
 const session = require('express-session')
 const path = require('path')
@@ -8,9 +9,14 @@ const request = require('request-promise')
 const cheerio = require('cheerio')
 var cors = require('cors');
 
+const {Client} = require("@googlemaps/google-maps-services-js");
 var pool;
+const client = new Client({});
 pool = new Pool({
-  connectionString: 'postgres://postgres:admin@localhost/users'
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -168,7 +174,6 @@ app.get('/schedule', async(req, res)=>{
     res.redirect('/')
   }
 })
-
 app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
@@ -213,7 +218,7 @@ app.post('/enroll', async (req, res)=>{
     pool.query(queryString, (error, result)=>{
       if(error)
       {
-        res.send("Error inserting into DB")
+        res.send(error)
         return 0;
       }
       recentClass = []
@@ -272,40 +277,16 @@ app.post('/schedule', async (req, res)=>{
   {
     var classes = []
     await getCourseInformation(course, classes)
-    recentClass = classes
-    res.redirect('/schedule')
-    return 0;
-  }
-  else
-  {
-    res.redirect('/schedule')
-  }
-})
-
-app.post('/enroll', async (req, res)=>{
-  var username = user
-  var course = req.body.fname.trim()
-  var location = req.body.fcampus
-  var prof = req.body.fprofessor
-  var days = req.body.fdays
-  var start = req.body.fstart
-  var end = req.body.fend
-  var queryString = `
-  INSERT INTO classes (username, course, section, location, professor, days, startt, endt)
-  VALUES ('${username}', '${course}', '${course}', '${location}', '${prof}', '${days}', '${start}', '${end}')
-  `;
-  var bool = await checkConflictingTime(start, end, days)
-  if(bool == 1)
-  {
-    pool.query(queryString, (error, result)=>{
-      if(error)
-      {
-        res.send("Error inserting into DB")
-        return 0;
-      }
-      recentClass = []
-      res.redirect("/schedule")
-    })
+    if(classes.length>0)
+    {
+      recentClass = classes
+      res.redirect('/schedule')
+      return 0;
+    }
+    else
+    {
+      res.redirect('/schedule')
+    }
   }
   else
   {
@@ -332,6 +313,9 @@ app.post('/delete', (req, res)=>{
 // app.post('/filter', (req,res)=>{
 
 // })
+app.get('/maps', (req, res)=>{
+  res.render('pages/maps')
+})
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin
@@ -403,49 +387,75 @@ async function getCourseInformation(course, courseInfo)
   var formattedStr = course.trim()
   var index = formattedStr.search(/[0-9]/);
   const courseLetters = formattedStr.slice(0, index-1).toLowerCase();
-  const courseNumbers = formattedStr.slice(index, 8);
+  const courseNumbers = formattedStr.slice(index, formattedStr.length);
   var url = 'https://www.sfu.ca/bin/wcm/course-outlines?2022/fall/' + courseLetters + '/' + courseNumbers + '/'
-  const {data} = await axios.get(url);
+  var valid = 0;
+  try
+  {
+    var {data} = await axios.get(url)
+  }
+  catch
+  {
+    valid = 1
+  }
   let i = 0;
   //variable to print the information of the course only once
   let hasRan = 0;
-  while(i<data.length)
+  if(valid == 0)
   {
-    const sectionurl = url + data[i]['value']
-    try{
-      const sectionData = await axios.get(sectionurl)
-      if(hasRan == 0)
-      {
-        courseInfo.push({
-          desc: sectionData['data']['info']['description'],
-          prereq: sectionData['data']['info']['prerequisites'],
-          notes: sectionData['data']['info']['notes']
-        })
-        // courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
-        hasRan = 1
+    while(i<data.length)
+    {
+      const sectionurl = url + data[i]['value']
+      try{
+        const sectionData = await axios.get(sectionurl)
+        if(hasRan == 0)
+        {
+          courseInfo.push({
+            desc: sectionData['data']['info']['description'],
+            prereq: sectionData['data']['info']['prerequisites'],
+            notes: sectionData['data']['info']['notes']
+          })
+          // courseInfo.push(sectionData['data']['info']['description'], sectionData['data']['info']['prerequisites'], sectionData['data']['info']['notes'])
+          hasRan = 1
+        }
+        if(sectionData['data']['courseSchedule'][0]["sectionCode"]=="LEC")
+        { 
+          try{
+              courseInfo.push({
+              name: sectionData['data']['info']['name'],
+              term: sectionData['data']['info']['term'],
+              prof: sectionData['data']['instructor'][0]['name'],
+              campus: sectionData['data']['courseSchedule'][0]["campus"],
+              room: sectionData['data']['courseSchedule'][0]["buildingCode"],
+              roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
+              days: sectionData['data']['courseSchedule'][0]["days"] + ", " + sectionData['data']['courseSchedule'][1]["days"],
+              start: sectionData['data']['courseSchedule'][0]["startTime"] + "," + sectionData['data']['courseSchedule'][1]["startTime"],
+              end: sectionData['data']['courseSchedule'][0]["endTime"] + "," + sectionData['data']['courseSchedule'][1]["endTime"],
+            })
+          }
+          catch(err)
+          {
+            courseInfo.push({
+              name: sectionData['data']['info']['name'],
+              term: sectionData['data']['info']['term'],
+              prof: sectionData['data']['instructor'][0]['name'],
+              campus: sectionData['data']['courseSchedule'][0]["campus"],
+              room: sectionData['data']['courseSchedule'][0]["buildingCode"],
+              roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
+              days: sectionData['data']['courseSchedule'][0]["days"],
+              start: sectionData['data']['courseSchedule'][0]["startTime"],
+              end: sectionData['data']['courseSchedule'][0]["endTime"]
+            })
+          }
+          // arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
+          // sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
+          // courseInfo.push(arr)
+        }
+        i++;
       }
-      if(sectionData['data']['courseSchedule'][0]["sectionCode"]=="LEC")
-      {
-        courseInfo.push({
-          name: sectionData['data']['info']['name'],
-          term: sectionData['data']['info']['term'],
-          prof: sectionData['data']['instructor'][0]['name'],
-          campus: sectionData['data']['courseSchedule'][0]["campus"],
-          room: sectionData['data']['courseSchedule'][0]["buildingCode"],
-          roomNum: sectionData['data']['courseSchedule'][0]["roomNumber"],
-          days: sectionData['data']['courseSchedule'][0]["days"],
-          start: sectionData['data']['courseSchedule'][0]["startTime"],
-          end: sectionData['data']['courseSchedule'][0]["endTime"]
-
-        })
-        // arr.push(sectionData['data']['info']['name'], sectionData['data']['info']['term'], sectionData['data']['instructor'][0]['name'], sectionData['data']['courseSchedule'][0]["campus"],
-        // sectionData['data']['courseSchedule'][0]["buildingCode"], sectionData['data']['courseSchedule'][0]["roomNumber"], sectionData['data']['courseSchedule'][0]["days"], sectionData['data']['courseSchedule'][0]["startTime"], sectionData['data']['courseSchedule'][0]["endTime"])
-        // courseInfo.push(arr)
+      catch(err){
+        i++;
       }
-      i++;
-    }
-    catch(err){
-      i++;
     }
   }
 }
@@ -454,42 +464,45 @@ async function getCourseInformation(course, courseInfo)
 //output: [firstname, lastname, averageRating, [class, rating, comment] x 3]]
 async function scrape(name, subject, arr)
 {
-  const nm = name.trim().split(/\s+/)
-  for(let i = 0; i<letters.length; i++)
+  if(name.length>0 && subject.length>0 && !hasNumber(name) && !hasNumber(subject) && name.includes(" "))
   {
-    const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
-    const { data } = await axios.get(url);
-    try
+    const nm = name.trim().split(/\s+/)
+    for(let i = 0; i<letters.length; i++)
     {
-      if(data['ratings'][i]['class'].includes(subject))
+      const url = 'https://ratemyprof-api.vercel.app/api/getProf?first=' + nm[0].toLowerCase() + '&last=' + nm[1].toLowerCase() + '&schoolCode=U2Nob29sLTE0Nj' + letters[i]
+      const { data } = await axios.get(url);
+      try
       {
-        arr.push({
-          fname: data['firstName'],
-          lname: data['lastName'],
-          r: data['avgRating']
-        })
-        arr.push({
-          class: data['ratings'][0]['class'],
-          rating: data['ratings'][0]['clarityRating'],
-          comment: data['ratings'][0]['comment'],
-          grade: data['ratings'][0]['grade']
-        })
-        arr.push({
-          class: data['ratings'][1]['class'],
-          rating: data['ratings'][1]['clarityRating'],
-          comment: data['ratings'][1]['comment'],
-          grade: data['ratings'][1]['grade']
-        })
-        arr.push({
-          class: data['ratings'][2]['class'],
-          rating: data['ratings'][2]['clarityRating'],
-          comment: data['ratings'][2]['comment'],
-          grade: data['ratings'][2]['grade']
-        })
-        {break;}
+        if(data['ratings'][i]['class'].includes(subject.toUpperCase()))
+        {
+          arr.push({
+            fname: data['firstName'],
+            lname: data['lastName'],
+            r: data['avgRating']
+          })
+          arr.push({
+            class: data['ratings'][0]['class'],
+            rating: data['ratings'][0]['clarityRating'],
+            comment: data['ratings'][0]['comment'],
+            grade: data['ratings'][0]['grade']
+          })
+          arr.push({
+            class: data['ratings'][1]['class'],
+            rating: data['ratings'][1]['clarityRating'],
+            comment: data['ratings'][1]['comment'],
+            grade: data['ratings'][1]['grade']
+          })
+          arr.push({
+            class: data['ratings'][2]['class'],
+            rating: data['ratings'][2]['clarityRating'],
+            comment: data['ratings'][2]['comment'],
+            grade: data['ratings'][2]['grade']
+          })
+          {break;}
+        }
       }
-    }
-    catch(err){
+      catch(err){
+      }
     }
   }
 }
@@ -541,37 +554,132 @@ async function checkConflictingTime(startTime, endTime, days)
   return new Promise((resolve, reject)=>
   {
     var getUsersQuery = `SELECT * FROM classes where username='${user}'`;
-    var time = convertTime(startTime, endTime)
-    var day = days.trim().split(',')
-    setTimeout(() => {
-      pool.query(getUsersQuery, (error, result)=>{
-        if(error)
-          resolve(0);
-        var results = {'rows':result.rows}
-        for(var i = 0; i<results.rows.length; i++)
-        {
-          let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
-          let otherdays = results['rows'][i]['days']
-          if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+    if(startTime.includes(","))
+    {
+      var time = convertTime(startTime, endTime)
+      var day = days.trim().split(',')
+      setTimeout(() => {
+        pool.query(getUsersQuery, (error, result)=>{
+          if(error)
           {
-            for(var j = 0; j<day.length; j++)
+            resolve(0);
+          }
+          var results = {'rows':result.rows}
+          for(var i = 0; i<results.rows.length; i++)
+          {
+            if(results['rows'][i]['startt'].includes(","))
             {
-              if(otherdays.includes(day))
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+              || ((time[2] >= start[2] && time[3] <=start[3]) || (time[2] <= start[2] && (time[3] >= start[2] && time[3] <= start[2])) || (time[3] >= start[3] && (time[2] >= start[2] && time[2] <=start[3]))))
               {
-                resolve(0);
-                return 0;
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1])))
+              || (time[2] >= start[0] && time[3] <=start[1]) || (time[2] <= start[0] && (time[3] >= start[0] && time[3] <= start[1])) || (time[3] >= start[1] && (time[2] >= start[0] && time[2] <=start[1])))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
               }
             }
           }
-        }
-        resolve(1);
-        return 1;
-    }, 100)})
+          resolve(1);
+          return 1;
+
+        }, 100)})
+    }
+    else
+    {
+      var time = convertTime(startTime, endTime)
+      var day = days.trim().split(',')
+      setTimeout(() => {
+        pool.query(getUsersQuery, (error, result)=>{
+          if(error)
+            resolve(0);
+          var results = {'rows':result.rows}
+          for(var i = 0; i<results.rows.length; i++)
+          {
+            
+            if(results['rows'][i]['startt'].includes(","))
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1]))
+              || (time[0] >= start[2] && time[1] <=start[3]) || (time[0] <= start[2] && (time[1] >= start[2] && time[1] <= start[3])) || (time[1] >= start[3] && (time[0] >= start[2] && time[0] <=start[3])))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              let start = convertTime(results['rows'][i]['startt'], results['rows'][i]['endt'])
+              let otherdays = results['rows'][i]['days']
+              if(((time[0] >= start[0] && time[1] <=start[1]) || (time[0] <= start[0] && (time[1] >= start[0] && time[1] <= start[1])) || (time[1] >= start[1] && (time[0] >= start[0] && time[0] <=start[1]))))
+              {
+                for(var j = 0; j<day.length; j++)
+                {
+                  if(otherdays.includes(day))
+                  {
+                    resolve(0);
+                    return 0;
+                  }
+                }
+              }
+            }
+          }
+          resolve(1);
+          return 1;
+      }, 100)})
+    }
   })
 }
 //returns [startTime, endTime] in minutes
 function convertTime(startTime, endTime)
 {
+  if(startTime.includes(","))
+  {
+    let start = startTime.split(",")
+    let end = endTime.split(",")
+    let start1 = start[0].split(":")
+    let start2 = start[1].split(":")
+    let end1 = end[0].split(":")
+    let end2 = end[1].split(":")
+    var arr = []
+    var s1minute = Number(start1[0])*60 + Number(start1[1])
+    var s2minute = Number(start2[0])*60 + Number(start2[1])
+    var e1minute = Number(end1[0])*60 + Number(end1[1])
+    var e2minute = Number(end2[0])*60 + Number(end2[1])
+    arr.push(s1minute, e1minute, s2minute, e2minute)
+    return arr;
+  }
+  else
+  {
     let start = startTime.split(":")
     let end = endTime.split(":")
     var arr = []
@@ -593,3 +701,18 @@ app.post("/addstuff", (req,res)=>{
 })
 
 module.exports = app
+
+function initMap() {
+  // The location of Uluru
+  const uluru = { lat: -25.344, lng: 131.031 };
+  // The map, centered at Uluru
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 4,
+    center: uluru,
+  });
+  // The marker, positioned at Uluru
+  const marker = new google.maps.Marker({
+    position: uluru,
+    map: map,
+  });
+}}
