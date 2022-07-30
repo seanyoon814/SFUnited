@@ -734,6 +734,7 @@ async function findLocalRestauraunts(arr, radius, campus)
   .then((response)=>{
     var data;
     data = response.data
+    console.log(data)
     for(let i = 0; i<data["results"].length; i++)
     {
       if(data["results"][i]["price_level"] === undefined)
