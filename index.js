@@ -14,8 +14,10 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
-
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -311,7 +313,17 @@ app.post('/delete', (req, res)=>{
   })
 })
 app.get('/maps', async (req, res)=>{
-  res.render('pages/maps', {currentRestaurant:currentRestaurant})
+  var queryString = `SELECT * FROM rest where uname='${user}'`
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send(error)
+    }
+    else
+    {
+      res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
+    }
+  })
 })
 app.post('/maps', async (req, res)=>{
   var arr = [];
@@ -344,6 +356,49 @@ app.post('/maps', async (req, res)=>{
     quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
   }
   res.redirect('/maps')
+})
+
+app.post('/addrestaurant', async (req, res)=>{
+  var name = req.body.fname
+  var uname = user;
+  var bool = await checkExistingRest(name)
+  if(bool == 1)
+  {
+    //add error case for duplicate here
+    res.redirect('/maps')
+  }
+  else
+  {
+    var queryString = `
+    INSERT INTO rest (uname, name)
+    VALUES ('${uname}', '${name}')
+    `;
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.redirect('/maps')
+      }
+    })
+  }
+})
+app.post('/removerestaurant',  (req, res)=>{
+  var rest= req.body.rest
+  var queryString = `DELETE FROM rest
+  WHERE name='${rest}'`;
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send(error)
+    }
+    else
+    {
+      res.redirect('/maps')
+    }
+  })
 })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -403,10 +458,34 @@ function checkExistingUser(name)
         }
         resolve(0);
         return 0;
+        
     }, 100)})
   })
 }
-
+function checkExistingRest(rest)
+{
+  return new Promise((resolve, reject)=>
+  {
+    var getUsersQuery = `SELECT * FROM rest`;
+    setTimeout(() => {
+      pool.query(getUsersQuery, (error, result)=>{
+        if(error)
+          resolve(0);
+        var results = {'rows':result.rows}
+        for(var i = 0; i<results.rows.length; i++)
+        {
+          var r1 = results['rows'][i]['name'].toString()
+          if(r1.trim() == rest.toString().trim())
+          {
+            resolve(1);
+            return 1;
+          }
+        }
+        resolve(0);
+        return 0;
+    }, 100)})
+  })
+}
 //returns sections from courses
 //input: course (e.g., CMPT 120)
 //output:
@@ -734,7 +813,6 @@ async function findLocalRestauraunts(arr, radius, campus)
   .then(async (response)=>{
     var data;
     data = response.data
-    console.log(data)
     for(let i = 0; i<data["results"].length; i++)
     {
       const revurl = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + data['results'][i]['place_id'] + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
@@ -818,8 +896,6 @@ async function partitionPrice(items, left, right) {
   }
   return i;
 }
-
-
 async function quickSortRating(items, left, right) {
     var index;
     if (items.length > 1) {

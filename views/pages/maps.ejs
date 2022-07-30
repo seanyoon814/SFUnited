@@ -31,21 +31,27 @@
             opacity: 1;
             }
             input.read-more-state ~ label.read-more-trigger:before {
-            content: 'Read more';
+            content: 'More Information';
             }
             input.read-more-state:checked ~ label.read-more-trigger:before {
-            content: 'Read less';
+            content: 'Minimize';
             }
             label.read-more-trigger {
             cursor: pointer;
             display: inline-block;
+            }
+            #submitR{
+                margin-left: 10px;
+                display: inline-block;
+            }
+            #titleR{
+                display:inline-block;
             }
         </style>
         <%var isBurnaby = true%>
         <h3>Restaurant Finder</h3>
         <div id="map"></div>
         <ol id="places"></ol>
-
         <form action ='/maps' method = 'POST'>
             <label>Radius(m):</label>
             <input type ="number" placeholder = "max: 1000m" name = "radius">
@@ -55,7 +61,19 @@
         </form>
         <button onclick="changeBurnaby()">Burnaby</button>
         <button onclick="changeSurrey()">Surrey</button>
-        <div>
+        <div id="favourites">
+            <h1>Your favourite restaurants:</h1>
+            <%if(fav.length > 0){%>
+                <%fav.forEach(function(f){%>
+                    <p><b><%=f.name%></b></p>
+                    <form action = '/removerestaurant' method = 'post'>
+                        <input type="submit" value = 'Remove from favourites'>
+                        <input type='hidden' name = 'rest' value = '<%=f.name%>'>
+                    </form>
+                <%})%>
+            <%}%>
+        </div>
+        <div id="restaurants">
             <%if(currentRestaurant.length > 0){%>
                 <% var i = 0;%>
                 <%currentRestaurant.forEach(function(r){%>
@@ -64,7 +82,11 @@
                         <div class ="h<%=i%>">
                             <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
                             <div class="read-more-wrap <%=i%>">
-                                <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
+                                <h1 id = "titleR"><%=r.name%> ($): <%=r.rating%>/5</h1>
+                                <form id = 'submitR' action = '/addrestaurant' method = 'POST'>
+                                    <input type = 'submit' value = 'Add to Favourites'>
+                                    <input type="hidden" name="fname" value="<%=r.name%>">
+                                </form>
                                 <p class="read-more-target <%=i%>"><%=r.hours%></p>
                                 <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
                                 <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
@@ -76,7 +98,10 @@
                         <div class ="h<%=i%>">
                             <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
                             <div class="read-more-wrap <%=i%>">
-                                <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
+                                <h1 id = "titleR"><%=r.name%> ($$): <%=r.rating%>/5</h1>
+                                <form id ="submitR" action = '/addrestaurant' method = 'POST'>
+                                    <input type = 'submit' value = 'Add to Favourites'>
+                                </form>
                                 <p class="read-more-target <%=i%>"><%=r.hours%></p>
                                 <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
                                 <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
