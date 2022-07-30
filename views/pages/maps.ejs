@@ -60,25 +60,30 @@
                 <% var i = 0;%>
                 <%currentRestaurant.forEach(function(r){%>
                     <%if(r.price == "1" || r.price == ""){%>
-                        <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
-                        <div class="read-more-wrap <%=i%>">
-                            <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
-                            <p class="read-more-target <%=i%>"><%=r.hours%></p>
-                            <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
-                            <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
-                            <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                        <!-- https://stackoverflow.com/questions/31968211/how-to-implement-read-more-read-less-in-pure-css -->
+                        <div class ="h<%=i%>">
+                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                            <div class="read-more-wrap <%=i%>">
+                                <h1><%=r.name%> ($): <%=r.rating%>/5</h1>
+                                <p class="read-more-target <%=i%>"><%=r.hours%></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
+                                <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                            </div>
+                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
                         </div>
-                        <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
                     <%}else{%>
-                        <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
-                        <div class="read-more-wrap <%=i%>">
-                            <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
-                            <p class="read-more-target <%=i%>"><%=r.hours%></p>
-                            <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
-                            <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
-                            <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                        <div class ="h<%=i%>">
+                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                            <div class="read-more-wrap <%=i%>">
+                                <h1><%=r.name%> ($$): <%=r.rating%>/5</h1>
+                                <p class="read-more-target <%=i%>"><%=r.hours%></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
+                                <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                            </div>
+                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
                         </div>
-                        <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
                     <%}%>
                     <%i++%>
                 <%})%>
