@@ -731,36 +731,45 @@ async function findLocalRestauraunts(arr, radius, campus)
     url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.1880,-122.8494&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
   }
   await axios.get(url)
-  .then((response)=>{
+  .then(async (response)=>{
     var data;
     data = response.data
     console.log(data)
     for(let i = 0; i<data["results"].length; i++)
     {
-      if(data["results"][i]["price_level"] === undefined)
-      {
-        arr.push({
-          address: data["results"][i]["formatted_address"],
-          name: data["results"][i]["name"],
-          rating: data["results"][i]["rating"],
-          num: data["results"][i]["user_ratings_total"],
-          lat: data["results"][i]["geometry"]["location"]["lat"],
-          lng: data["results"][i]["geometry"]["location"]["lng"],
-          price: 1
-        })
-      }
-      else
-      {
-        arr.push({
-          address: data["results"][i]["formatted_address"],
-          name: data["results"][i]["name"],
-          rating: data["results"][i]["rating"],
-          num: data["results"][i]["user_ratings_total"],
-          lat: data["results"][i]["geometry"]["location"]["lat"],
-          lng: data["results"][i]["geometry"]["location"]["lng"],
-          price: data["results"][i]["price_level"]
-        })
-      }
+      const revurl = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + data['results'][i]['place_id'] + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+      await axios.get(revurl)
+      .then((resp)=>{
+        var reviews = resp.data
+        if(data["results"][i]["price_level"] === undefined)
+        {
+          arr.push({
+            address: data["results"][i]["formatted_address"],
+            name: data["results"][i]["name"],
+            rating: data["results"][i]["rating"],
+            num: data["results"][i]["user_ratings_total"],
+            lat: data["results"][i]["geometry"]["location"]["lat"],
+            lng: data["results"][i]["geometry"]["location"]["lng"],
+            price: 1,
+            hours: reviews["result"]["opening_hours"]["weekday_text"],
+            review: reviews["result"]['reviews'][0]
+          })
+        }
+        else
+        {
+          arr.push({
+            address: data["results"][i]["formatted_address"],
+            name: data["results"][i]["name"],
+            rating: data["results"][i]["rating"],
+            num: data["results"][i]["user_ratings_total"],
+            lat: data["results"][i]["geometry"]["location"]["lat"],
+            lng: data["results"][i]["geometry"]["location"]["lng"],
+            price: data["results"][i]["price_level"],
+            hours: reviews["result"]["opening_hours"]["weekday_text"],
+            review: reviews["result"]['reviews'][0]
+          })
+        }
+      })
     }
   })
   return;
