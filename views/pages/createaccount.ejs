@@ -107,7 +107,11 @@
                             Sorry!
                         </h2>
                         <p>
-                            <%= string %>
+                            <% if(bool == 1){ %>
+                                <%= "Try again. Don't include numbers in first name or last name." %>
+                            <% }else if(bool == 2){ %>
+                                <%= "An account with this username already exists." %>
+                            <%}%>
                         </p>
                         <button type="button" style="color:black; 
                             font-weight:700; 
@@ -125,14 +129,16 @@
             <!-- <p></p> -->
             <div style="margin-top:20px; font-weight:600; font-family: Arial, Helvetica, sans-serif;">
                 Already have an account?
-                <input type="submit" value='Log in' style="margin-top:20px; 
+                <form action = '/'>
+                <input action = '/'  type="submit" value='Log in' style="margin-top:20px; 
                         border:1px solid gray; 
                         border-radius: 40px; 
                         background-color: white;
                         font-weight:600;
                         width:30%; 
                         font-family: Arial, Helvetica, sans-serif;">
-            </div>
+                </form>
+                </div>
         </div>
     </div>
     <script>
@@ -142,7 +148,7 @@
             popup.classList.add("openPopup");
         }
         var boolPopup = <%=bool%>;
-        if (boolPopup == 1) {
+        if (boolPopup == 1 || boolPopup == 2) {
             openPopup();
         }
         function closePopup() {

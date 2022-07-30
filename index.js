@@ -12,10 +12,7 @@ const {Client} = require("@googlemaps/google-maps-services-js");
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:admin@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -86,11 +83,11 @@ app.post('/createaccount', async (req, res)=>{
   // test, 0 no popup, 1 fname or lname has numbers, 2 user already exists in db
   if(hasNumber(fname) == true || hasNumber(lname) == true)
   {
-    var str = "Try again. Don't include numbers in first name or last name."
+    var str = {"string":"Try again. Don't include numbers in first name or last name."}
     // res.redirect('createaccount');
 
     //var incorrect = {'state': true};
-    res.render('pages/createaccount', {bool: 1, string:str});
+    res.render('pages/createaccount', {bool: 1});
   }
   else
     {
@@ -115,7 +112,7 @@ app.post('/createaccount', async (req, res)=>{
     else
     {
       var str = 'An account with this username already exists.'
-      res.redirect('/createaccount')
+      res.render('pages/createaccount', {bool: 2});
     }
   }
 })
