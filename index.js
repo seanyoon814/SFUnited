@@ -313,17 +313,24 @@ app.post('/delete', (req, res)=>{
   })
 })
 app.get('/maps', async (req, res)=>{
-  var queryString = `SELECT * FROM rest where uname='${user}'`
-  pool.query(queryString, (error, result)=>{
-    if(error)
-    {
-      res.send(error)
-    }
-    else
-    {
-      res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
-    }
-  })
+  if(req.session.user)
+  {
+    var queryString = `SELECT * FROM rest where uname='${user}'`
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
+      }
+    })
+  }
+  else
+  {
+    res.redirect('/dashboard')
+  }
 })
 app.post('/maps', async (req, res)=>{
   var arr = [];
