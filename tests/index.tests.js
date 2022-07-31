@@ -12,7 +12,7 @@ var pool;
 pool = new Pool({
   // string that connects you to the database
   // scheme:userthatisnamedpostgres:password for postgress@localhost on pc/the database named users
-  connectionString: 'postgres://postgres:Tritrung01@localhost/sfunited'
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 
@@ -260,5 +260,27 @@ describe('groups', (ui)=>{
                 res.should.redirectTo("/");
                 done();
             }) 
+    })
+  })
+
+describe('maps', ()=>{
+    it('should change the radius when user prompts', (done)=>{
+        chai.request(server)
+        .post("/maps")
+        .send({
+            'radius': '400', })
+        .redirects(0)
+        .end((err, res) => {
+            var arr = []
+            res.radius.should.equal(400)
+            const result = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
+            expect(result).to.include("400")
+            done();
+        })
+    })
+    it('should sort properly', (done)=>{
+        var arr = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
+        server.quickSortPrice(arr, 0, arr.length-1)
+        expect(arr).to.be.ordered
     })
 })

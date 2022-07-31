@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
     res.render('pages/index')
   }
 })
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 app.post('/', async (req,res)=> {
   var un = req.body.f_uname
@@ -857,7 +857,7 @@ async function findLocalRestauraunts(arr, radius, campus)
       })
     }
   })
-  return;
+  return url;
 }
 // https://stackabuse.com/quicksort-in-javascript/
 async function swap(items, leftIndex, rightIndex){
@@ -929,3 +929,7 @@ async function quickSortPrice(items, left, right) {
   }
   return items;
 }
+module.exports = app;
+// module.exports = {
+//   findLocalRestauraunts, partitionPrice, partitionRating, swap, quickSortPrice, quickSortRating
+// }
