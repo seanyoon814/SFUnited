@@ -8,13 +8,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node test.js",
+    "test": "node ./node_modules/mocha/bin/mocha",
     "mocha-test": "mocha tests --timeout 10000"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.3.16",
     "axios": "^0.27.2",
-    "chai": "^4.3.6",
     "chai-http": "^4.3.0",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
@@ -22,7 +21,6 @@
     "express": "^4.18.1",
     "express-session": "^1.17.3",
     "google": "^0.6.0",
-    "mocha": "^10.0.0",
     "pg": "^8.7.3",
     "request-promise": "^4.2.6"
   },
@@ -30,7 +28,10 @@
     "got": "^11.8.5",
     "tape": "^4.15.1",
     "@types/google.maps": "^3.49.2",
+    "chai": "^4.3.6",
     "got": "^11.3.0",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
     "tape": "^4.7.0"
   },
   "repository": {

@@ -9,6 +9,7 @@ const request = require('request-promise')
 const cheerio = require('cheerio')
 
 const {Client} = require("@googlemaps/google-maps-services-js");
+const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
@@ -22,6 +23,8 @@ var user;
 var recentProf = []
 var recentClass = []
 var enrolled = []
+var currentRadius;
+var currentRestaurant = []
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -45,7 +48,7 @@ app.get('/', (req, res) => {
     res.render('pages/index')
   }
 })
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 app.post('/', async (req,res)=> {
   var un = req.body.f_uname
@@ -305,12 +308,109 @@ app.post('/delete', (req, res)=>{
     res.redirect("/schedule")
   })
 })
+<<<<<<< HEAD
 
 // app.post('/filter', (req,res)=>{
 
 // })
 app.get('/maps', (req, res)=>{
   res.render('pages/maps')
+=======
+app.get('/maps', async (req, res)=>{
+  if(req.session.user)
+  {
+    var queryString = `SELECT * FROM rest where uname='${user}'`
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
+      }
+    })
+  }
+  else
+  {
+    res.redirect('/dashboard')
+  }
+})
+app.post('/maps', async (req, res)=>{
+  var arr = [];
+  var fradius = req.body.radius
+  var button = req.body.btn
+  var campus = req.body.campus
+  currentRadius = fradius
+  if(button == "Filter by: Price" && campus == "true")
+  {
+    await findLocalRestauraunts(arr, fradius, "Burnaby")
+    currentRestaurant = arr;
+    quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Price" && campus == "false")
+  {
+    await findLocalRestauraunts(arr, fradius, "Surrey")
+    currentRestaurant = arr;
+    quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Top Rated" && campus == "true")
+  {
+    await findLocalRestauraunts(arr, fradius, "Burnaby")
+    currentRestaurant = arr;
+    quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Top Rated" && campus == "false")
+  {
+    await findLocalRestauraunts(arr, fradius, "Surrey")
+    currentRestaurant = arr;
+    quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  res.redirect('/maps')
+})
+
+app.post('/addrestaurant', async (req, res)=>{
+  var name = req.body.fname
+  var uname = user;
+  var bool = await checkExistingRest(name)
+  if(bool == 1)
+  {
+    //add error case for duplicate here
+    res.redirect('/maps')
+  }
+  else
+  {
+    var queryString = `
+    INSERT INTO rest (uname, name)
+    VALUES ('${uname}', '${name}')
+    `;
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.redirect('/maps')
+      }
+    })
+  }
+})
+app.post('/removerestaurant',  (req, res)=>{
+  var rest= req.body.rest
+  var queryString = `DELETE FROM rest
+  WHERE name='${rest}'`;
+  pool.query(queryString, (error, result)=>{
+    if(error)
+    {
+      res.send(error)
+    }
+    else
+    {
+      res.redirect('/maps')
+    }
+  })
+>>>>>>> bb204422010a63ec1cc08b91363f5e446d63f3e9
 })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -370,10 +470,34 @@ function checkExistingUser(name)
         }
         resolve(0);
         return 0;
+        
     }, 100)})
   })
 }
-
+function checkExistingRest(rest)
+{
+  return new Promise((resolve, reject)=>
+  {
+    var getUsersQuery = `SELECT * FROM rest`;
+    setTimeout(() => {
+      pool.query(getUsersQuery, (error, result)=>{
+        if(error)
+          resolve(0);
+        var results = {'rows':result.rows}
+        for(var i = 0; i<results.rows.length; i++)
+        {
+          var r1 = results['rows'][i]['name'].toString()
+          if(r1.trim() == rest.toString().trim())
+          {
+            resolve(1);
+            return 1;
+          }
+        }
+        resolve(0);
+        return 0;
+    }, 100)})
+  })
+}
 //returns sections from courses
 //input: course (e.g., CMPT 120)
 //output:
@@ -685,6 +809,7 @@ function convertTime(startTime, endTime)
     return arr;
 }
 
+<<<<<<< HEAD
 // testing
 var stuff = []
 app.get("/allstuff", (req,res)=>{
@@ -712,3 +837,133 @@ function initMap() {
     map: map,
   });
 }}
+=======
+async function findLocalRestauraunts(arr, radius, campus)
+{
+  var url;
+  if(campus == "Burnaby")
+  {
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  }
+  else if(campus == "Surrey")
+  {
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.1880,-122.8494&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  }
+  await axios.get(url)
+  .then(async (response)=>{
+    var data;
+    data = response.data
+    for(let i = 0; i<data["results"].length; i++)
+    {
+      const revurl = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + data['results'][i]['place_id'] + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+      await axios.get(revurl)
+      .then((resp)=>{
+        var reviews = resp.data
+        if(data["results"][i]["price_level"] === undefined)
+        {
+          arr.push({
+            address: data["results"][i]["formatted_address"],
+            name: data["results"][i]["name"],
+            rating: data["results"][i]["rating"],
+            num: data["results"][i]["user_ratings_total"],
+            lat: data["results"][i]["geometry"]["location"]["lat"],
+            lng: data["results"][i]["geometry"]["location"]["lng"],
+            price: 1,
+            hours: reviews["result"]["opening_hours"]["weekday_text"],
+            review: reviews["result"]['reviews'][0]
+          })
+        }
+        else
+        {
+          arr.push({
+            address: data["results"][i]["formatted_address"],
+            name: data["results"][i]["name"],
+            rating: data["results"][i]["rating"],
+            num: data["results"][i]["user_ratings_total"],
+            lat: data["results"][i]["geometry"]["location"]["lat"],
+            lng: data["results"][i]["geometry"]["location"]["lng"],
+            price: data["results"][i]["price_level"],
+            hours: reviews["result"]["opening_hours"]["weekday_text"],
+            review: reviews["result"]['reviews'][0]
+          })
+        }
+      })
+    }
+  })
+  return url;
+}
+// https://stackabuse.com/quicksort-in-javascript/
+async function swap(items, leftIndex, rightIndex){
+    var temp = items[leftIndex];
+    items[leftIndex] = items[rightIndex];
+    items[rightIndex] = temp;
+}
+async function partitionRating(items, left, right) {
+    var pivot   = items[Math.floor((right + left) / 2)]['rating'], //middle element
+        i       = left, //left pointer
+        j       = right; //right pointer
+    while (i <= j) {
+        while (items[i]['rating'] < pivot) {
+            i++;
+        }
+        while (items[j]['rating'] > pivot) {
+            j--;
+        }
+        if (i <= j) {
+            await swap(items, i, j); //sawpping two elements
+            i++;
+            j--;
+        }
+    }
+    return i;
+}
+async function partitionPrice(items, left, right) {
+  var pivot   = items[Math.floor((right + left) / 2)]['price'], //middle element
+      i       = left, //left pointer
+      j       = right; //right pointer
+  while (i <= j) {
+      while (items[i]['price'] < pivot) {
+          i++;
+      }
+      while (items[j]['price'] > pivot) {
+          j--;
+      }
+      if (i <= j) {
+          await swap(items, i, j); //sawpping two elements
+          i++;
+          j--;
+      }
+  }
+  return i;
+}
+async function quickSortRating(items, left, right) {
+    var index;
+    if (items.length > 1) {
+        index = await partitionRating(items, left, right); //index returned from partition
+        if (left < index - 1) { //more elements on the left side of the pivot
+            await quickSortRating(items, left, index - 1);
+        }
+        if (index < right) { //more elements on the right side of the pivot
+            await quickSortRating(items, index, right);
+        }
+    }
+    return items;
+}
+async function quickSortPrice(items, left, right) {
+  var index;
+  if (items.length > 1) {
+      index = await partitionPrice(items, left, right); //index returned from partition
+      if (left < index - 1) { //more elements on the left side of the pivot
+          await quickSortPrice(items, left, index - 1);
+      }
+      if (index < right) { //more elements on the right side of the pivot
+          await quickSortPrice(items, index, right);
+      }
+  }
+  return items;
+}
+module.exports = app;
+// module.exports = {
+//   findLocalRestauraunts, partitionPrice, partitionRating, swap, quickSortPrice, quickSortRating
+// }
+>>>>>>> bb204422010a63ec1cc08b91363f5e446d63f3e9
