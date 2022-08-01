@@ -25,6 +25,8 @@
     "request-promise": "^4.2.6"
   },
   "devDependencies": {
+    "got": "^11.8.5",
+    "tape": "^4.15.1",
     "@types/google.maps": "^3.49.2",
     "chai": "^4.3.6",
     "got": "^11.3.0",

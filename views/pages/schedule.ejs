@@ -395,6 +395,37 @@
                     <input type="text"  class="prof form-control mb-4" placeholder="Course (e.g., CMPT120)" name="fcourse">
                 
                     <input type="submit" class="btn btn-info btn-block" value="Submit">
+
+                    <div class="popUpContainer">
+                        <div class="popUp" id="popup" name="f_popup">
+                            <h2>
+                                <%if(flag == 3){%>
+                                    <%= "Confirmed" %>
+                                <%} else{%>
+                                    <%= "Sorry!" %>
+                                <%}%>
+                            </h2>
+                            <p>
+                                <%if(flag == 3){%>
+                                    <%= "Removed course from schedule." %>
+                                <%} else if(flag == 1){%>
+                                    <%= "Invalid Input: Boxes Left Unfilled." %>
+                                <%} else if(flag == 2){%>
+                                    <%= "Invalid Courses: Conflicting Time." %>
+                                <%}%>
+                            </p>
+                            <button type="button" style="color:black; 
+                                font-weight:700; 
+                                width:70%; 
+                                margin-top:4%; 
+                                border:1px solid gray; 
+                                border-radius: 40px; background-color: white;" class="btn btn-light
+                                font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                OK
+                            <button>
+                        </div>
+                    </div>
+                    
                 </form>
             </div>
 
@@ -473,6 +504,35 @@
                                 <input type="hidden" name="fstart" value=<%=c.start%>></input>
                                 <input type="hidden" name="fend" value=<%=c.end%>></input>
                                 <input type="submit" class="btn btn-info btn-block" value="Enroll">
+                                <div class="popUpContainer">
+                                    <div class="popUp" id="popup" name="f_popup">
+                                        <h2>
+                                            <%if(flag == 3){%>
+                                                <%= "Confirmed" %>
+                                            <%} else{%>
+                                                <%= "Sorry!" %>
+                                            <%}%>
+                                        </h2>
+                                        <p>
+                                            <%if(flag == 3){%>
+                                                <%= "Removed course from schedule." %>
+                                            <%} else if(flag == 1){%>
+                                                <%= "Invalid Input: Boxes Left Unfilled." %>
+                                            <%} else if(flag == 2){%>
+                                                <%= "Invalid Courses: Conflicting Time." %>
+                                            <%}%>
+                                        </p>
+                                        <button type="button" style="color:black; 
+                                            font-weight:700; 
+                                            width:70%; 
+                                            margin-top:4%; 
+                                            border:1px solid gray; 
+                                            border-radius: 40px; background-color: white;" class="btn btn-light
+                                            font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                            OK
+                                            <button>
+                                    </div>
+                                </div>
                             </form>
                             <% } else{%>
                                 <form action = '/enroll' method = 'POST'>
@@ -490,6 +550,35 @@
                                     <input type="hidden" name="fstart" value=<%=c.start%>></input>
                                     <input type="hidden" name="fend" value=<%=c.end%>></input>
                                     <input type="submit" class="btn btn-info btn-block" value="Enroll">
+                                    <div class="popUpContainer">
+                                        <div class="popUp" id="popup" name="f_popup">
+                                            <h2>
+                                                <%if(flag == 3){%>
+                                                    <%= "Confirmed" %>
+                                                <%} else{%>
+                                                    <%= "Sorry!" %>
+                                                <%}%>
+                                            </h2>
+                                            <p>
+                                                <%if(flag == 3){%>
+                                                    <%= "Removed course from schedule." %>
+                                                <%} else if(flag == 1){%>
+                                                    <%= "Invalid Input: Boxes Left Unfilled." %>
+                                                <%} else if(flag == 2){%>
+                                                    <%= "Invalid Courses: Conflicting Time." %>
+                                                <%}%>
+                                            </p>
+                                            <button type="button" style="color:black; 
+                                                font-weight:700; 
+                                                width:70%; 
+                                                margin-top:4%; 
+                                                border:1px solid gray; 
+                                                border-radius: 40px; background-color: white;" class="btn btn-light
+                                                font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                                OK
+                                                <button>
+                                        </div>
+                                    </div>
                                 </form>
                             <%}%>
                         <%}%>
@@ -522,6 +611,35 @@
                                         </strong>
                                     </p>
                                     <input type="submit" class="btn btn-info btn-block" value ="Remove Class">
+                                    <div class="popUpContainer">
+                                        <div class="popUp" id="popup" name="f_popup">
+                                            <h2>
+                                                <%if(flag == 3){%>
+                                                    <%= "Confirmed" %>
+                                                <%} else{%>
+                                                    <%= "Sorry!" %>
+                                                <%}%>
+                                            </h2>
+                                            <p>
+                                                <%if(flag == 3){%>
+                                                    <%= "Removed course from schedule." %>
+                                                <%} else if(flag == 1){%>
+                                                    <%= "Invalid Input: Boxes Left Unfilled." %>
+                                                <%} else if(flag == 2){%>
+                                                    <%= "Invalid Courses: Conflicting Time." %>
+                                                <%}%>
+                                            </p>
+                                            <button type="button" style="color:black; 
+                                                font-weight:700; 
+                                                width:70%; 
+                                                margin-top:4%; 
+                                                border:1px solid gray; 
+                                                border-radius: 40px; background-color: white;" class="btn btn-light
+                                                font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                                OK
+                                                <button>
+                                        </div>
+                                    </div>
                                     <input type="hidden" name="fcourse" value="<%=e.course%>"></input>
                                     <p></p>
                             <!-- DO NOT ADD THE /DIV HERE-->
@@ -580,6 +698,35 @@
                     <input type="text" class="prof form-control mb-4" placeholder="e.g (CMPT)" name="subj">
                 
                     <input type="submit" class="btn btn-info btn-block" value="Submit">
+                    <div class="popUpContainer">
+                        <div class="popUp" id="popup" name="f_popup">
+                            <h2>
+                                <%if(flag == 3){%>
+                                    <%= "Confirmed" %>
+                                <%} else{%>
+                                    <%= "Sorry!" %>
+                                <%}%>
+                            </h2>
+                            <p>
+                                <%if(flag == 3){%>
+                                    <%= "Removed course from schedule." %>
+                                <%} else if(flag == 1){%>
+                                    <%= "Invalid Input: Boxes Left Unfilled." %>
+                                <%} else if(flag == 2){%>
+                                    <%= "Invalid Courses: Conflicting Time." %>
+                                <%}%>
+                            </p>
+                            <button type="button" style="color:black; 
+                                font-weight:700; 
+                                width:70%; 
+                                margin-top:4%; 
+                                border:1px solid gray; 
+                                border-radius: 40px; background-color: white;" class="btn btn-light
+                                font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                OK
+                            <button>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -646,5 +793,20 @@
     <!-- Footer Section End -->
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+        // When the user clicks on <div>, open the popup
+        let popup = document.getElementById("popup");
+        function openPopup() {
+            popup.classList.add("openPopup");
+        }
+        var boolPopup = <%=flag%>;
+        if (boolPopup == 1 || boolPopup == 2 || boolPopup == 3) {
+            openPopup();
+        }
+        function closePopup() {
+            popup.classList.remove("openPopup");
+        }
+
+    </script>
 </body>
 </html>

@@ -14,10 +14,7 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:admin@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -29,6 +26,7 @@ var recentClass = []
 var enrolled = []
 var currentRadius;
 var currentRestaurant = []
+var flag = 0;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -94,7 +92,7 @@ app.post('/createaccount', async (req, res)=>{
     // res.redirect('createaccount');
 
     //var incorrect = {'state': true};
-    res.render('pages/createaccount', {bool: true});
+    res.render('pages/createaccount', {bool: 1});
   }
   else
     {
@@ -119,7 +117,7 @@ app.post('/createaccount', async (req, res)=>{
     else
     {
       var str = 'An account with this username already exists.'
-      res.redirect('/createaccount')
+      res.render('pages/createaccount', {bool: 2});
     }
   }
 })
@@ -156,6 +154,7 @@ app.get('/dashboard', (req,res)=>{
   }
 })
 
+// GET SCHEDULE redirects to this
 app.get('/schedule', async(req, res)=>{
   if (req.session.user)
   {
@@ -169,7 +168,8 @@ app.get('/schedule', async(req, res)=>{
       enrolled = enroll
       var results = recentProf
       var classes = recentClass
-      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows})
+      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows, flag:flag})
+      flag = 0;
     })
   }
   else
@@ -177,32 +177,8 @@ app.get('/schedule', async(req, res)=>{
     res.redirect('/')
   }
 })
-app.post('/schedule', async (req, res)=>{
-  var course = req.body.fcourse
-  var firstName = req.body.fname
-  var subj = req.body.subj
-  if(firstName!=null && subj!=null)
-  {
-    var results = []
-    await scrape(firstName, subj, results)
-    recentProf = results
-    res.redirect('/schedule')
-    return 0;
-  }
-  else if(course)
-  {
-    var classes = []
-    await getCourseInformation(course, classes)
-    recentClass = classes
-    res.redirect('/schedule')
-    return 0;
-  }
-  else
-  {
-    res.redirect('/schedule')
-  }
-})
 
+// ADD class
 app.post('/enroll', async (req, res)=>{
   var username = user
   var course = req.body.fname.trim()
@@ -225,15 +201,20 @@ app.post('/enroll', async (req, res)=>{
         return 0;
       }
       recentClass = []
-      res.redirect("/schedule")
+      flag = 0;
+      res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
     })
   }
   else
   {
+    flag = 2;
     res.redirect('/schedule')
+    //res.render('pages/schedule', {flag: 2}); // Conflicting Time
   }
 })
 
+// DELETE Class
 app.post('/delete', (req, res)=>{
   var course = req.body.fcourse
   course.trim()
@@ -246,7 +227,8 @@ app.post('/delete', (req, res)=>{
       res.send(error)
       return 0;
     }
-    res.redirect("/schedule")
+    flag = 3;
+    res.redirect('/schedule') // Removed class
   })
 })
 
@@ -264,6 +246,7 @@ app.get('/groups',async (req,res)=>{
   }
 })
 
+// RMP 
 app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
@@ -273,7 +256,9 @@ app.post('/schedule', async (req, res)=>{
     var results = []
     await scrape(firstName, subj, results)
     recentProf = results
+    flag = 0;
     res.redirect('/schedule')
+    // res.render('pages/schedule', {flag: 0});
     return 0;
   }
   else if(course)
@@ -283,35 +268,26 @@ app.post('/schedule', async (req, res)=>{
     if(classes.length>0)
     {
       recentClass = classes
+      flag = 0;
       res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
       return 0;
     }
     else
     {
+      flag = 0;
       res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
     }
   }
   else
   {
+    flag = 1;
+    console.log("Works"); // RMP BUTTON DOESNT WORK
     res.redirect('/schedule')
   }
 })
 
-app.post('/delete', (req, res)=>{
-  var course = req.body.fcourse
-  course.trim()
-  var queryString = `
-  DELETE FROM classes
-  WHERE course='${course}'`;
-  pool.query(queryString, (error, result)=>{
-    if(error)
-    {
-      res.send(error)
-      return 0;
-    }
-    res.redirect("/schedule")
-  })
-})
 app.get('/maps', async (req, res)=>{
   if(req.session.user)
   {
