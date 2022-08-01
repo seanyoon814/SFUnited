@@ -368,6 +368,12 @@ app.post('/maps', async (req, res)=>{
 app.post('/addrestaurant', async (req, res)=>{
   var name = req.body.fname
   var uname = user;
+  if(name.includes("'"))
+  {
+    var a = await name.split("'")
+    var newStr = a[0] + "''" +a[1]
+    name = newStr
+  }
   var bool = await checkExistingRest(name)
   if(bool == 1)
   {
