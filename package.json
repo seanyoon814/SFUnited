@@ -20,19 +20,13 @@
     "ejs": "^3.1.8",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
-    "google": "^0.6.0",
     "pg": "^8.7.3",
     "request-promise": "^4.2.6"
   },
   "devDependencies": {
-    "got": "^11.8.5",
-    "tape": "^4.15.1",
     "@types/google.maps": "^3.49.2",
     "chai": "^4.3.6",
-    "got": "^11.3.0",
-    "mocha": "^10.0.0",
-    "nyc": "^15.1.0",
-    "tape": "^4.7.0"
+    "mocha": "^10.0.0"
   },
   "repository": {
     "type": "git",
