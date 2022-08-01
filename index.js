@@ -14,7 +14,7 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: 'postgres://postgres:admin@localhost/users'
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -282,8 +282,7 @@ app.post('/schedule', async (req, res)=>{
   }
   else
   {
-    flag = 1;
-    console.log("Works"); // RMP BUTTON DOESNT WORK
+    flag = 1; // RMP BUTTON DOESNT WORK
     res.redirect('/schedule')
   }
 })
