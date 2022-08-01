@@ -5,9 +5,10 @@ const session = require('express-session')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const { Pool } = require('pg');
+const { query } = require('express')
+const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
-
 const {Client} = require("@googlemaps/google-maps-services-js");
 const { isDataView } = require('util/types')
 var pool;
@@ -25,6 +26,7 @@ var recentClass = []
 var enrolled = []
 var currentRadius;
 var currentRestaurant = []
+var flag = 0;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -83,10 +85,10 @@ app.post('/createaccount', async (req, res)=>{
   var fname = req.body.f_fname
   var lname = req.body.f_lname
  
-  // test, 0 no popup, 1 fname or lname has numbers, 2 user already exists in db
+  // test
   if(hasNumber(fname) == true || hasNumber(lname) == true)
   {
-    var str = {"string":"Try again. Don't include numbers in first name or last name."}
+    var str = "Try again. Don't include numbers in first name or last name."
     // res.redirect('createaccount');
 
     //var incorrect = {'state': true};
@@ -152,6 +154,7 @@ app.get('/dashboard', (req,res)=>{
   }
 })
 
+// GET SCHEDULE redirects to this
 app.get('/schedule', async(req, res)=>{
   if (req.session.user)
   {
@@ -165,7 +168,8 @@ app.get('/schedule', async(req, res)=>{
       enrolled = enroll
       var results = recentProf
       var classes = recentClass
-      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows})
+      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows, flag:flag})
+      flag = 0;
     })
   }
   else
@@ -173,32 +177,8 @@ app.get('/schedule', async(req, res)=>{
     res.redirect('/')
   }
 })
-app.post('/schedule', async (req, res)=>{
-  var course = req.body.fcourse
-  var firstName = req.body.fname
-  var subj = req.body.subj
-  if(firstName!=null && subj!=null)
-  {
-    var results = []
-    await scrape(firstName, subj, results)
-    recentProf = results
-    res.redirect('/schedule')
-    return 0;
-  }
-  else if(course)
-  {
-    var classes = []
-    await getCourseInformation(course, classes)
-    recentClass = classes
-    res.redirect('/schedule')
-    return 0;
-  }
-  else
-  {
-    res.redirect('/schedule')
-  }
-})
 
+// ADD class
 app.post('/enroll', async (req, res)=>{
   var username = user
   var course = req.body.fname.trim()
@@ -221,15 +201,20 @@ app.post('/enroll', async (req, res)=>{
         return 0;
       }
       recentClass = []
-      res.redirect("/schedule")
+      flag = 0;
+      res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
     })
   }
   else
   {
+    flag = 2;
     res.redirect('/schedule')
+    //res.render('pages/schedule', {flag: 2}); // Conflicting Time
   }
 })
 
+// DELETE Class
 app.post('/delete', (req, res)=>{
   var course = req.body.fcourse
   course.trim()
@@ -242,7 +227,8 @@ app.post('/delete', (req, res)=>{
       res.send(error)
       return 0;
     }
-    res.redirect("/schedule")
+    flag = 3;
+    res.redirect('/schedule') // Removed class
   })
 })
 
@@ -260,6 +246,7 @@ app.get('/groups',async (req,res)=>{
   }
 })
 
+// RMP 
 app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
@@ -269,7 +256,9 @@ app.post('/schedule', async (req, res)=>{
     var results = []
     await scrape(firstName, subj, results)
     recentProf = results
+    flag = 0;
     res.redirect('/schedule')
+    // res.render('pages/schedule', {flag: 0});
     return 0;
   }
   else if(course)
@@ -279,43 +268,26 @@ app.post('/schedule', async (req, res)=>{
     if(classes.length>0)
     {
       recentClass = classes
+      flag = 0;
       res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
       return 0;
     }
     else
     {
+      flag = 0;
       res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
     }
   }
   else
   {
+    flag = 1;
+    console.log("Works"); // RMP BUTTON DOESNT WORK
     res.redirect('/schedule')
   }
 })
 
-app.post('/delete', (req, res)=>{
-  var course = req.body.fcourse
-  course.trim()
-  var queryString = `
-  DELETE FROM classes
-  WHERE course='${course}'`;
-  pool.query(queryString, (error, result)=>{
-    if(error)
-    {
-      res.send(error)
-      return 0;
-    }
-    res.redirect("/schedule")
-  })
-})
-<<<<<<< HEAD
-
-// app.post('/filter', (req,res)=>{
-
-// })
-app.get('/maps', (req, res)=>{
-  res.render('pages/maps')
-=======
 app.get('/maps', async (req, res)=>{
   if(req.session.user)
   {
@@ -410,7 +382,6 @@ app.post('/removerestaurant',  (req, res)=>{
       res.redirect('/maps')
     }
   })
->>>>>>> bb204422010a63ec1cc08b91363f5e446d63f3e9
 })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -807,37 +778,9 @@ function convertTime(startTime, endTime)
     var minute2 = Number(end[0])*60 + Number(end[1])
     arr.push(minute, minute2)
     return arr;
+  }
 }
 
-<<<<<<< HEAD
-// testing
-var stuff = []
-app.get("/allstuff", (req,res)=>{
-    res.json(stuff);
-})
-
-app.post("/addstuff", (req,res)=>{
-    stuff.push(req.body);
-    res.json(stuff);
-})
-
-module.exports = app
-
-function initMap() {
-  // The location of Uluru
-  const uluru = { lat: -25.344, lng: 131.031 };
-  // The map, centered at Uluru
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 4,
-    center: uluru,
-  });
-  // The marker, positioned at Uluru
-  const marker = new google.maps.Marker({
-    position: uluru,
-    map: map,
-  });
-}}
-=======
 async function findLocalRestauraunts(arr, radius, campus)
 {
   var url;
@@ -966,4 +909,3 @@ module.exports = app;
 // module.exports = {
 //   findLocalRestauraunts, partitionPrice, partitionRating, swap, quickSortPrice, quickSortRating
 // }
->>>>>>> bb204422010a63ec1cc08b91363f5e446d63f3e9
