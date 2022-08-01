@@ -11,6 +11,7 @@ Group project for CMPT 276: Introduction to Software Engineering at SFU made by 
 - CSS
 - JavaScript
 - Nodejs Express
+- Heroku Cloud
 
 ## APIs
 - Google Maps API
