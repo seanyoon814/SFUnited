@@ -41,25 +41,66 @@
                     </nav>
                 </div>
         </header>
-
+    
     <div style="display: flex">
         <div class = "containerL">
             <div style="margin-left: 16px;">
                 <h2>Clubs on Campus</h2>
+                Search for clubs here <br>
+                <form action="/searchclub" method="post" value="search" name="fsearch">
+                <input type="text" id="search" name="fsearch"><br>
+                </form>
+                or Filter by first letter<br>
+                <form action="/filter" method="post" name="ffilter">
+                    <label for="Letter">Choose a letter:</label>
+                    <select id="letters" name="fletter">
+                      <option value="a">A</option>
+                      <option value="b">B</option>
+                      <option value="c">C</option>
+                      <option value="d">D</option>
+                      <option value="e">E</option>
+                      <option value="f">F</option>
+                      <option value="g">G</option>
+                      <option value="h">H</option>
+                      <option value="i">I</option>
+                      <option value="j">J</option>
+                      <option value="k">K</option>
+                      <option value="l">L</option>
+                      <option value="m">M</option>
+                      <option value="n">N</option>
+                      <option value="o">O</option>
+                      <option value="p">P</option>
+                      <option value="q">Q</option>
+                      <option value="r">R</option>
+                      <option value="s">S</option>
+                      <option value="t">T</option>
+                      <option value="u">U</option>
+                      <option value="v">V</option>
+                      <option value="w">W</option>
+                      <option value="x">X</option>
+                      <option value="y">Y</option>
+                      <option value="z">Z</option>
+                    </select>
+                    <input type="submit">
+                </form>
                 Below is a list of all currently registered clubs, listed in alphabetical order.
 
             <!--insert club list here-->
-            <% clubs.forEach(function(c){ %>
-                <h3  text="<%= c.club %>">
-                    <b><%= c.name %></b>
-                    <!-- <a href="https://go.sfss.ca/<%= c.link %>"><%- c.club %></a> -->
-                    
-                </h3>
-                <p><%= c.desc %></p>
-                <a href="https://go.sfss.ca/<%= c.link %>">
-                    <input type="button" style="color:white; cursor: pointer; font-weight:700; width:10%; border:1px solid gray; border-radius: 40px; background-color: #B5121B; font-family: Arial, Helvetica, sans-serif;" class="btn btn-light" value="Join Now!">
-                </a>  
-            <% }) %>
+            <% if(clubs.length != 0){ %>
+                <% clubs.forEach(function(c){ %>
+                    <h3  text="<%= c.club %>">
+                        <b><%= c.name %></b>
+                        <!-- <a href="https://go.sfss.ca/<%= c.link %>"><%- c.club %></a> -->
+                        
+                    </h3>
+                    <p><%= c.desc %></p>
+                    <a href="https://go.sfss.ca/<%= c.link %>">
+                        <input type="button" style="color:white; cursor: pointer; font-weight:700; width:10%; border:1px solid gray; border-radius: 40px; background-color: #B5121B; font-family: Arial, Helvetica, sans-serif;" class="btn btn-light" value="Join Now!">
+                    </a>  
+                <% }) %>
+            <%}else{%>
+                <h2></p><%= "No Clubs Available"%></h2> 
+            <% } %>
             </div>
 
         </div>

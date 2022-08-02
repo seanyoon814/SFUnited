@@ -391,6 +391,66 @@ app.post('/removerestaurant',  (req, res)=>{
     }
   })
 })
+app.get('/groups',async (req,res)=>{
+  if (req.session.user)
+  {
+    clubScrape(function(clubs){
+      res.render('pages/groups', {clubs:clubs})
+    })
+
+  }
+  else
+  {
+    res.redirect('/')
+  }
+})
+
+// GROUP PAGE SEARCH AND FILTER
+app.post('/searchclub',async (req,res)=>{
+  if(req.session.user)
+  {
+    var search = req.body.fsearch
+    clubScrape(function(clubs){
+      newClubs = []
+      for(var i = 0; i < clubs.length;i++)
+      {
+        if(clubs[i].name.toLowerCase().includes(search))
+        {
+          newClubs.push(clubs[i]);
+        }
+      }
+      res.render('pages/groups', {clubs:newClubs})
+    })
+  }
+  else
+  {
+    res.redirect('/')
+  }
+})
+
+
+app.post('/filter',async(req,res)=>{
+  if(req.session.user)
+  {
+    var search = req.body.fletter
+    console.log(search);
+    clubScrape(function(clubs){
+      newClubs = []
+      for(var i = 0; i < clubs.length;i++)
+      {
+        if(clubs[i].name.toLowerCase().charAt(0) == search)
+        {
+          newClubs.push(clubs[i]);
+        }
+      }
+      res.render('pages/groups', {clubs:newClubs})
+    })
+  }
+  else
+  {
+    res.redirect('/')
+  }
+})
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
 //returns 2 if the logged in user is an admin

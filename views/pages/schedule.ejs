@@ -754,6 +754,35 @@
                             <%}) %>
                         <% } %>
                     </div>
+                    <div class="popUpContainer">
+                        <div class="popUp" id="popup" name="f_popup">
+                            <h2>
+                                <%if(flag == 3){%>
+                                    <%= "Confirmed" %>
+                                <%} else{%>
+                                    <%= "Sorry!" %>
+                                <%}%>
+                            </h2>
+                            <p>
+                                <%if(flag == 3){%>
+                                    <%= "Removed course from schedule." %>
+                                <%} else if(flag == 1){%>
+                                    <%= "Invalid Input: Boxes Left Unfilled." %>
+                                <%} else if(flag == 2){%>
+                                    <%= "Invalid Courses: Conflicting Time." %>
+                                <%}%>
+                            </p>
+                            <button type="button" style="color:black; 
+                                font-weight:700; 
+                                width:70%; 
+                                margin-top:4%; 
+                                border:1px solid gray; 
+                                border-radius: 40px; background-color: white;" class="btn btn-light
+                                font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                OK
+                            <button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
