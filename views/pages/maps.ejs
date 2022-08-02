@@ -1,46 +1,194 @@
 <!DOCTYPE html>
     <html>
       <head>
-        <title>Simple Map</title>
+        <title>Restaurant Finder</title>
         <meta name="viewport" content="initial-scale=1.0">
         <meta charset="utf-8">
-        <style>
-          html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-          }
-          #map {
-            height: 50%;
-            width: 40%;
-          }
-        </style>
       </head>
       <body>
-        <h3>Google Maps</h3>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 50%;
+                width: 40%;
+            }
+            input.read-more-state {
+            display: none;
+            }
+            p.read-more-target {
+            font-size: 0;
+            max-height: 0;
+            opacity: 0;
+            transition: .25s ease;
+            }
+            input.read-more-state:checked ~ div.read-more-wrap p.read-more-target {
+            font-size: inherit;
+            max-height: 999em;
+            opacity: 1;
+            }
+            input.read-more-state ~ label.read-more-trigger:before {
+            content: 'More Information';
+            }
+            input.read-more-state:checked ~ label.read-more-trigger:before {
+            content: 'Minimize';
+            }
+            label.read-more-trigger {
+            cursor: pointer;
+            display: inline-block;
+            }
+            #submitR{
+                margin-left: 10px;
+                display: inline-block;
+            }
+            #titleR{
+                display:inline-block;
+            }
+        </style>
+        <%var isBurnaby = true%>
+        <h3>Restaurant Finder</h3>
         <div id="map"></div>
-        
+        <ol id="places"></ol>
+        <form action ='/maps' method = 'POST'>
+            <label>Radius(m):</label>
+            <input type ="number" placeholder = "max: 1000m" name = "radius">
+            <input type="submit" name ="btn" value = "Filter by: Price">
+            <input type="submit" name = "btn" value = "Filter by: Top Rated">
+            <input type="hidden" name = "campus" value = <%=isBurnaby%>>
+        </form>
+        <button onclick="changeBurnaby()">Burnaby</button>
+        <button onclick="changeSurrey()">Surrey</button>
+        <div id="favourites">
+            <h1>Your favourite restaurants:</h1>
+            <%if(fav.length > 0){%>
+                <%fav.forEach(function(f){%>
+                    <p><b><%=f.name%></b></p>
+                    <form action = '/removerestaurant' method = 'post'>
+                        <input type="submit" value = 'Remove from favourites'>
+                        <input type='hidden' name = 'rest' value = '<%=f.name%>'>
+                    </form>
+                <%})%>
+            <%}%>
+        </div>
+        <div id="restaurants">
+            <%if(currentRestaurant.length > 0){%>
+                <% var i = 0;%>
+                <%currentRestaurant.forEach(function(r){%>
+                    <%if(r.price == "1" || r.price == ""){%>
+                        <!-- https://stackoverflow.com/questions/31968211/how-to-implement-read-more-read-less-in-pure-css -->
+                        <div class ="h<%=i%>">
+                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                            <div class="read-more-wrap <%=i%>">
+                                <h1 id = "titleR"><%=r.name%> ($): <%=r.rating%>/5</h1>
+                                <form id = 'submitR' action = '/addrestaurant' method = 'POST'>
+                                    <input type = 'submit' value = 'Add to Favourites'>
+                                    <input type="hidden" name="fname" value="<%=r.name%>">
+                                </form>
+                                <p class="read-more-target <%=i%>"><%=r.hours%></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
+                                <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                            </div>
+                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
+                        </div>
+                    <%}else{%>
+                        <div class ="h<%=i%>">
+                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                            <div class="read-more-wrap <%=i%>">
+                                <h1 id = "titleR"><%=r.name%> ($$): <%=r.rating%>/5</h1>
+                                <form id ="submitR" action = '/addrestaurant' method = 'POST'>
+                                    <input type = 'submit' value = 'Add to Favourites'>
+                                </form>
+                                <p class="read-more-target <%=i%>"><%=r.hours%></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
+                                <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
+                                <p class="read-more-target <%=i%>"><%=r.review.text%></p>
+                            </div>
+                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
+                        </div>
+                    <%}%>
+                    <%i++%>
+                <%})%>
+            <%}%>
+        </div>
         <script>
-          var map;
-          function initMap() {
-            var uluru = {
+            var map;
+            var cityCircle;
+            var marker;
+            var uluruB = {
                 lat: 49.2781,
                 lng: -122.9199
             };
+            var uluruS = {
+                lat: 49.1880,
+                lng: -122.8494
+            };
+          function initMap() {
+            var r = document.getElementById("radius")
             // The map, centered at Uluru
-            var map = new google.maps.Map(
+            map = new google.maps.Map(
                 document.getElementById('map'), {
                     zoom: 15,
-                    center: uluru
+                    center: uluruB
                 });
             // The marker, positioned at Uluru
-            var marker = new google.maps.Marker({
-                position: uluru,
+            marker = new google.maps.Marker({
+                position: uluruB,
                 map: map
             });
-          }
+            cityCircle = new google.maps.Circle({
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+                map,
+                center: uluruB,
+                radius: 1000,
+            });
+            }
+        var form = document.querySelector("form");
+        form.addEventListener("change", function () {
+            if(Number(form[0].value) >= 1000)
+            {
+                cityCircle.setRadius(1000)
+                form[0].value = 1000
+            }
+            else
+            {
+                cityCircle.setRadius(Number(form[0].value))
+            }
+        });
+        //change to burnaby campus
+        function changeBurnaby()
+        {
+            try {
+                map.setCenter(uluruB);
+                cityCircle.setCenter(uluruB)
+                marker.setPosition(uluruB)
+                form[3].value = true;
+            } catch (error) {
+                //map err from google maps API
+            }
+        }
+        //change to surrey campus
+        function changeSurrey()
+        {
+            try {
+                map.setCenter(uluruS);
+                cityCircle.setCenter(uluruS)
+                cityCircle.setRadius(600)
+                marker.setPosition(uluruS)
+                form[3].value = false;
+            } catch (error) {
+                //map err from google maps api
+            }
+        }
         </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"
-        async defer></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
     </body>
 </html>

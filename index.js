@@ -10,13 +10,14 @@ const { resolve } = require('path')
 const request = require('request-promise')
 const cheerio = require('cheerio')
 const {Client} = require("@googlemaps/google-maps-services-js");
+const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:carverbaddies@localhost/users' 
+  //ssl: {
+    //  rejectUnauthorized: false
+    //}
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -26,6 +27,9 @@ var user;
 var recentProf = []
 var recentClass = []
 var enrolled = []
+var currentRadius;
+var currentRestaurant = []
+var flag = 0;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -49,7 +53,7 @@ app.get('/', (req, res) => {
     res.render('pages/index')
   }
 })
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 app.post('/', async (req,res)=> {
   var un = req.body.f_uname
@@ -91,7 +95,7 @@ app.post('/createaccount', async (req, res)=>{
     // res.redirect('createaccount');
 
     //var incorrect = {'state': true};
-    res.render('pages/createaccount', {bool: true});
+    res.render('pages/createaccount', {bool: 1});
   }
   else
     {
@@ -116,7 +120,7 @@ app.post('/createaccount', async (req, res)=>{
     else
     {
       var str = 'An account with this username already exists.'
-      res.redirect('/createaccount')
+      res.render('pages/createaccount', {bool: 2});
     }
   }
 })
@@ -153,6 +157,7 @@ app.get('/dashboard', (req,res)=>{
   }
 })
 
+// GET SCHEDULE redirects to this
 app.get('/schedule', async(req, res)=>{
   if (req.session.user)
   {
@@ -166,7 +171,8 @@ app.get('/schedule', async(req, res)=>{
       enrolled = enroll
       var results = recentProf
       var classes = recentClass
-      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows})
+      res.render('pages/schedule', {results:results, classes:classes, enrolled:enrolled.rows, flag:flag})
+      flag = 0;
     })
   }
   else
@@ -174,32 +180,8 @@ app.get('/schedule', async(req, res)=>{
     res.redirect('/')
   }
 })
-app.post('/schedule', async (req, res)=>{
-  var course = req.body.fcourse
-  var firstName = req.body.fname
-  var subj = req.body.subj
-  if(firstName!=null && subj!=null)
-  {
-    var results = []
-    await scrape(firstName, subj, results)
-    recentProf = results
-    res.redirect('/schedule')
-    return 0;
-  }
-  else if(course)
-  {
-    var classes = []
-    await getCourseInformation(course, classes)
-    recentClass = classes
-    res.redirect('/schedule')
-    return 0;
-  }
-  else
-  {
-    res.redirect('/schedule')
-  }
-})
 
+// ADD class
 app.post('/enroll', async (req, res)=>{
   var username = user
   var course = req.body.fname.trim()
@@ -222,15 +204,20 @@ app.post('/enroll', async (req, res)=>{
         return 0;
       }
       recentClass = []
-      res.redirect("/schedule")
+      flag = 0;
+      res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
     })
   }
   else
   {
+    flag = 2;
     res.redirect('/schedule')
+    //res.render('pages/schedule', {flag: 2}); // Conflicting Time
   }
 })
 
+// DELETE Class
 app.post('/delete', (req, res)=>{
   var course = req.body.fcourse
   course.trim()
@@ -243,7 +230,8 @@ app.post('/delete', (req, res)=>{
       res.send(error)
       return 0;
     }
-    res.redirect("/schedule")
+    flag = 3;
+    res.redirect('/schedule') // Removed class
   })
 })
 
@@ -261,6 +249,7 @@ app.get('/groups',async (req,res)=>{
   }
 })
 
+// RMP 
 app.post('/schedule', async (req, res)=>{
   var course = req.body.fcourse
   var firstName = req.body.fname
@@ -270,7 +259,9 @@ app.post('/schedule', async (req, res)=>{
     var results = []
     await scrape(firstName, subj, results)
     recentProf = results
+    flag = 0;
     res.redirect('/schedule')
+    // res.render('pages/schedule', {flag: 0});
     return 0;
   }
   else if(course)
@@ -280,37 +271,125 @@ app.post('/schedule', async (req, res)=>{
     if(classes.length>0)
     {
       recentClass = classes
+      flag = 0;
       res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
       return 0;
     }
     else
     {
+      flag = 0;
       res.redirect('/schedule')
+      // res.render('pages/schedule', {flag: 0});
     }
   }
   else
   {
+    flag = 1; // RMP BUTTON DOESNT WORK
     res.redirect('/schedule')
   }
 })
 
-app.post('/delete', (req, res)=>{
-  var course = req.body.fcourse
-  course.trim()
-  var queryString = `
-  DELETE FROM classes
-  WHERE course='${course}'`;
+app.get('/maps', async (req, res)=>{
+  if(req.session.user)
+  {
+    var queryString = `SELECT * FROM rest where uname='${user}'`
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
+      }
+    })
+  }
+  else
+  {
+    res.redirect('/dashboard')
+  }
+})
+app.post('/maps', async (req, res)=>{
+  var arr = [];
+  var fradius = req.body.radius
+  var button = req.body.btn
+  var campus = req.body.campus
+  currentRadius = fradius
+  if(button == "Filter by: Price" && campus == "true")
+  {
+    await findLocalRestauraunts(arr, fradius, "Burnaby")
+    currentRestaurant = arr;
+    quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Price" && campus == "false")
+  {
+    await findLocalRestauraunts(arr, fradius, "Surrey")
+    currentRestaurant = arr;
+    quickSortPrice(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Top Rated" && campus == "true")
+  {
+    await findLocalRestauraunts(arr, fradius, "Burnaby")
+    currentRestaurant = arr;
+    quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  else if(button == "Filter by: Top Rated" && campus == "false")
+  {
+    await findLocalRestauraunts(arr, fradius, "Surrey")
+    currentRestaurant = arr;
+    quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
+  }
+  res.redirect('/maps')
+})
+
+app.post('/addrestaurant', async (req, res)=>{
+  var name = req.body.fname
+  var uname = user;
+  if(name.includes("'"))
+  {
+    var a = await name.split("'")
+    var newStr = a[0] + "''" +a[1]
+    name = newStr
+  }
+  var bool = await checkExistingRest(name)
+  if(bool == 1)
+  {
+    //add error case for duplicate here
+    res.redirect('/maps')
+  }
+  else
+  {
+    var queryString = `
+    INSERT INTO rest (uname, name)
+    VALUES ('${uname}', '${name}')
+    `;
+    pool.query(queryString, (error, result)=>{
+      if(error)
+      {
+        res.send(error)
+      }
+      else
+      {
+        res.redirect('/maps')
+      }
+    })
+  }
+})
+app.post('/removerestaurant',  (req, res)=>{
+  var rest= req.body.rest
+  var queryString = `DELETE FROM rest
+  WHERE name='${rest}'`;
   pool.query(queryString, (error, result)=>{
     if(error)
     {
       res.send(error)
-      return 0;
     }
-    res.redirect("/schedule")
+    else
+    {
+      res.redirect('/maps')
+    }
   })
-})
-app.get('/maps', (req, res)=>{
-  res.render('pages/maps')
 })
 //Function to check if logged in users are registered in "usr" table.
 //Returns 1 if there is
@@ -370,10 +449,34 @@ function checkExistingUser(name)
         }
         resolve(0);
         return 0;
+        
     }, 100)})
   })
 }
-
+function checkExistingRest(rest)
+{
+  return new Promise((resolve, reject)=>
+  {
+    var getUsersQuery = `SELECT * FROM rest`;
+    setTimeout(() => {
+      pool.query(getUsersQuery, (error, result)=>{
+        if(error)
+          resolve(0);
+        var results = {'rows':result.rows}
+        for(var i = 0; i<results.rows.length; i++)
+        {
+          var r1 = results['rows'][i]['name'].toString()
+          if(r1.trim() == rest.toString().trim())
+          {
+            resolve(1);
+            return 1;
+          }
+        }
+        resolve(0);
+        return 0;
+    }, 100)})
+  })
+}
 //returns sections from courses
 //input: course (e.g., CMPT 120)
 //output:
@@ -686,17 +789,131 @@ function convertTime(startTime, endTime)
   }
 }
 
-function initMap() {
-  // The location of Uluru
-  const uluru = { lat: -25.344, lng: 131.031 };
-  // The map, centered at Uluru
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 4,
-    center: uluru,
-  });
-  // The marker, positioned at Uluru
-  const marker = new google.maps.Marker({
-    position: uluru,
-    map: map,
-  });
+async function findLocalRestauraunts(arr, radius, campus)
+{
+  var url;
+  if(campus == "Burnaby")
+  {
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  }
+  else if(campus == "Surrey")
+  {
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.1880,-122.8494&radius=' + radius + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+  }
+  await axios.get(url)
+  .then(async (response)=>{
+    var data;
+    data = response.data
+    for(let i = 0; i<data["results"].length; i++)
+    {
+      const revurl = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + data['results'][i]['place_id'] + '&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk'
+      await axios.get(revurl)
+      .then((resp)=>{
+        var reviews = resp.data
+        if(data["results"][i]["price_level"] === undefined)
+        {
+          arr.push({
+            address: data["results"][i]["formatted_address"],
+            name: data["results"][i]["name"],
+            rating: data["results"][i]["rating"],
+            num: data["results"][i]["user_ratings_total"],
+            lat: data["results"][i]["geometry"]["location"]["lat"],
+            lng: data["results"][i]["geometry"]["location"]["lng"],
+            price: 1,
+            hours: reviews["result"]["opening_hours"]["weekday_text"],
+            review: reviews["result"]['reviews'][0]
+          })
+        }
+        else
+        {
+          arr.push({
+            address: data["results"][i]["formatted_address"],
+            name: data["results"][i]["name"],
+            rating: data["results"][i]["rating"],
+            num: data["results"][i]["user_ratings_total"],
+            lat: data["results"][i]["geometry"]["location"]["lat"],
+            lng: data["results"][i]["geometry"]["location"]["lng"],
+            price: data["results"][i]["price_level"],
+            hours: reviews["result"]["opening_hours"]["weekday_text"],
+            review: reviews["result"]['reviews'][0]
+          })
+        }
+      })
+    }
+  })
+  return url;
 }
+// https://stackabuse.com/quicksort-in-javascript/
+async function swap(items, leftIndex, rightIndex){
+    var temp = items[leftIndex];
+    items[leftIndex] = items[rightIndex];
+    items[rightIndex] = temp;
+}
+async function partitionRating(items, left, right) {
+    var pivot   = items[Math.floor((right + left) / 2)]['rating'], //middle element
+        i       = left, //left pointer
+        j       = right; //right pointer
+    while (i <= j) {
+        while (items[i]['rating'] < pivot) {
+            i++;
+        }
+        while (items[j]['rating'] > pivot) {
+            j--;
+        }
+        if (i <= j) {
+            await swap(items, i, j); //sawpping two elements
+            i++;
+            j--;
+        }
+    }
+    return i;
+}
+async function partitionPrice(items, left, right) {
+  var pivot   = items[Math.floor((right + left) / 2)]['price'], //middle element
+      i       = left, //left pointer
+      j       = right; //right pointer
+  while (i <= j) {
+      while (items[i]['price'] < pivot) {
+          i++;
+      }
+      while (items[j]['price'] > pivot) {
+          j--;
+      }
+      if (i <= j) {
+          await swap(items, i, j); //sawpping two elements
+          i++;
+          j--;
+      }
+  }
+  return i;
+}
+async function quickSortRating(items, left, right) {
+    var index;
+    if (items.length > 1) {
+        index = await partitionRating(items, left, right); //index returned from partition
+        if (left < index - 1) { //more elements on the left side of the pivot
+            await quickSortRating(items, left, index - 1);
+        }
+        if (index < right) { //more elements on the right side of the pivot
+            await quickSortRating(items, index, right);
+        }
+    }
+    return items;
+}
+async function quickSortPrice(items, left, right) {
+  var index;
+  if (items.length > 1) {
+      index = await partitionPrice(items, left, right); //index returned from partition
+      if (left < index - 1) { //more elements on the left side of the pivot
+          await quickSortPrice(items, left, index - 1);
+      }
+      if (index < right) { //more elements on the right side of the pivot
+          await quickSortPrice(items, index, right);
+      }
+  }
+  return items;
+}
+module.exports = app;
+// module.exports = {
+//   findLocalRestauraunts, partitionPrice, partitionRating, swap, quickSortPrice, quickSortRating
+// }
