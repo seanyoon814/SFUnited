@@ -98,6 +98,33 @@
                             <div class="form-group">
                                 <button class="btn btn-primary mb-2" onclick="changeBurnaby()">Burnaby</button>
                                 <button class="btn" onclick="changeSurrey()">Surrey</button>
+                                <div class="popUpContainer" >
+                                    <div class="popUp" id="popup" name="f_popup">
+                                        <h2>
+                                            <%if(flag != 0){%>
+                                                <%= "Sorry!" %>
+                                            <%}%>
+                                        </h2>
+                                        <p>
+                                            <%if(flag == 3){%>
+                                                <%= "An error has occurred in Google Maps. Please try again." %>
+                                            <%} else if(flag == 1){%>
+                                                <%= "Restaurant is already in Favourites." %>
+                                            <%} else if(flag == 2){%>
+                                                <%= "An error has occurred in our database. Please try again." %>
+                                            <%}%>
+                                        </p>
+                                        <button type="button" style="color:black; 
+                                            font-weight:700; 
+                                            width:70%; 
+                                            margin-top:4%; 
+                                            border:1px solid gray; 
+                                            border-radius: 40px; background-color: white;" class="btn btn-light
+                                            font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                            OK
+                                        <button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -140,6 +167,33 @@
                                         </div>
                                         <div class="form-group form-inline mb-2 col-md-6">
                                             <input class="form-control btn btn-primary mb-2" type="submit" value = 'Remove from favourites' id="formRemoveFavouriteRestaurant">
+                                            <div class="popUpContainer" >
+                                                <div class="popUp" id="popup" name="f_popup">
+                                                    <h2>
+                                                        <%if(flag != 0){%>
+                                                            <%= "Sorry!" %>
+                                                        <%}%>
+                                                    </h2>
+                                                    <p>
+                                                        <%if(flag == 3){%>
+                                                            <%= "An error has occurred in Google Maps. Please try again." %>
+                                                        <%} else if(flag == 1){%>
+                                                            <%= "Restaurant is already in Favourites." %>
+                                                        <%} else if(flag == 2){%>
+                                                            <%= "An error has occurred in our database. Please try again." %>
+                                                        <%}%>
+                                                    </p>
+                                                    <button type="button" style="color:black; 
+                                                        font-weight:700; 
+                                                        width:70%; 
+                                                        margin-top:4%; 
+                                                        border:1px solid gray; 
+                                                        border-radius: 40px; background-color: white;" class="btn btn-light
+                                                        font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                                        OK
+                                                    <button>
+                                                </div>
+                                            </div>
                                             <input type='hidden' name = 'rest' value = '<%=f.name%>'>
                                         </div>
                                     </form>
@@ -192,6 +246,33 @@
                                                 <!-- button to add to favourite -->
                                                 <form id = 'submitR' action = '/addrestaurant' method = 'POST'>
                                                     <input class="form-control btn btn-primary mb-2" style="font-family: Trebuchet MS Bold" type = 'submit' value = 'Add to Favourites'>
+                                                    <div class="popUpContainer" >
+                                                        <div class="popUp" id="popup" name="f_popup">
+                                                            <h2>
+                                                                <%if(flag != 0){%>
+                                                                    <%= "Sorry!" %>
+                                                                <%}%>
+                                                            </h2>
+                                                            <p>
+                                                                <%if(flag == 3){%>
+                                                                    <%= "An error has occurred in Google Maps. Please try again." %>
+                                                                <%} else if(flag == 1){%>
+                                                                    <%= "Restaurant is already in Favourites." %>
+                                                                <%} else if(flag == 2){%>
+                                                                    <%= "An error has occurred in our database. Please try again." %>
+                                                                <%}%>
+                                                            </p>
+                                                            <button type="button" style="color:black; 
+                                                                font-weight:700; 
+                                                                width:70%; 
+                                                                margin-top:4%; 
+                                                                border:1px solid gray; 
+                                                                border-radius: 40px; background-color: white;" class="btn btn-light
+                                                                font-family: Arial, Helvetica, sans-serif;" onclick="closePopup()">
+                                                                OK
+                                                            <button>
+                                                        </div>
+                                                    </div>
                                                     <input type="hidden" name="fname" value="<%=r.name%>">
                                                 </form>
                                                 <!-- spacing -->
