@@ -14,10 +14,7 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:Tritrung01@localhost/sfunited'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']

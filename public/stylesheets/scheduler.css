@@ -7,7 +7,8 @@
     --timeHeight: 55px;
     /* background colour for the inside of the schedule*/
     --calBgColor: white;
-    --eventBorderColor: #f2d3d8;
+    /* --eventBorderColor: #f2d3d8; */
+    --eventBorderColor: #3947c5;
   
     --primary-color: #0a1118;
     --primary-color-highlight: #233D54;
@@ -18,10 +19,7 @@
   
   
     /* colours that correspond to one type of thing on the schedule */
-    --eventColor2: #fafaa3;
     --eventColor1: #e2f8ff;
-    --eventColor3: #892d21;
-    --eventColor4: #d1ffe6;
   }
   
 /* -=------------------------------------------------------------------------------------------------------------------------------------ */
@@ -175,11 +173,6 @@ nav a:hover:before {
 
 
 /* --------------------------------------------------------------------------------------------------------------------------------------- */
-
-
-
-
-
 
 
 
@@ -391,8 +384,9 @@ nav a:hover:before {
   .days__container {
     display: grid;
     grid-column: 2;
-    gap: 5px;
+    gap: 10px;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+ 
   }
   
   /*  
