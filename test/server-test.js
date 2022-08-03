@@ -1,31 +1,3 @@
-// const { spawn } = require('child_process');
-// const got = require('got');
-// const test = require('tape');
-
-// // Start the app
-// const env = Object.assign({}, process.env, {PORT: 5000});
-// const child = spawn('node', ['index.js'], {env});
-
-// test('responds to requests', (t) => {
-//   t.plan(4);
-
-//   // Wait until the server is ready
-//   child.stdout.on('data', _ => {
-//     // Make a request to our app
-//     (async () => {
-//       const response = await got('http://127.0.0.1:5000');
-//       // stop the server
-//       child.kill();
-//       // No error
-//       t.false(response.error);
-//       // Successful response
-//       t.equal(response.statusCode, 200);
-//       // Assert content checks
-//       t.notEqual(response.body.indexOf("<title>Node.js Getting Started on Heroku</title>"), -1);
-//       t.notEqual(response.body.indexOf("Getting Started on Heroku with Node.js"), -1);
-//     })();
-//   });
-// });
 var chai = require("chai")
 const request = chai.request
 const expect = chai.expect
@@ -33,7 +5,7 @@ var chaiHttp = require("chai-http")
 var server = require("../index")
 var mocha = require("mocha")
 var should = chai.should()
-
+var par = require('node-html-parser')
 chai.use(chaiHttp)
 
 const { Pool } = require('pg');
@@ -41,7 +13,7 @@ var pool;
 pool = new Pool({
   // string that connects you to the database
   // scheme:userthatisnamedpostgres:password for postgress@localhost on pc/the database named users
-  connectionString: 'postgres://postgres:carverbaddies@localhost/users'
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 
@@ -291,23 +263,28 @@ describe('groups', (ui)=>{
             }) 
     })
   })
+describe('maps', () => {
 
-describe('maps', ()=>{
-    it('should change the radius when user prompts', (done)=>{
-        var serv = chai.request(server).post("/maps")
-        serv.send({
-            'fradius': '400', })
+    it('should GET login page', (done) => {
+        chai.request(server)
+            .get("/")
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.should.to.be.html;
+                done();
+            })
+    })
+    it('should POST new radius', (done) => {
+        chai.request(server)
+        .get('/maps')
+        .send({currentRestaurant:'currentRestaurant,', fav:'result.rows', flag:'resflag'})
+        .redirects(0)
         .end((err, res) => {
-            var arr = []
-            res.fradius.should.equal(400)
-            const result = server.findLocalRestauraunts(arr, res.fradius, "Burnaby")
-            expect(result).to.include("400")
+            res.should.have.status(302);
+            res.body.should.have.property("currentRestaurant", "");
+            res.should.redirectTo('/maps')
             done();
         })
     })
-    it('should sort properly', (done)=>{
-        var arr = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
-        server.quickSortPrice(arr, 0, arr.length-1)
-        expect(arr).to.be.ordered
-    })
+
 })

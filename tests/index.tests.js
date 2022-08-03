@@ -3,8 +3,14 @@ const request = chai.request
 const expect = chai.expect
 var chaiHttp = require("chai-http")
 var server = require("../index")
+var maps = require('../views/pages/maps.ejs')
 var should = chai.should()
-
+const { JSDOM } = require('jsdom');
+// const dom = new JSDOM('<!DOCTYPE html><html><head></head><body></body></html>');
+// global.window = dom.window;
+// global.document = dom.window.document;
+// global.document.write('<button type="button" id="login"> Login</button >')
+// global.document.write('<input id="erroMessage" value="wrong email or password">')
 chai.use(chaiHttp)
 
 const { Pool } = require('pg');
@@ -12,7 +18,7 @@ var pool;
 pool = new Pool({
   // string that connects you to the database
   // scheme:userthatisnamedpostgres:password for postgress@localhost on pc/the database named users
-  connectionString: 'postgres://postgres:carverbaddies@localhost/users'
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
 
@@ -262,19 +268,15 @@ describe('groups', (ui)=>{
             }) 
     })
   })
-
-describe('maps', ()=>{
+   describe('maps', ()=>{
     it('should change the radius when user prompts', (done)=>{
         chai.request(server)
         .post("/maps")
         .send({
             'radius': '400', })
-        .redirects(0)
         .end((err, res) => {
-            var arr = []
-            res.radius.should.equal(400)
-            const result = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
-            expect(result).to.include("400")
+            var r = document.querySelector('#restaurants')
+            expect(r);
             done();
         })
     })
