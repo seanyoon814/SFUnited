@@ -61,6 +61,8 @@
         </form>
         <button onclick="changeBurnaby()">Burnaby</button>
         <button onclick="changeSurrey()">Surrey</button>
+        
+        
         <div id="favourites">
             <h1>Your favourite restaurants:</h1>
             <%if(fav.length > 0){%>
@@ -68,6 +70,7 @@
                     <p><b><%=f.name%></b></p>
                     <form action = '/removerestaurant' method = 'post'>
                         <input type="submit" value = 'Remove from favourites'>
+                        
                         <input type='hidden' name = 'rest' value = '<%=f.name%>'>
                     </form>
                 <%})%>
@@ -85,6 +88,8 @@
                                 <h1 id = "titleR"><%=r.name%> ($): <%=r.rating%>/5</h1>
                                 <form id = 'submitR' action = '/addrestaurant' method = 'POST'>
                                     <input type = 'submit' value = 'Add to Favourites'>
+                                    
+
                                     <input type="hidden" name="fname" value="<%=r.name%>">
                                 </form>
                                 <p class="read-more-target <%=i%>"><%=r.hours%></p>
@@ -113,6 +118,7 @@
                     <%i++%>
                 <%})%>
             <%}%>
+            
         </div>
         <script>
             var map;
@@ -171,6 +177,7 @@
                 marker.setPosition(uluruB)
                 form[3].value = true;
             } catch (error) {
+                flag = 3;
                 //map err from google maps API
             }
         }
@@ -184,11 +191,28 @@
                 marker.setPosition(uluruS)
                 form[3].value = false;
             } catch (error) {
+                flag = 3;
                 //map err from google maps api
             }
         }
         </script>
+        <script>
+            // When the user clicks on <div>, open the popup
+            let popup = document.getElementById("popup");
+            function openPopup() {
+                popup.classList.add("openPopup");
+            }
+            var boolPopup = <%=flag%>; // 1 fav maps error, 2 db error, 3 api error
+            if (boolPopup == 1 || boolPopup == 2 || boolPopup == 3) {
+                openPopup();
+            }
+            function closePopup() {
+                popup.classList.remove("openPopup");
+            }
+    
+        </script>
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
+        
     </body>
 </html>
