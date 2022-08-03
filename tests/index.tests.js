@@ -12,7 +12,7 @@ var pool;
 pool = new Pool({
   // string that connects you to the database
   // scheme:userthatisnamedpostgres:password for postgress@localhost on pc/the database named users
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: 'postgres://postgres:carverbaddies@localhost/users'
 })
 
 
@@ -156,7 +156,7 @@ describe('FindingProfessorName', () => {
         chai.request(server)
         
             .post("/schedule")
-            .send({fname:'Bobby Chan', subj:'CMPT'})
+            .send({fname:'Bobby Chan', subj:'CMPT 128'})
             .redirects(0)
             .end((err, res) => {
                 res.should.have.status(302);
@@ -230,7 +230,7 @@ describe('StudentDroppingCourse', () => {
     it('should not POST remove classes that the student does not have', (done) => {
         chai.request(server)
             .post("/delete")
-            .send({fcourse: 'asdfasdf'})
+            .send({fcourse: 'asdfa'})
             .redirects(0)
             .end((err, res) => {
                 res.should.redirectTo("/schedule");
@@ -278,6 +278,7 @@ describe('maps', ()=>{
             done();
         })
     })
+
     it('should sort properly', (done)=>{
         var arr = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
         server.quickSortPrice(arr, 0, arr.length-1)

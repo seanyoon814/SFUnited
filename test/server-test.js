@@ -2,65 +2,13 @@
 // const got = require('got');
 // const test = require('tape');
 
-<<<<<<< HEAD:test/server-test.js
-
-var chai = require("chai")
-var chaihttp = require("chai-http");
-var server = require('../index');
-var should = chai.should();
-const expect = chai.expect
-
-chai.use(chaihttp)
-
-// Start the app
-const env = Object.assign({}, process.env, {PORT: 5000});
-const child = spawn('node', ['index.js'], {env});
-=======
 // // Start the app
 // const env = Object.assign({}, process.env, {PORT: 5000});
 // const child = spawn('node', ['index.js'], {env});
->>>>>>> bb204422010a63ec1cc08b91363f5e446d63f3e9:test.js
 
 // test('responds to requests', (t) => {
 //   t.plan(4);
 
-<<<<<<< HEAD:test/server-test.js
-  // Wait until the server is ready
-  child.stdout.on('data', _ => {
-    // Make a request to our app
-    (async () => {
-      const response = await got('http://127.0.0.1:5000');
-      // stop the server
-      child.kill();
-      // No error
-      t.false(response.error);
-      // Successful response
-      t.equal(response.statusCode, 200);
-      // Assert content checks
-      t.notEqual(response.body.indexOf("<title>Node.js Getting Started on Heroku</title>"), -1);
-      t.notEqual(response.body.indexOf("Getting Started on Heroku with Node.js"), -1);
-    })();
-  });
-});
-
-describe('groups', (ui)=>{
-  it('clubs should contain name, description and link',(done)=>{
-      chai.request(server).get('/groups').end(function(error,res){
-        res.should.have.status(200);
-
-        // res.body is club
-        expect(res.body).to.be.an.instanceOf(Object);
-
-        // first club in clubs should have properties
-        expect(res.body)
-        .to.be.an.instanceof(Object)
-        .that.contains.all.keys(['name', 'desc', 'link'])
-
-        done();
-      })
-  })
-})
-=======
 //   // Wait until the server is ready
 //   child.stdout.on('data', _ => {
 //     // Make a request to our app
@@ -82,7 +30,7 @@ var chai = require("chai")
 const request = chai.request
 const expect = chai.expect
 var chaiHttp = require("chai-http")
-var server = require("./index")
+var server = require("../index")
 var mocha = require("mocha")
 var should = chai.should()
 
@@ -93,7 +41,7 @@ var pool;
 pool = new Pool({
   // string that connects you to the database
   // scheme:userthatisnamedpostgres:password for postgress@localhost on pc/the database named users
-  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
+  connectionString: 'postgres://postgres:carverbaddies@localhost/users'
 })
 
 
@@ -237,7 +185,7 @@ describe('FindingProfessorName', () => {
         chai.request(server)
         
             .post("/schedule")
-            .send({fname:'Bobby Chan', subj:'CMPT'})
+            .send({fname:'Bobby Chan', subj:'CMPT 128'})
             .redirects(0)
             .end((err, res) => {
                 res.should.have.status(302);
@@ -348,11 +296,11 @@ describe('maps', ()=>{
     it('should change the radius when user prompts', (done)=>{
         var serv = chai.request(server).post("/maps")
         serv.send({
-            'radius': '400', })
+            'fradius': '400', })
         .end((err, res) => {
             var arr = []
-            res.radius.should.equal(400)
-            const result = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
+            res.fradius.should.equal(400)
+            const result = server.findLocalRestauraunts(arr, res.fradius, "Burnaby")
             expect(result).to.include("400")
             done();
         })
@@ -363,4 +311,3 @@ describe('maps', ()=>{
         expect(arr).to.be.ordered
     })
 })
->>>>>>> bb204422010a63ec1cc08b91363f5e446d63f3e9:test.js
