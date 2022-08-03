@@ -14,7 +14,7 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:carverbaddies@localhost/users' 
+  connectionString: 'postgres://postgres:elchapo0814@localhost/users'
   //ssl: {
     //  rejectUnauthorized: false
     //}
@@ -346,12 +346,6 @@ app.post('/maps', async (req, res)=>{
 app.post('/addrestaurant', async (req, res)=>{
   var name = req.body.fname
   var uname = user;
-  if(name.includes("'"))
-  {
-    var a = await name.split("'")
-    var newStr = a[0] + "''" +a[1]
-    name = newStr
-  }
   var bool = await checkExistingRest(name)
   if(bool == 1)
   {
@@ -360,6 +354,12 @@ app.post('/addrestaurant', async (req, res)=>{
   }
   else
   {
+    if(name.includes("'"))
+    {
+      var a = await name.split("'")
+      var newStr = a[0] + "''" +a[1]
+      name = newStr
+    }
     var queryString = `
     INSERT INTO rest (uname, name)
     VALUES ('${uname}', '${name}')
@@ -376,8 +376,14 @@ app.post('/addrestaurant', async (req, res)=>{
     })
   }
 })
-app.post('/removerestaurant',  (req, res)=>{
+app.post('/removerestaurant', async (req, res)=>{
   var rest= req.body.rest
+  if(rest.includes("'"))
+  {
+    var a = await rest.split("'")
+    var newStr = a[0] + "''" +a[1]
+    rest = newStr
+  }
   var queryString = `DELETE FROM rest
   WHERE name='${rest}'`;
   pool.query(queryString, (error, result)=>{
@@ -517,7 +523,7 @@ function checkExistingRest(rest)
   return new Promise((resolve, reject)=>
   {
     var getUsersQuery = `SELECT * FROM rest`;
-    setTimeout(() => {
+    setTimeout(async () =>{
       pool.query(getUsersQuery, (error, result)=>{
         if(error)
           resolve(0);
