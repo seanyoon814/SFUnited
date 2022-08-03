@@ -1,119 +1,248 @@
 <!DOCTYPE html>
-    <html>
-      <head>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Restaurant Finder</title>
-        <meta name="viewport" content="initial-scale=1.0">
-        <meta charset="utf-8">
-      </head>
-      <body>
+
+        <!-- bootstrap stylesheet -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+
+        <!-- main stylesheet -->
+        <link rel="stylesheet" href="stylesheets/maps.css">
+
+
+    </head>
+    <body>
+        <!-- the icons on the very top of the site START-->
+        <div class="tophead headerbody">
+            <ul>
+                <li style="bottom:2px;"><a href="https://www.sfu.ca/">sfu.ca</a></li>
+                <li style="margin-left: 1px;"><a href="https://www.facebook.com/simonfraseruniversity/"><ion-icon name="logo-facebook"></ion-icon></a></li>
+                <li style="margin-left: -18px;"><a href="https://www.twitter.com/SFU"><ion-icon name="logo-twitter"></ion-icon></a></li>
+                <li style="margin-left: -18px;"><a href="https://www.instagram.com/simonfraseru/"><ion-icon name="logo-instagram"></ion-icon></a></li>
+            </ul>
+        </div>
+        <!-- the icons on the very top of the site END-->
+
+        <!-- Jordon's Header START-->
+        <header>
+            <div class ="container-header">
+                <div class="logo">
+                    <a a href="https://sfunited.herokuapp.com/dashboard"> <img src="background.png" alt="background" width="150px"height="80px"></a>
+                </div>
+                <nav>
+                    <ul>
+                    <li><a href="https://sfunited.herokuapp.com/dashboard">Home</a></li>
+                    <li><a a href="https://sfunited.herokuapp.com/logout">Logout</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <!-- Jordon's Header END-->
+
+        <!-- styles for the maps?? no explanation as to what it actually does -->
         <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            #map {
-                height: 50%;
-                width: 40%;
-            }
-            input.read-more-state {
-            display: none;
-            }
-            p.read-more-target {
-            font-size: 0;
-            max-height: 0;
-            opacity: 0;
-            transition: .25s ease;
-            }
-            input.read-more-state:checked ~ div.read-more-wrap p.read-more-target {
-            font-size: inherit;
-            max-height: 999em;
-            opacity: 1;
-            }
-            input.read-more-state ~ label.read-more-trigger:before {
-            content: 'More Information';
-            }
-            input.read-more-state:checked ~ label.read-more-trigger:before {
-            content: 'Minimize';
-            }
-            label.read-more-trigger {
-            cursor: pointer;
-            display: inline-block;
-            }
-            #submitR{
-                margin-left: 10px;
-                display: inline-block;
-            }
-            #titleR{
-                display:inline-block;
-            }
         </style>
-        <%var isBurnaby = true%>
-        <h3>Restaurant Finder</h3>
-        <div id="map"></div>
-        <ol id="places"></ol>
-        <form action ='/maps' method = 'POST'>
-            <label>Radius(m):</label>
-            <input type ="number" placeholder = "max: 1000m" name = "radius">
-            <input type="submit" name ="btn" value = "Filter by: Price">
-            <input type="submit" name = "btn" value = "Filter by: Top Rated">
-            <input type="hidden" name = "campus" value = <%=isBurnaby%>>
-        </form>
-        <button onclick="changeBurnaby()">Burnaby</button>
-        <button onclick="changeSurrey()">Surrey</button>
-        <div id="favourites">
-            <h1>Your favourite restaurants:</h1>
-            <%if(fav.length > 0){%>
-                <%fav.forEach(function(f){%>
-                    <p><b><%=f.name%></b></p>
-                    <form action = '/removerestaurant' method = 'post'>
-                        <input type="submit" value = 'Remove from favourites'>
-                        <input type='hidden' name = 'rest' value = '<%=f.name%>'>
-                    </form>
-                <%})%>
-            <%}%>
-        </div>
-        <div id="restaurants">
-            <%if(currentRestaurant.length > 0){%>
-                <% var i = 0;%>
-                <%currentRestaurant.forEach(function(r){%>
-                    <%if(r.price == "1" || r.price == ""){%>
-                        <!-- https://stackoverflow.com/questions/31968211/how-to-implement-read-more-read-less-in-pure-css -->
-                        <div class ="h<%=i%>">
-                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
-                            <div class="read-more-wrap <%=i%>">
-                                <h1 id = "titleR"><%=r.name%> ($): <%=r.rating%>/5</h1>
-                                <form id = 'submitR' action = '/addrestaurant' method = 'POST'>
-                                    <input type = 'submit' value = 'Add to Favourites'>
-                                    <input type="hidden" name="fname" value="<%=r.name%>">
-                                </form>
-                                <p class="read-more-target <%=i%>"><%=r.hours%></p>
-                                <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
-                                <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
-                                <p class="read-more-target <%=i%>"><%=r.review.text%></p>
-                            </div>
-                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
+
+
+
+
+        <!-- FORM AND GOOGLE MAPS START -->
+        <section class="contact-area">
+            <!-- START OF TITLE AND MAPS -->
+            <div class="container">
+                <!-- the main title on the screen-->
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="section-title">
+                            <h2><span>Restaurant Finder</span></h2>
                         </div>
-                    <%}else{%>
-                        <div class ="h<%=i%>">
-                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
-                            <div class="read-more-wrap <%=i%>">
-                                <h1 id = "titleR"><%=r.name%> ($$): <%=r.rating%>/5</h1>
-                                <form id ="submitR" action = '/addrestaurant' method = 'POST'>
-                                    <input type = 'submit' value = 'Add to Favourites'>
-                                </form>
-                                <p class="read-more-target <%=i%>"><%=r.hours%></p>
-                                <p class="read-more-target <%=i%>"><b><%=r.review.author_name%></b></p>
-                                <p class="read-more-target <%=i%>"><b><%=r.review.rating%>/5</b></p>
-                                <p class="read-more-target <%=i%>"><%=r.review.text%></p>
-                            </div>
-                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
+                    </div>
+                </div>
+
+                <!-- START OF MAPS BODY -->
+                <div class="row">
+                    <!-- GOOGLE MAPS START-->
+                    <div class="col-md-9 col-sm-12 col-xs-12">
+                        <div class="map-area">
+                            <div id="map"></div>
                         </div>
-                    <%}%>
-                    <%i++%>
-                <%})%>
-            <%}%>
+                    </div>
+                    <!-- GOOGLE MAPS END -->
+
+
+                    <!-- FORM START -->
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="contact-form d-flex justify-content-center">
+                            <%var isBurnaby = true%>
+                            <ol id="places"></ol>
+                            <form action ='/maps' method = 'POST'>
+                                <!-- for the radius -->
+
+                                <div class="form-group form-inline mb-2">
+                                    <label for="formRadius" class="col-form-label">Radius (m): </label> 
+                                    <input class="form-control" type ="number" placeholder = "max: 1000m" name = "radius" id="formRadius">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <input class="form-control" type="submit" name ="btn" value = "Filter by: Price">
+                                    <input class="form-control" type="submit" name = "btn" value = "Filter by: Top Rated">
+                                    <input type="hidden" name = "campus" value = <%=isBurnaby%>>
+                                </div>
+
+                            </form>
+
+                            <!-- <div class="form-group col-md-offset-1"> -->
+                            <div class="form-group">
+                                <button class="btn btn-primary mb-2" onclick="changeBurnaby()">Burnaby</button>
+                                <button class="btn" onclick="changeSurrey()">Surrey</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FORM END -->
+
+                </div>
+                <!-- END OF MAPS BODY -->
+
+            </div>
+            <!-- END OF TITLE AND MAPS -->
+        </section>
+        <!-- FORM AND GOOGLE MAPS END -->
+
+
+
+        <!-- FAVOURITE START -->
+        <section class="contact-area">
+            <div class="container">
+                <!-- TITLE OF FAV RESTAURANT SECTION START-->
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="section-title-restaurant">
+                            <h3><span>Favourite Restaurants</span></h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- TITLE OF FAV RESTAURANT SECTION END-->
+
+
+                <!-- FAVOURITE SECTION -->
+                <div class="row">
+                    <!-- FAVOURITE RESTAURANT START -->
+                    <div class="col-md-12 col-sm-12 col-xs-12 ">
+                        <div id="favourites" class="contact-form d-flex justify-content-center">
+                            <%if(fav.length > 0){%>
+                                <%fav.forEach(function(f){%>
+                                    <form action ='/removerestaurant' method = 'POST'>
+                                        <div class="form-group form-inline mb-2 col-md-6">
+                                            <label for="formRemoveFavouriteRestaurant" class="col-form-label"><b><%=f.name%>: </b></label> 
+                                        </div>
+                                        <div class="form-group form-inline mb-2 col-md-6">
+                                            <input class="form-control btn btn-primary mb-2" type="submit" value = 'Remove from favourites' id="formRemoveFavouriteRestaurant">
+                                            <input type='hidden' name = 'rest' value = '<%=f.name%>'>
+                                        </div>
+                                    </form>
+                                <%})%>
+                            <%}%>
+                            <div class="form-group">
+                                <!-- redirects to a list of restaurants -->
+                                <!-- needs or else the formatting doesn't work -->
+                                <button class="btn btn-success btn-lg btn-block mb-2" onclick="changeRestaurants()">View More Restaurants!</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FAVOURITE RESTAURANT END-->
+                </div>
+                <!-- FAVOURITE SECTION -->
+            </div>
+        </section>
+        <!-- FAVOURITE END -->
+
+
+    <!-- RESTAURANT LIST START -->
+    <section class="contact-area">
+        <div class="container">
+            <!-- TITLE OF FAV RESTAURANT SECTION START-->
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="section-title-restaurant">
+                        <h3><span>Restaurant Selector</span></h3>
+                    </div>
+                </div>
+            </div>
+            <!-- TITLE OF FAV RESTAURANT SECTION END-->
+
+
+            <!-- Restaurant section START -->
+            <div id="restaurants">
+                <div class="containerB">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <%if(currentRestaurant.length > 0){%>
+                                <% var i = 0;%>
+                                <%currentRestaurant.forEach(function(r){%>
+                                    <%if(r.price == "1" || r.price == ""){%>
+                                        <!-- https://stackoverflow.com/questions/31968211/how-to-implement-read-more-read-less-in-pure-css -->
+                                        <div class ="h<%=i%> contact-formR">
+                                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                                            <div class="read-more-wrap <%=i%>">
+                                                <!-- the name of the restaurant -->
+                                                <h2 id = "titleR"> <%=r.name%> ($): <%=r.rating%>/5</h2>
+                                                <!-- button to add to favourite -->
+                                                <form id = 'submitR' action = '/addrestaurant' method = 'POST'>
+                                                    <input class="form-control btn btn-primary mb-2" style="font-family: Trebuchet MS Bold" type = 'submit' value = 'Add to Favourites'>
+                                                    <input type="hidden" name="fname" value="<%=r.name%>">
+                                                </form>
+                                                <!-- spacing -->
+                                                <p></p>
+                                                <p class="read-more-target <%=i%> time-font"><%=r.hours%></p>
+                                                <p class="read-more-target <%=i%> customer-font"> Reviwer: <%=r.review.author_name%></p>
+                                                <!-- <span class="score-font"><%=r.review.rating%>/5</span> -->
+                                                <p class="read-more-target <%=i%> score-font">Rating: <%=r.review.rating%>/5</p>
+                                                <p class="read-more-target <%=i%> review-font"><%=r.review.text%></p>
+                                            </div>
+                                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
+                                        </div>
+                                    <%}else{%>
+                                        <!-- for more expensive places -->
+                                        <div class ="h<%=i%> contact-formR">
+                                            <input class="read-more-state <%=i%>" id="read-more-controller <%=i%>" type="checkbox">
+                                            <div class="read-more-wrap <%=i%>">
+                                                <!-- the name of the restaurant -->
+                                                <h2 id = "titleR"> <%=r.name%> ($$): <%=r.rating%>/5</h2>
+
+                                                <form id ="submitR" action = '/addrestaurant' method = 'POST'>
+                                                    <input class="form-control btn btn-success mb-2" style="font-family: Trebuchet MS Bold" type = 'submit' value = 'Add to Favourites'>
+                                                    <!-- don't know if we need, will delete later -->
+                                                    <input type="hidden" name="fname" value="<%=r.name%>">
+                                                </form>
+                                                <!-- spacing -->
+                                                <p></p>
+                                                <p class="read-more-target <%=i%> time-font"><%=r.hours%></p>
+                                                <p class="read-more-target <%=i%> customer-font">Reviwer: <%=r.review.author_name%></p>
+                                                <!-- <span class="score-font"><%=r.review.rating%>/5</span> -->
+                                                <p class="read-more-target <%=i%> score-font" >Rating: <%=r.review.rating%>/5</p>
+                                                <p class="read-more-target <%=i%> review-font"><%=r.review.text%></p>
+                                            </div>
+                                            <label class="read-more-trigger <%=i%>" for="read-more-controller <%=i%>"></label>
+                                        </div>
+                                    <%}%>
+                                    <%i++%>
+                                <%})%>
+                            <%}%>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+            <!-- Restaurant section END -->
         </div>
+    </section>
+    <!-- RESTAURANT LIST END -->
+
+
+
+        <!-- the scripts to change the thigns on the page -->
         <script>
             var map;
             var cityCircle;
@@ -187,8 +316,20 @@
                 //map err from google maps api
             }
         }
+        //redirect to list of restaurants
+        function changeRestaurants(){
+            location.href = 'https://www.opentable.ca/vancouver-restaurants';
+        }
         </script>
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&callback=initMap"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk&libraries=places"></script>
+
+
+        <!-- scripts for the icons in the top left -->
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+        <!-- scripts for the googlemaps and forms -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     </body>
 </html>
