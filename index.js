@@ -14,10 +14,7 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:admin@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -417,7 +414,7 @@ app.post('/searchclub',async (req,res)=>{
       newClubs = []
       for(var i = 0; i < clubs.length;i++)
       {
-        if(clubs[i].name.toLowerCase().includes(search))
+        if(clubs[i].name.toLowerCase().includes(search.toLowerCase()))
         {
           newClubs.push(clubs[i]);
         }
