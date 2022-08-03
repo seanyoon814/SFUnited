@@ -14,10 +14,7 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL, 
-  ssl: {
-      rejectUnauthorized: false
-    }
+  connectionString: 'postgres://postgres:admin@localhost/users'
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -30,6 +27,7 @@ var enrolled = []
 var currentRadius;
 var currentRestaurant = []
 var flag = 0;
+var resflag = 0;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -301,7 +299,7 @@ app.get('/maps', async (req, res)=>{
       }
       else
       {
-        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
+        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows, flag:resflag})
       }
     })
   }
@@ -340,6 +338,7 @@ app.post('/maps', async (req, res)=>{
     currentRestaurant = arr;
     quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
   }
+  resflag = 0;
   res.redirect('/maps')
 })
 
@@ -350,7 +349,9 @@ app.post('/addrestaurant', async (req, res)=>{
   if(bool == 1)
   {
     //add error case for duplicate here
-    res.redirect('/maps')
+    // res.render('/maps',{flag:1})
+    resflag = 1;
+    res.redirect('/maps') // Already exists in fav pg bool 1
   }
   else
   {
@@ -367,10 +368,13 @@ app.post('/addrestaurant', async (req, res)=>{
     pool.query(queryString, (error, result)=>{
       if(error)
       {
-        res.send(error)
+        resflag = 2
+        res.redirect('maps') // DB error
+        // res.render('maps',{flag:2})
       }
       else
       {
+        resflag = 0
         res.redirect('/maps')
       }
     })
@@ -389,26 +393,16 @@ app.post('/removerestaurant', async (req, res)=>{
   pool.query(queryString, (error, result)=>{
     if(error)
     {
-      res.send(error)
+      // res.render('maps',{flag:2})
+      resflag = 2
+      res.redirect('/maps') // DB Error
     }
     else
     {
+      resflag = 0
       res.redirect('/maps')
     }
   })
-})
-app.get('/groups',async (req,res)=>{
-  if (req.session.user)
-  {
-    clubScrape(function(clubs){
-      res.render('pages/groups', {clubs:clubs})
-    })
-
-  }
-  else
-  {
-    res.redirect('/')
-  }
 })
 
 // GROUP PAGE SEARCH AND FILTER
