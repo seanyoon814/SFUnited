@@ -6,8 +6,12 @@ var server = require("../index")
 var mocha = require("mocha")
 var should = chai.should()
 var par = require('node-html-parser')
+const { JSDOM } = require('jsdom');
+chai.use(require('chai-dom'));
+const session = require('express-session')
+const express = require('express')
+;
 chai.use(chaiHttp)
-
 const { Pool } = require('pg');
 var pool;
 pool = new Pool({
@@ -16,7 +20,14 @@ pool = new Pool({
   connectionString: 'postgres://postgres:elchapo0814@localhost/users'
 })
 
-
+var mockApp = express();
+mockApp.use(session({
+    name: 'session',
+    secret: 'zordon',
+    resave: false,
+    saveUninitialized: false,
+    maxAge: 30 * 60 * 1000  // 30 minutes
+  }))
 describe('StudentScheduleNewClass', () => {
     //ensure login page is seen
     it('should GET login page', (done) => {
@@ -249,6 +260,26 @@ describe('groups', (ui)=>{
             done();
         })
     })
+    it('should search on POST', (done) => {
+        chai.request(server)
+        .post('/searchclub')
+        .send({clubs:'Finance Club - SFU'})
+        .redirects(0)
+        .end((err, res) => {
+            res.should.have.status(302);
+            done();
+        })
+    })
+    it('should filter on POST', (done) => {
+        chai.request(server)
+        .post('/filter')
+        .send({clubs:'F'})
+        .redirects(0)
+        .end((err, res) => {
+            res.should.have.status(302);
+            done();
+        })
+    })
   })
 
   describe('logout', () => {
@@ -264,27 +295,52 @@ describe('groups', (ui)=>{
     })
   })
 describe('maps', () => {
-
-    it('should GET login page', (done) => {
+    it('should POST new restaurant', (done) => {
         chai.request(server)
-            .get("/")
-            .end((err, res) => {
-                res.should.have.status(200);
-                res.should.to.be.html;
-                done();
-            })
-    })
-    it('should POST new radius', (done) => {
-        chai.request(server)
-        .get('/maps')
-        .send({currentRestaurant:'currentRestaurant,', fav:'result.rows', flag:'resflag'})
+        .post('/addrestaurant')
+        .send({user: 'sean0814', fname:'A&W'})
         .redirects(0)
         .end((err, res) => {
             res.should.have.status(302);
-            res.body.should.have.property("currentRestaurant", "");
-            res.should.redirectTo('/maps')
+            res.should.redirectTo("/maps")
             done();
         })
     })
-
+    it('should DELETE restaurant', (done) => {
+        var count;
+        var count1;
+        pool.query('SELECT * FROM rest', (error, response)=>{
+            count = response.rows.length
+        })
+        chai.request(server)
+        .post('/removerestaurant')
+        .send({rest: 'A&W'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM rest', (error, response)=>{
+                count1 = response.rows.length
+            })
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
+            done();
+        })
+    })
+    it('should change radius on GET', (done) => {
+        chai.request(server)
+        .get('/maps')
+        .redirects(0)
+        .end((err, res) => {
+            res.should.have.status(302);
+            done();
+        })
+    })
+    it('should change campus on GET', (done) => {
+        chai.request(server)
+        .get('/maps')
+        .redirects(0)
+        .end((err, res) => {
+            res.should.have.status(302);
+            done();
+        })
+    })
 })
