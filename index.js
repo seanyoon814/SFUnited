@@ -975,7 +975,94 @@ async function quickSortPrice(items, left, right) {
   }
   return items;
 }
-module.exports = app;
+const method = async () => {
+  var arr = [];
+  const token = await findLocalRestauraunts(arr, 400, "Burnaby")
+  return token
+}
+const qsRating = async () =>{
+  var arr = []
+  arr.push({
+    address: "random st",
+    name: "one",
+    rating: 1,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 1,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "two",
+    rating: 2,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 2,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "three",
+    rating: 3,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 3,
+    hours: "N/A",
+    review: "N/A"
+  })
+  const token = await quickSortPrice(arr, 0, 2)
+  return token;
+}
+const qsPrice = async () =>{
+  var arr = []
+  arr.push({
+    address: "random st",
+    name: "one",
+    rating: 1,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 1,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "two",
+    rating: 2,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 100,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "three",
+    rating: 3,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 10,
+    hours: "N/A",
+    review: "N/A"
+  })
+  const token = await quickSortPrice(arr, 0, 2)
+  return token;
+}
+module.exports = {
+  app,
+  method,
+  qsRating,
+  qsPrice
+};
+
 // module.exports = {
 //   findLocalRestauraunts, partitionPrice, partitionRating, swap, quickSortPrice, quickSortRating
 // }

@@ -2,7 +2,9 @@ var chai = require("chai")
 const request = chai.request
 const expect = chai.expect
 var chaiHttp = require("chai-http")
-var server = require("../index")
+var servera = require("../index")
+var server = servera.app;
+var flr = servera.method
 var mocha = require("mocha")
 var should = chai.should()
 var par = require('node-html-parser')
@@ -294,7 +296,35 @@ describe('groups', (ui)=>{
             }) 
     })
   })
-describe('maps', () => {
+describe('maps', async () => {
+    it('restaurants should sort by rating', async () => {
+        chai.request(server)
+        .post('/addrestaurant')
+        .send({user: 'sean0814', fname:'A&W'})
+        .redirects(0)
+        .end(async (err, res) => {
+            const arr = await servera.qsRating()
+            arr[0]['rating'].should.be.eql(1)
+            arr[1]['rating'].should.be.eql(2)
+            arr[2]['rating'].should.be.eql(3)
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
+        })
+    })
+    it('restaurants should sort by price', async () => {
+        chai.request(server)
+        .post('/addrestaurant')
+        .send({user: 'sean0814', fname:'A&W'})
+        .redirects(0)
+        .end(async (err, res) => {
+            const arr = await servera.qsPrice()
+            arr[0]['price'].should.be.eql(1)
+            arr[1]['price'].should.be.eql(10)
+            arr[2]['price'].should.be.eql(100)
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
+        })
+    })
     it('should POST new restaurant', (done) => {
         chai.request(server)
         .post('/addrestaurant')
@@ -325,20 +355,17 @@ describe('maps', () => {
             done();
         })
     })
-    it('should change radius on GET', (done) => {
-        chai.request(server)
-        .get('/maps')
-        .redirects(0)
-        .end((err, res) => {
-            res.should.have.status(302);
-            done();
-        })
-    })
+    it('should change radius', async () => {
+        //find local restaurant function call
+        const fl = await flr()
+        fl.should.be.eql('https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=400&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk')
+    }).timeout(10000);
     it('should change campus on GET', (done) => {
         chai.request(server)
         .get('/maps')
         .redirects(0)
         .end((err, res) => {
+            //changing to surrey
             res.should.have.status(302);
             done();
         })
