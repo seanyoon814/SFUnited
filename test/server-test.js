@@ -78,18 +78,20 @@ describe('StudentScheduleNewClass', () => {
             })
     })
 
-    it('should POST class onto schedule page given correct course', (done) => {
+    it('should POST class onto schedule page given correct course', function(done) {
         chai.request(server)
         
             .post("/schedule")
             .send({fcourse:'Stat 270'})
             .redirects(0)
-            .end((err, res) => {
+            .end(function(err, res) {
                 res.should.have.status(302);
+               // res.body.should.be.a('array');
+                res.body.course.should.equal('Stat 270');
                 res.should.redirectTo("/schedule");
                 done();
-            })
-    })
+            });
+    });
 
 
 
