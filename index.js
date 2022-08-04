@@ -14,10 +14,10 @@ const { isDataView } = require('util/types')
 var pool;
 const client = new Client({});
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:carverbaddies@localhost/users' 
-  //ssl: {
-    //  rejectUnauthorized: false
-    //}
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -30,6 +30,7 @@ var enrolled = []
 var currentRadius;
 var currentRestaurant = []
 var flag = 0;
+var resflag = 0;
 app.use(session({
   name: 'session',
   secret: 'zordon',
@@ -301,7 +302,7 @@ app.get('/maps', async (req, res)=>{
       }
       else
       {
-        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows})
+        res.render('pages/maps', {currentRestaurant:currentRestaurant, fav:result.rows, flag:resflag})
       }
     })
   }
@@ -340,26 +341,29 @@ app.post('/maps', async (req, res)=>{
     currentRestaurant = arr;
     quickSortRating(currentRestaurant, 0, currentRestaurant.length-1)
   }
+  resflag = 0;
   res.redirect('/maps')
 })
 
 app.post('/addrestaurant', async (req, res)=>{
   var name = req.body.fname
   var uname = user;
-  if(name.includes("'"))
-  {
-    var a = await name.split("'")
-    var newStr = a[0] + "''" +a[1]
-    name = newStr
-  }
   var bool = await checkExistingRest(name)
   if(bool == 1)
   {
     //add error case for duplicate here
-    res.redirect('/maps')
+    // res.render('/maps',{flag:1})
+    resflag = 1;
+    res.redirect('/maps') // Already exists in fav pg bool 1
   }
   else
   {
+    if(name.includes("'"))
+    {
+      var a = await name.split("'")
+      var newStr = a[0] + "''" +a[1]
+      name = newStr
+    }
     var queryString = `
     INSERT INTO rest (uname, name)
     VALUES ('${uname}', '${name}')
@@ -367,42 +371,41 @@ app.post('/addrestaurant', async (req, res)=>{
     pool.query(queryString, (error, result)=>{
       if(error)
       {
-        res.send(error)
+        resflag = 2
+        res.redirect('maps') // DB error
+        // res.render('maps',{flag:2})
       }
       else
       {
+        resflag = 0
         res.redirect('/maps')
       }
     })
   }
 })
-app.post('/removerestaurant',  (req, res)=>{
+app.post('/removerestaurant', async (req, res)=>{
   var rest= req.body.rest
+  if(rest.includes("'"))
+  {
+    var a = await rest.split("'")
+    var newStr = a[0] + "''" +a[1]
+    rest = newStr
+  }
   var queryString = `DELETE FROM rest
   WHERE name='${rest}'`;
   pool.query(queryString, (error, result)=>{
     if(error)
     {
-      res.send(error)
+      // res.render('maps',{flag:2})
+      resflag = 2
+      res.redirect('/maps') // DB Error
     }
     else
     {
+      resflag = 0
       res.redirect('/maps')
     }
   })
-})
-app.get('/groups',async (req,res)=>{
-  if (req.session.user)
-  {
-    clubScrape(function(clubs){
-      res.render('pages/groups', {clubs:clubs})
-    })
-
-  }
-  else
-  {
-    res.redirect('/')
-  }
 })
 
 // GROUP PAGE SEARCH AND FILTER
@@ -414,7 +417,7 @@ app.post('/searchclub',async (req,res)=>{
       newClubs = []
       for(var i = 0; i < clubs.length;i++)
       {
-        if(clubs[i].name.toLowerCase().includes(search))
+        if(clubs[i].name.toLowerCase().includes(search.toLowerCase()))
         {
           newClubs.push(clubs[i]);
         }
@@ -517,7 +520,7 @@ function checkExistingRest(rest)
   return new Promise((resolve, reject)=>
   {
     var getUsersQuery = `SELECT * FROM rest`;
-    setTimeout(() => {
+    setTimeout(async () =>{
       pool.query(getUsersQuery, (error, result)=>{
         if(error)
           resolve(0);
@@ -972,7 +975,94 @@ async function quickSortPrice(items, left, right) {
   }
   return items;
 }
-module.exports = app;
+const method = async () => {
+  var arr = [];
+  const token = await findLocalRestauraunts(arr, 400, "Burnaby")
+  return token
+}
+const qsRating = async () =>{
+  var arr = []
+  arr.push({
+    address: "random st",
+    name: "one",
+    rating: 1,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 1,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "two",
+    rating: 2,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 2,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "three",
+    rating: 3,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 3,
+    hours: "N/A",
+    review: "N/A"
+  })
+  const token = await quickSortPrice(arr, 0, 2)
+  return token;
+}
+const qsPrice = async () =>{
+  var arr = []
+  arr.push({
+    address: "random st",
+    name: "one",
+    rating: 1,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 1,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "two",
+    rating: 2,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 100,
+    hours: "N/A",
+    review: "N/A"
+  })
+  arr.push({
+    address: "random st",
+    name: "three",
+    rating: 3,
+    num: 2,
+    lat: 49.31,
+    lng: 49.29,
+    price: 10,
+    hours: "N/A",
+    review: "N/A"
+  })
+  const token = await quickSortPrice(arr, 0, 2)
+  return token;
+}
+module.exports = {
+  app,
+  method,
+  qsRating,
+  qsPrice
+};
+
 // module.exports = {
 //   findLocalRestauraunts, partitionPrice, partitionRating, swap, quickSortPrice, quickSortRating
 // }

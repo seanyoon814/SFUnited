@@ -1,0 +1,396 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* for the body text */
+/* .container{
+    width: 98%;
+    margin: 0 auto;
+} */
+
+/*responsive*/
+
+@media (max-width: 991px) {
+	.contact-form {
+		margin-bottom: 30px;
+	}
+	.map-area {
+		width: 100%;
+		height: 400px;
+	}
+}
+
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* header START*/
+
+.container-header {
+    width: 98%;
+    margin: 0 auto;
+}
+
+.tophead {
+    margin-top:0;
+    padding-top:0;
+    height:30px;
+    background-color: #f5f5f5;
+}
+
+.headerbody{
+    margin: 0;
+    background: white;
+    font-family: "Work Sans", sans-serif;
+    font-weight: 400;
+}
+
+header {
+    background: #B5121B;
+}
+
+header::after {
+    content:'';
+    display: table;
+    clear: both;
+}
+
+.logo {
+    float: left;
+}
+
+nav {
+    float: right;
+}
+
+nav ul {
+    margin:0;
+    padding:0;
+    list-style: none;
+}
+
+nav li {
+    display: inline-block;
+    margin-left: 40px;
+    padding-top: 28px;
+    margin-right: 30px;
+
+    position: relative;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 550;
+    letter-spacing: 1.5px;
+}
+
+nav a:hover {
+    color: white;
+    font-weight: 700;
+}
+
+nav a::before {
+    content: '';
+    display: block;
+    height: 5px;
+    width: 100%;
+    background-color: white;
+
+    position: absolute;
+    top: 0;
+    width: 0%;
+
+    transition: all ease-in-out 250ms;
+}
+
+nav a:hover:before {
+    width: 100%;
+}
+
+.containerL {
+    max-width: 70%;
+    width: 70%;
+}
+
+.containerR {
+
+    max-width: 30%;
+    width: 30%;
+    display: flex;
+    padding: 2px;
+}
+
+.tophead ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    list-style: none;
+   
+}
+
+.tophead li {
+    display: inline-block;
+    padding-left: 40px;
+    margin-left: 5px;
+    margin-right: 0px;
+    position: relative;
+    margin-top: 6px;
+    
+}
+
+.tophead a {
+    font-family: "FFDINProCondBlack";
+    font-size: 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #cc0633;
+    font-weight: 700;
+    margin:0;
+    cursor: pointer;
+    
+}
+.tophead .icons ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    list-style: none;
+   
+}
+
+.tophead .icons li {
+    display: inline-block;
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    position: relative;
+    margin-top: 6px;
+    
+}
+
+/* header END*/
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* Sean's Stuff */
+
+input.read-more-state {
+display: none;
+}
+p.read-more-target {
+font-size: 0;
+max-height: 0;
+opacity: 0;
+transition: .25s ease;
+}
+input.read-more-state:checked ~ div.read-more-wrap p.read-more-target {
+font-size: inherit;
+max-height: 999em;
+opacity: 1;
+}
+input.read-more-state ~ label.read-more-trigger:before {
+content: 'More Information';
+}
+input.read-more-state:checked ~ label.read-more-trigger:before {
+content: 'Minimize';
+}
+label.read-more-trigger {
+cursor: pointer;
+display: inline-block;
+}
+#submitR{
+    margin-left: 10px;
+    display: inline-block;
+}
+#titleR{
+    display:inline-block;
+}
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* MAIN TITLE START*/
+.section-title {
+	text-align: center;
+	padding: 25px 0;
+}
+.section-title h2 {
+	font-size: 60px;
+	text-transform: uppercase;
+    
+	font-family: oswald;
+	font-weight: 700;
+	text-shadow: 0 1px 2px rgba(0, 0, 0.1);
+}
+.section-title h2 span {
+	color: red;
+}
+/* MAIN TITLE END*/
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* FORM START*/
+.contact-form {
+	background-color: #fff;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+	padding: 40px 30px;
+}
+.contact-form .btn {
+	/* background: yellow; */
+	text-transform: uppercase;
+	font-weight: 700;
+	padding: 10px 50px;
+	letter-spacing: 2px;
+}
+
+/* FORM END*/
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* MAPS START */
+.map-area {
+	width: 850px;
+	height: 540px;
+	background: #fff;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+/*  MAPS END*/
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------------------------------------------------------------ */
+/* FAVOURITE RESTAURANT START*/
+.section-title-restaurant {
+	text-align: center;
+	padding: 25px 0;
+}
+.section-title-restaurant h3 {
+	font-size: 50px;
+	text-transform: uppercase;
+	font-family: oswald;
+	font-weight: 700;
+	text-shadow: 0 1px 2px rgba(0, 0, 0.1);
+}
+.section-title-restaurant h3 span {
+	color: rgb(82, 76, 76);
+}
+
+
+.contact-formR{
+    background-color: #fff;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+	padding: 40px 30px;
+}
+
+.contact-formR h2 {
+	font-size: 30px;
+	text-transform: uppercase;
+	font-family:  'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-weight: 700;
+	text-shadow: 0 1px 2px rgba(0, 0, 0.1);
+}
+.contact-formR h2 span {
+	color: red;
+}
+
+
+.time-font{
+	text-transform: uppercase;
+	font-family:  'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-weight: 700;
+	/* text-shadow: 0 1px 2px rgba(0, 0, 0.1); */
+    color: rgb(77, 74, 74);
+}
+
+.customer-font{
+	text-transform: uppercase;
+	font-family:  'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-weight: 700;
+	/* text-shadow: 0 1px 2px rgba(0, 0, 0.1); */
+    /* color: rgb(77, 74, 74); */
+    color: rgb(77, 74, 74);
+}
+
+.score-font{
+	text-transform: uppercase;
+	font-family:  'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-weight: 700;
+	/* text-shadow: 0 1px 2px rgba(0, 0, 0.1); */
+    /* color: rgb(77, 74, 74); */
+    color: rgb(77, 74, 74);
+}
+
+.review-font{
+	font-family:  Arial, Helvetica, sans-serif;
+	font-weight: 700;
+	/* text-shadow: 0 1px 2px rgba(0, 0, 0.1); */
+    /* color: rgb(77, 74, 74); */
+    color: rgb(77, 74, 74);
+}
+
+/* POPUP */
+.popUpContainer{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .popUp{
+      width: 400px;
+      background: #fff;
+      border-radius: 6px;
+      position: absolute;
+      top:0;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.1);
+      text-align: center;
+      padding: 0 30px 30px;
+      color: #333;
+      visibility: hidden;
+      transition: transform 0.4s, top 0.4s;
+  }
+  
+  .openPopup{
+    visibility: visible;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  
+  .popUp h2{
+    font-size: 38px;
+    font-weight: 500;
+    margin:30px 0 10px;
+  }
+  .popUp button{
+    width: 100%;
+    margin-top:50px;
+    padding: 10px 0; 
+    background: #6fd649;
+    color:#fff;
+    border:0;
+    outline: none;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor:pointer;
+    box-shadow: 0 5px 5px rgba(0,0,0,0.2);
+  }
+  /* for image */
+  .popUp img{
+    width:100px;
+    margin-top: -50px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+

@@ -1,41 +1,19 @@
-// const { spawn } = require('child_process');
-// const got = require('got');
-// const test = require('tape');
-
-// // Start the app
-// const env = Object.assign({}, process.env, {PORT: 5000});
-// const child = spawn('node', ['index.js'], {env});
-
-// test('responds to requests', (t) => {
-//   t.plan(4);
-
-//   // Wait until the server is ready
-//   child.stdout.on('data', _ => {
-//     // Make a request to our app
-//     (async () => {
-//       const response = await got('http://127.0.0.1:5000');
-//       // stop the server
-//       child.kill();
-//       // No error
-//       t.false(response.error);
-//       // Successful response
-//       t.equal(response.statusCode, 200);
-//       // Assert content checks
-//       t.notEqual(response.body.indexOf("<title>Node.js Getting Started on Heroku</title>"), -1);
-//       t.notEqual(response.body.indexOf("Getting Started on Heroku with Node.js"), -1);
-//     })();
-//   });
-// });
 var chai = require("chai")
 const request = chai.request
 const expect = chai.expect
 var chaiHttp = require("chai-http")
-var server = require("../index")
+var servera = require("../index")
+var server = servera.app;
+var flr = servera.method
 var mocha = require("mocha")
 var should = chai.should()
-
+var par = require('node-html-parser')
+const { JSDOM } = require('jsdom');
+chai.use(require('chai-dom'));
+const session = require('express-session')
+const express = require('express')
+;
 chai.use(chaiHttp)
-
 const { Pool } = require('pg');
 var pool;
 pool = new Pool({
@@ -44,7 +22,14 @@ pool = new Pool({
   connectionString: 'postgres://postgres:carverbaddies@localhost/users'
 })
 
-
+var mockApp = express();
+mockApp.use(session({
+    name: 'session',
+    secret: 'zordon',
+    resave: false,
+    saveUninitialized: false,
+    maxAge: 30 * 60 * 1000  // 30 minutes
+  }))
 describe('StudentScheduleNewClass', () => {
     //ensure login page is seen
     it('should GET login page', (done) => {
@@ -81,16 +66,23 @@ describe('StudentScheduleNewClass', () => {
     it('should POST class onto schedule page given correct course', function(done) {
         chai.request(server)
         
-            .post("/schedule")
-            .send({fcourse:'Stat 270'})
-            .redirects(0)
-            .end(function(err, res) {
-                res.should.have.status(302);
-               // res.body.should.be.a('array');
-                res.body.course.should.equal('Stat 270');
-                res.should.redirectTo("/schedule");
-                done();
-            });
+        var count;
+        var count1;
+        pool.query('SELECT * FROM classes', (error, response)=>{
+            count = response.rows.length
+        })
+        chai.request(server)
+        .post('/schedule')
+        .send({fcourse: 'CMPT 120'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM classes', (error, response)=>{
+                count1 = response.rows.length
+            })
+            res.should.have.status(200);
+            res.should.redirectTo("/schedule")
+            done();
+        })
     });
 
 
@@ -98,15 +90,23 @@ describe('StudentScheduleNewClass', () => {
     it('should not POST class onto page given wrong course', (done) => {
         chai.request(server)
         
-            .post("/schedule")
-            .send({fcourse:'abcd'})
-            .redirects(0)
-            .end((err, res) => {
-                //change to the new redirect
-                res.should.have.status(302);
-                res.should.redirectTo("/schedule");
-                done();
+        var count;
+        var count1;
+        pool.query('SELECT * FROM classes', (error, response)=>{
+            count = response.rows.length
+        })
+        chai.request(server)
+        .post('/schedule')
+        .send({fname: 'adefhg'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM classes', (error, response)=>{
+                count1 = response.rows.length
             })
+            res.should.have.status(302);
+            res.should.redirectTo("/schedule")
+            done();
+        })
     })
 
 
@@ -184,42 +184,63 @@ describe('FindingProfessorName', () => {
     })
 
     it('should POST prof name if real person and valid course', (done) => {
+        var count;
+        var count1;
+        pool.query('SELECT * FROM classes', (error, response)=>{
+            count = response.rows.length
+        })
         chai.request(server)
-        
-            .post("/schedule")
-            .send({fname:'Bobby Chan', subj:'CMPT 128'})
-            .redirects(0)
-            .end((err, res) => {
-                res.should.have.status(302);
-                res.should.redirectTo("/schedule");
-                done();
+        .post('/schedule')
+        .send({fname: 'Bobby Chan'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM classes', (error, response)=>{
+                count1 = response.rows.length
             })
+            res.should.have.status(200);
+            res.should.redirectTo("/schedule")
+            done();
+        })
     })
 
     it('should POST prof name if real person', (done) => {
-        chai.request(server)
-        
-            .post("/schedule")
-            .send({fname:'Bobby Chan'})
+            var count;
+            var count1;
+            pool.query('SELECT * FROM classes', (error, response)=>{
+                count = response.rows.length
+            })
+            chai.request(server)
+            .post('/schedule')
+            .send({fname: 'Bobby Chan'})
             .redirects(0)
             .end((err, res) => {
-                res.should.have.status(302);
-                res.should.redirectTo("/schedule");
+                pool.query('SELECT * FROM classes', (error, response)=>{
+                    count1 = response.rows.length
+                })
+                res.should.have.status(200);
+                res.should.redirectTo("/schedule")
                 done();
             })
     })
 
     it('should not POST prof name if only course is given', (done) => {
+        var count;
+        var count1;
+        pool.query('SELECT * FROM classes', (error, response)=>{
+            count = response.rows.length
+        })
         chai.request(server)
-        
-            .post("/schedule")
-            .send({subj:'asdfa'})
-            .redirects(0)
-            .end((err, res) => {
-                res.should.have.status(302);
-                res.should.redirect;
-                done();
+        .post('/schedule')
+        .send({fname:  'asdfe'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM classes', (error, response)=>{
+                count1 = response.rows.length
             })
+            res.should.have.status(302);
+            res.should.redirectTo("/schedule")
+            done();
+        })
     })
 
 })
@@ -248,25 +269,46 @@ describe('StudentDroppingCourse', () => {
     })
 
     it('should POST remove classes that only the student has', (done) => {
-        chai.request(server)
-            .post("/delete")
-            .send({fcourse: 'CMPT 120'})
-            .redirects(0)
-            .end((err, res) => {
-                res.should.redirectTo("/schedule");
-                done();
-            })
+
+                var count;
+                var count1;
+                pool.query('SELECT * FROM classes', (error, response)=>{
+                    count = response.rows.length
+                })
+                chai.request(server)
+                .post('/delete')
+                .send({fcourse: 'CMPT 120'})
+                .redirects(0)
+                .end((err, res) => {
+                    pool.query('SELECT * FROM classes', (error, response)=>{
+                        count1 = response.rows.length
+                    })
+                    res.should.have.status(200);
+                    res.should.redirectTo("/schedule")
+                    done();
+                })
+            
     })
 
     it('should not POST remove classes that the student does not have', (done) => {
+        
+        var count;
+        var count1;
+        pool.query('SELECT * FROM classes', (error, response)=>{
+            count = response.rows.length
+        })
         chai.request(server)
-            .post("/delete")
-            .send({fcourse: 'asdfasdf'})
-            .redirects(0)
-            .end((err, res) => {
-                res.should.redirectTo("/schedule");
-                done();
+        .post('/delete')
+        .send({fcourse: 'Asdef'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM classes', (error, response)=>{
+                count1 = response.rows.length
             })
+            res.should.have.status(302);
+            res.should.redirectTo("/schedule")
+            done();
+        })
     })
 
 })
@@ -276,6 +318,26 @@ describe('groups', (ui)=>{
     it('clubs should contain name, description and link',(done)=>{
         chai.request(server).get('/groups').end(function(error,res){
             res.should.to.be.html;
+            done();
+        })
+    })
+    it('should search on POST', (done) => {
+        chai.request(server)
+        .post('/searchclub')
+        .send({clubs:'Finance Club - SFU'})
+        .redirects(0)
+        .end((err, res) => {
+            res.should.have.status(302);
+            done();
+        })
+    })
+    it('should filter on POST', (done) => {
+        chai.request(server)
+        .post('/filter')
+        .send({clubs:'F'})
+        .redirects(0)
+        .end((err, res) => {
+            res.should.have.status(302);
             done();
         })
     })
@@ -293,23 +355,78 @@ describe('groups', (ui)=>{
             }) 
     })
   })
-
-describe('maps', ()=>{
-    it('should change the radius when user prompts', (done)=>{
-        var serv = chai.request(server).post("/maps")
-        serv.send({
-            'fradius': '400', })
+describe('maps', async () => {
+    it('restaurants should sort by rating', async () => {
+        chai.request(server)
+        .post('/addrestaurant')
+        .send({user: 'sean0814', fname:'A&W'})
+        .redirects(0)
+        .end(async (err, res) => {
+            const arr = await servera.qsRating()
+            arr[0]['rating'].should.be.eql(1)
+            arr[1]['rating'].should.be.eql(2)
+            arr[2]['rating'].should.be.eql(3)
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
+        })
+    })
+    it('restaurants should sort by price', async () => {
+        chai.request(server)
+        .post('/addrestaurant')
+        .send({user: 'sean0814', fname:'A&W'})
+        .redirects(0)
+        .end(async (err, res) => {
+            const arr = await servera.qsPrice()
+            arr[0]['price'].should.be.eql(1)
+            arr[1]['price'].should.be.eql(10)
+            arr[2]['price'].should.be.eql(100)
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
+        })
+    })
+    it('should POST new restaurant', (done) => {
+        chai.request(server)
+        .post('/addrestaurant')
+        .send({user: 'sean0814', fname:'A&W'})
+        .redirects(0)
         .end((err, res) => {
-            var arr = []
-            res.fradius.should.equal(400)
-            const result = server.findLocalRestauraunts(arr, res.fradius, "Burnaby")
-            expect(result).to.include("400")
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
             done();
         })
     })
-    it('should sort properly', (done)=>{
-        var arr = server.findLocalRestauraunts(arr, res.radius, "Burnaby")
-        server.quickSortPrice(arr, 0, arr.length-1)
-        expect(arr).to.be.ordered
+    it('should DELETE restaurant', (done) => {
+        var count;
+        var count1;
+        pool.query('SELECT * FROM rest', (error, response)=>{
+            count = response.rows.length
+        })
+        chai.request(server)
+        .post('/removerestaurant')
+        .send({rest: 'A&W'})
+        .redirects(0)
+        .end((err, res) => {
+            pool.query('SELECT * FROM rest', (error, response)=>{
+                count1 = response.rows.length
+            })
+            res.should.have.status(302);
+            res.should.redirectTo("/maps")
+            done();
+        })
+    })
+    it('should change radius', async () => {
+        //find local restaurant function call
+        const fl = await flr()
+        fl.should.be.eql('https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=49.2781,-122.9199&radius=400&key=AIzaSyA_BT-GrVANBYP-iZo_dmM6kYx6pEkQ3Bk')
+    }).timeout(10000);
+    it('should change campus on GET', (done) => {
+        chai.request(server)
+        .get('/maps')
+        .redirects(0)
+        .end((err, res) => {
+            //changing to surrey
+            res.should.have.status(302);
+            done();
+        })
     })
 })

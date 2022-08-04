@@ -8,24 +8,31 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "jest": "jest --env=node --colors --coverage test",
     "test": "node ./node_modules/mocha/bin/mocha",
     "mocha-test": "mocha tests --timeout 10000"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.3.16",
     "axios": "^0.27.2",
+    "chai-dom": "^1.11.0",
     "chai-http": "^4.3.0",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
     "ejs": "^3.1.8",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
+    "jsdom": "^20.0.0",
+    "jsdom-global": "^3.0.2",
+    "mock-session": "^0.0.5",
+    "node-html-parser": "^5.3.3",
     "pg": "^8.7.3",
     "request-promise": "^4.2.6"
   },
   "devDependencies": {
     "@types/google.maps": "^3.49.2",
     "chai": "^4.3.6",
+    "jest-environment-jsdom": "^28.1.3",
     "mocha": "^10.0.0"
   },
   "repository": {

@@ -7,7 +7,8 @@
     --timeHeight: 55px;
     /* background colour for the inside of the schedule*/
     --calBgColor: white;
-    --eventBorderColor: #f2d3d8;
+    /* --eventBorderColor: #f2d3d8; */
+    --eventBorderColor: #3947c5;
   
     --primary-color: #0a1118;
     --primary-color-highlight: #233D54;
@@ -18,12 +19,165 @@
   
   
     /* colours that correspond to one type of thing on the schedule */
-    --eventColor2: #fafaa3;
     --eventColor1: #e2f8ff;
-    --eventColor3: #892d21;
-    --eventColor4: #d1ffe6;
   }
   
+/* -=------------------------------------------------------------------------------------------------------------------------------------ */
+body {
+  margin: 0;
+  background: white;
+  font-family: "Work Sans", sans-serif;
+  font-weight: 400;
+
+}
+.container {
+  width: 98%;
+  margin: 0 auto;
+}
+
+.tophead {
+  margin-top:0;
+  padding-top:0;
+  height:30px;
+  background-color: #f5f5f5;
+}
+
+
+
+header {
+  background: #B5121B;
+}
+
+header::after {
+  content:'';
+  display: table;
+  clear: both;
+}
+
+.logo {
+  float: left;
+}
+
+
+nav {
+  float: right;
+}
+
+nav ul {
+  margin:0;
+  padding:0;
+  list-style: none;
+}
+
+nav li {
+  display: inline-block;
+  margin-left: 40px;
+  padding-top: 28px;
+  margin-right: 30px;
+
+  position: relative;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 550;
+  letter-spacing: 1.5px;
+}
+
+nav a:hover {
+  color: white;
+  font-weight: 700;
+}
+
+nav a::before {
+  content: '';
+  display: block;
+  height: 5px;
+  width: 100%;
+  background-color: white;
+
+  position: absolute;
+  top: 0;
+  width: 0%;
+
+  transition: all ease-in-out 250ms;
+}
+
+nav a:hover:before {
+  width: 100%;
+}
+
+.containerL {
+  max-width: 70%;
+  width: 70%;
+}
+
+.containerR {
+
+  max-width: 30%;
+  width: 30%;
+  display: flex;
+  padding: 2px;
+}
+
+.tophead ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+  list-style: none;
+ 
+}
+
+.tophead li {
+  display: inline-block;
+  padding-left: 40px;
+  margin-left: 5px;
+  margin-right: 0px;
+  position: relative;
+  margin-top: 6px;
+  
+}
+
+
+.tophead a {
+  font-family: "FFDINProCondBlack";
+  font-size: 16px;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #cc0633;
+  font-weight: 700;
+  margin:0;
+  cursor: pointer;
+  
+}
+.tophead .icons ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+  list-style: none;
+ 
+}
+
+.tophead .icons li {
+  display: inline-block;
+  padding-left: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  position: relative;
+  margin-top: 6px;
+  
+}
+
+
+/* --------------------------------------------------------------------------------------------------------------------------------------- */
+
+
+
+
+
   /* change colour of the links */
   a{color: var(--primary-color);}
   /* change colour of the links when hovering over */
@@ -230,8 +384,9 @@
   .days__container {
     display: grid;
     grid-column: 2;
-    gap: 5px;
+    gap: 10px;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+ 
   }
   
   /*  
