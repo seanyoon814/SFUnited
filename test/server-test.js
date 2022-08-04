@@ -19,7 +19,10 @@ var pool;
 pool = new Pool({
   // string that connects you to the database
   // scheme:userthatisnamedpostgres:password for postgress@localhost on pc/the database named users
-  connectionString: 'postgres://postgres:carverbaddies@localhost/users'
+  connectionString: process.env.DATABASE_URL, 
+  ssl: {
+      rejectUnauthorized: false
+    }
 })
 
 var mockApp = express();
@@ -63,50 +66,33 @@ describe('StudentScheduleNewClass', () => {
             })
     })
 
-    it('should POST class onto schedule page given correct course', function(done) {
+    it('should POST class onto schedule page given correct course', (done) => {
         chai.request(server)
         
-        var count;
-        var count1;
-        pool.query('SELECT * FROM classes', (error, response)=>{
-            count = response.rows.length
-        })
-        chai.request(server)
-        .post('/schedule')
-        .send({fcourse: 'CMPT 120'})
-        .redirects(0)
-        .end((err, res) => {
-            pool.query('SELECT * FROM classes', (error, response)=>{
-                count1 = response.rows.length
+            .post("/schedule")
+            .send({fcourse:'Stat 270'})
+            .redirects(0)
+            .end((err, res) => {
+                res.should.have.status(302);
+                res.should.redirectTo("/schedule");
+                done();
             })
-            res.should.have.status(200);
-            res.should.redirectTo("/schedule")
-            done();
-        })
-    });
+    })
 
 
 
     it('should not POST class onto page given wrong course', (done) => {
         chai.request(server)
         
-        var count;
-        var count1;
-        pool.query('SELECT * FROM classes', (error, response)=>{
-            count = response.rows.length
-        })
-        chai.request(server)
-        .post('/schedule')
-        .send({fname: 'adefhg'})
-        .redirects(0)
-        .end((err, res) => {
-            pool.query('SELECT * FROM classes', (error, response)=>{
-                count1 = response.rows.length
+            .post("/schedule")
+            .send({fcourse:'abcd'})
+            .redirects(0)
+            .end((err, res) => {
+                //change to the new redirect
+                res.should.have.status(302);
+                res.should.redirectTo("/schedule");
+                done();
             })
-            res.should.have.status(302);
-            res.should.redirectTo("/schedule")
-            done();
-        })
     })
 
 
@@ -184,63 +170,42 @@ describe('FindingProfessorName', () => {
     })
 
     it('should POST prof name if real person and valid course', (done) => {
-        var count;
-        var count1;
-        pool.query('SELECT * FROM classes', (error, response)=>{
-            count = response.rows.length
-        })
         chai.request(server)
-        .post('/schedule')
-        .send({fname: 'Bobby Chan'})
-        .redirects(0)
-        .end((err, res) => {
-            pool.query('SELECT * FROM classes', (error, response)=>{
-                count1 = response.rows.length
+            .post("/schedule")
+            .send({fname:'Bobby Chan', subj:'CMPT 128'})
+            .redirects(0)
+            .end((err, res) => {
+
+                res.should.have.status(302);
+                res.should.redirectTo("/schedule");
+                done();
             })
-            res.should.have.status(200);
-            res.should.redirectTo("/schedule")
-            done();
-        })
     })
 
     it('should POST prof name if real person', (done) => {
-            var count;
-            var count1;
-            pool.query('SELECT * FROM classes', (error, response)=>{
-                count = response.rows.length
-            })
-            chai.request(server)
-            .post('/schedule')
-            .send({fname: 'Bobby Chan'})
+        chai.request(server)
+        
+            .post("/schedule")
+            .send({fname:'Bobby Chan'})
             .redirects(0)
             .end((err, res) => {
-                pool.query('SELECT * FROM classes', (error, response)=>{
-                    count1 = response.rows.length
-                })
-                res.should.have.status(200);
-                res.should.redirectTo("/schedule")
+                res.should.have.status(302);
+                res.should.redirectTo("/schedule");
                 done();
             })
     })
 
     it('should not POST prof name if only course is given', (done) => {
-        var count;
-        var count1;
-        pool.query('SELECT * FROM classes', (error, response)=>{
-            count = response.rows.length
-        })
         chai.request(server)
-        .post('/schedule')
-        .send({fname:  'asdfe'})
-        .redirects(0)
-        .end((err, res) => {
-            pool.query('SELECT * FROM classes', (error, response)=>{
-                count1 = response.rows.length
+        
+            .post("/schedule")
+            .send({subj:'asdfa'})
+            .redirects(0)
+            .end((err, res) => {
+                res.should.have.status(302);
+                res.should.redirect;
+                done();
             })
-            res.should.have.status(302);
-            res.should.redirectTo("/schedule")
-            done();
-        })
     })
 
 })
@@ -269,74 +234,56 @@ describe('StudentDroppingCourse', () => {
     })
 
     it('should POST remove classes that only the student has', (done) => {
-
-                var count;
-                var count1;
-                pool.query('SELECT * FROM classes', (error, response)=>{
-                    count = response.rows.length
-                })
-                chai.request(server)
-                .post('/delete')
-                .send({fcourse: 'CMPT 120'})
-                .redirects(0)
-                .end((err, res) => {
-                    pool.query('SELECT * FROM classes', (error, response)=>{
-                        count1 = response.rows.length
-                    })
-                    res.should.have.status(200);
-                    res.should.redirectTo("/schedule")
-                    done();
-                })
-            
+        chai.request(server)
+            .post("/delete")
+            .send({fcourse: 'CMPT 120'})
+            .redirects(0)
+            .end((err, res) => {
+                res.should.redirectTo("/schedule");
+                done();
+            })
     })
 
     it('should not POST remove classes that the student does not have', (done) => {
-        
-        var count;
-        var count1;
-        pool.query('SELECT * FROM classes', (error, response)=>{
-            count = response.rows.length
-        })
         chai.request(server)
-        .post('/delete')
-        .send({fcourse: 'Asdef'})
-        .redirects(0)
-        .end((err, res) => {
-            pool.query('SELECT * FROM classes', (error, response)=>{
-                count1 = response.rows.length
+            .post("/delete")
+            .send({fcourse: 'asdfasdf'})
+            .redirects(0)
+            .end((err, res) => {
+                res.should.redirectTo("/schedule");
+                done();
             })
-            res.should.have.status(302);
-            res.should.redirectTo("/schedule")
-            done();
-        })
     })
 
 })
 
 
-describe('groups', (ui)=>{
+describe('groups', async ()=>{
     it('clubs should contain name, description and link',(done)=>{
         chai.request(server).get('/groups').end(function(error,res){
             res.should.to.be.html;
             done();
         })
     })
-    it('should search on POST', (done) => {
+    it('should search on POST', async () => {
         chai.request(server)
         .post('/searchclub')
-        .send({clubs:'Finance Club - SFU'})
+        .send({fsearch: 'Finance Club - SFU'})
         .redirects(0)
-        .end((err, res) => {
+        .end(async (err, res) => {
+            const arr = await servera.cs()
+            arr[0].should.eql('Finance Club - SFU')
             res.should.have.status(302);
-            done();
         })
-    })
-    it('should filter on POST', (done) => {
+    }).timeout(10000)
+    it('should filter on POST', async () => {
         chai.request(server)
         .post('/filter')
         .send({clubs:'F'})
         .redirects(0)
-        .end((err, res) => {
+        .end(async (err, res) => {
+            const arr = await servera.cs1()
+            arr[0].should.eql('Accounting Student Association - SFU')
             res.should.have.status(302);
             done();
         })

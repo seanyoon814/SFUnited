@@ -1018,6 +1018,34 @@ const qsRating = async () =>{
   const token = await quickSortPrice(arr, 0, 2)
   return token;
 }
+const cs = async() =>{
+  clubScrape(function(clubs){
+    newClubs = []
+    var search = 'Finance'
+    for(var i = 0; i < clubs.length;i++)
+    {
+      if(clubs[i].name.toLowerCase().includes(search.toLowerCase()))
+      {
+        newClubs.push(clubs[i]);
+      }
+    }
+  })
+  return newClubs;
+}
+const cs1 = async() =>{
+    clubScrape(function(clubs){
+      newClubs = []
+      var search = 'A'
+      for(var i = 0; i < clubs.length;i++)
+      {
+        if(clubs[i].name.toLowerCase().charAt(0) == search)
+        {
+          newClubs.push(clubs[i]);
+        }
+      }
+      return newClubs
+    })
+}
 const qsPrice = async () =>{
   var arr = []
   arr.push({
@@ -1060,7 +1088,9 @@ module.exports = {
   app,
   method,
   qsRating,
-  qsPrice
+  qsPrice,
+  cs,
+  cs1
 };
 
 // module.exports = {
