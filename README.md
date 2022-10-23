@@ -4,9 +4,9 @@ https://sfunited.herokuapp.com/
 
 For viewing purposes:
 
-**Username**: *test*
+**Username**: *test1234*
 
-**Password**: *test*
+**Password**: *test1234*
 
 SFUnited is a web application that allows students from Simon Fraser University to combine features of MySchedule, Rate My Professor, Google Maps, and SFSS Club Finder all into one centralized hub. For students, by students.
 
